@@ -37,7 +37,7 @@ const menuItems: MenuItem[] = [
   { id: '1', name: 'Dashboard', icon: <FiHome />, href: '/staff/dashboard' },
   { id: '2', name: 'Akademik', icon: <FiBookOpen />, href: '/staff/akademik', subItems: [
     { id: '2.1', name: 'Data Siswa', icon: <FiUser />, href: '/staff/akademik/siswa' }, 
-    { id: '2.2', name: 'Data Guru & Staf', icon: <FiUsers />, href: '/staff/akademik/staf' }, 
+    { id: '2.2', name: 'Data Guru & Staf', icon: <FiUsers />, href: '/staff/akademik/guru-staff' }, 
     { id: '2.3', name: 'Data Wali Murid', icon: <FiUserPlus />, href: '/staff/akademik/wali' }, 
     { id: '2.4', name: 'Data Kelas', icon: <FiGrid />, href: '/staff/akademik/kelas' }, 
     { id: '2.5', name: 'Mata Pelajaran', icon: <FiBook />, href: '/staff/akademik/mapel' }, 
