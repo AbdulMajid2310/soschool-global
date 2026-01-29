@@ -15,6 +15,7 @@ import {
   FiMoon, FiSun, FiSliders, FiDatabase, FiActivity, FiClock, FiMapPin, FiPrinter, FiDownload,
   FiAlertTriangle, FiUserCheck,
 } from 'react-icons/fi';
+import { GrCertificate } from 'react-icons/gr';
 
 // --- TYPE DEFINITIONS ---
 interface SubMenuItem {
@@ -100,7 +101,8 @@ const menuItems: MenuItem[] = [
   { id: '10', name: 'Pengaturan Sistem', icon: <FiSliders />, href: '/staff/pengaturan', subItems: [
     { id: '10.1', name: 'Pengguna & Hak Akses', icon: <FiUsers />, href: '/staff/pengaturan/pengguna' }, 
     { id: '10.2', name: 'Parameter Sistem', icon: <FiSettings />, href: '/staff/pengaturan/parameter' }, 
-    { id: '10.3', name: 'Backup & Restore', icon: <FiDatabase />, href: '/staff/pengaturan/backup' }
+    { id: '10.3', name: 'Backup & Restore', icon: <FiDatabase />, href: '/staff/pengaturan/backup' },
+     { id: '10.4', name: 'Menejemen Lisensi', icon: <GrCertificate />, href: '/staff/pengaturan/lisensi' }
   ]},
 ];
 
@@ -194,7 +196,7 @@ export default function Sidebar({ userRole = 'admin', userName = 'Admin User', u
   const roleFilteredMenuItems = getFilteredMenuByRole(filteredMenuItems);
 
   return (
-    <div className="w-64 bg-white sticky top-0 pt-20 lg:pt-16 dark:bg-gray-800 shadow-md flex flex-col h-screen md:relative transition-all duration-300 ease-in-out transform">
+    <div className="w-64  bg-white sticky top-0 pt-20 lg:pt-16 dark:bg-gray-800 shadow-md flex flex-col h-screen md:relative transition-all duration-300 ease-in-out transform">
       <div className="p-4">
         <div className="relative bg-gray-100 dark:bg-gray-700 rounded-lg">
           <input type="text" placeholder="Cari menu..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-transparent text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />

@@ -16,34 +16,36 @@ export function ThemeProviders({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
 
-  // Load theme
   useEffect(() => {
     const saved = localStorage.getItem('theme') as Theme | null
-
     if (saved) {
       setTheme(saved)
     } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setTheme(prefersDark ? 'dark' : 'light')
+      setTheme(
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+      )
     }
-
     setMounted(true)
   }, [])
 
-  // Apply theme
   useEffect(() => {
     if (!mounted) return
-
-    const root = document.documentElement
-    root.classList.remove('light', 'dark')
-    root.classList.add(theme)
+    document.documentElement.classList.remove('light', 'dark')
+    document.documentElement.classList.add(theme)
     localStorage.setItem('theme', theme)
   }, [theme, mounted])
 
+  if (!mounted) return null
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme: () => {
-      setTheme(t => (t === 'light' ? 'dark' : 'light'))
-    }, mounted }}>
+    <ThemeContext.Provider value={{
+      theme,
+      toggleTheme: () =>
+        setTheme(t => (t === 'light' ? 'dark' : 'light')),
+      mounted
+    }}>
       {children}
     </ThemeContext.Provider>
   )
@@ -51,8 +53,6 @@ export function ThemeProviders({ children }: { children: React.ReactNode }) {
 
 export const useTheme = () => {
   const ctx = useContext(ThemeContext)
-  if (!ctx) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
+  if (!ctx) throw new Error('useTheme must be used within ThemeProviders')
   return ctx
 }

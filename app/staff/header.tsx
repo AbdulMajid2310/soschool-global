@@ -86,7 +86,7 @@ export default function Header() {
                                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                                 className="h-9 w-9 rounded-full bg-blue-500 text-white font-semibold hover:ring-2 hover:ring-blue-300"
                             >
-                                <img src="https://i.pravatar.cc/150" alt="" className='h-full w-full object-cover rounded-full'/>
+                                <img src="https://i.pravatar.cc/150" alt="" className='h-full w-full object-cover rounded-full' />
                             </button>
                         </div>
 
