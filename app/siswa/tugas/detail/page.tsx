@@ -41,14 +41,14 @@ const [chatMessage, setChatMessage] = useState("");
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-20">
+    <div className="max-w-6xl mx-auto space-y-8 pt-24 animate-in fade-in zoom-in-95 duration-500 pb-20">
       
       {/* 1. TOP NAVIGATION */}
       <button 
         onClick={() => router.back()}
         className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-blue-600 transition-colors group"
       >
-        <div className="p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 group-hover:shadow-md">
+        <div className="p-3 bg-white font-bold dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 group-hover:shadow-md">
           <FiArrowLeft size={16} />
         </div>
         Kembali ke Daftar Tugas

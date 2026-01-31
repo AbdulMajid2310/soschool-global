@@ -9,14 +9,14 @@ import { GiTrophy } from 'react-icons/gi';
 
 const DashboardSiswa = () => {
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-700">
+    <div className="space-y-10 lg:pt-30 animate-in fade-in slide-in-from-bottom-5 duration-700">
       
       {/* SECTION 1: WELCOME & PRIMARY STATS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Welcome Card */}
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-10 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group">
           <div className="relative z-10">
-            <h2 className="text-4xl font-black italic uppercase tracking-tighter mb-4">
+            <h2 className="text-xl font-black italic uppercase tracking-tighter mb-4">
               Selamat Malam, <span className="text-blue-600">Siti!</span> 👋
             </h2>
             <p className="text-xs text-gray-400 font-bold uppercase tracking-[0.2em] mb-8">
@@ -121,9 +121,9 @@ const DashboardSiswa = () => {
 // --- Sub-Components ---
 
 const StatBadge = ({ label, value, color, bg }: any) => (
-  <div className={`${bg} px-6 py-4 rounded-3xl border border-black/5 dark:border-white/5`}>
+  <div className={`${bg} px-6 py-4 rounded-3xl text-center border border-black/5 dark:border-white/5`}>
     <p className={`text-[9px] font-black uppercase tracking-widest ${color} mb-1`}>{label}</p>
-    <p className="text-xl font-black dark:text-white italic tracking-tighter">{value}</p>
+    <p className="text-xl text-gray-700 font-bold italic tracking-tighter">{value}</p>
   </div>
 );
 

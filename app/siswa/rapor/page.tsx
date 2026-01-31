@@ -20,7 +20,7 @@ const ACADEMIC_SCORES = [
 const RaporDigital = () => {
     const router= useRouter()
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-700 pb-20">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-700 py-24">
       
       {/* 1. HERO STATS: RINGKASAN UMUM */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -74,7 +74,7 @@ const RaporDigital = () => {
 
         <div className="grid grid-cols-1 gap-4">
           {ACADEMIC_SCORES.map((item, idx) => (
-            <div key={idx} className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-blue-500/30 transition-all flex flex-col md:flex-row items-center justify-between gap-6 group">
+            <div key={idx} className="bg-white dark:bg-gray-900 p-4 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-blue-500/30 transition-all flex flex-col md:flex-row items-center justify-between gap-6 group">
               <div className="flex items-center gap-6 w-full md:w-auto">
                 <div className="w-14 h-14 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-xl font-black italic text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
                   {item.grade}

@@ -21,7 +21,7 @@ const DetailRaporMapel = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-20">
+    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 py-24">
       
       {/* 1. HEADER NAV */}
       <button 

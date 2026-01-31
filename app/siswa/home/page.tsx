@@ -96,12 +96,13 @@ const HomeFeed = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f0f4ff] dark:bg-[#0f172a] pt-6 pb-20 px-4 md:px-8 transition-colors duration-500 font-sans">
+    // 1. Gunakan min-h-screen agar background mengikuti panjang konten
+    // 2. Tambahkan overflow-x-hidden untuk mencegah scroll horizontal liar
+    <div className="min-h-screen lg:pt-24 bg-[#f0f4ff] dark:bg-[#0f172a] pt-6 pb-20 px-4 md:px-8 transition-colors duration-500 font-sans overflow-x-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        
         {/* --- CENTER SECTION --- */}
-        <main className="lg:col-span-8 xl:col-span-7 space-y-6">
+        <main className="lg:col-span-8 xl:col-span-8 space-y-6 h-screen overflow-y-auto scrollbar-hide">
           {/* Create Post Trigger */}
           <div 
             onClick={() => setIsModalOpen(true)}
@@ -109,21 +110,26 @@ const HomeFeed = () => {
           >
             <img src="https://i.pravatar.cc/150?u=majid" className="w-10 h-10 rounded-xl" alt="me" />
             <div className="bg-gray-50 dark:bg-blue-900/10 flex-1 py-3 px-5 rounded-2xl text-gray-400 font-bold text-sm group-hover:bg-gray-100 transition-all">
-              Apa yang sedang lu pikirin, Jid?
+              Ceritakan karyamu hari ini...
             </div>
             <div className="p-3 bg-blue-500 text-white rounded-2xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
               <FiPlus size={20} />
             </div>
           </div>
 
-          {FEED_DATA.map((post) => (
-            <PostCard key={post.id} data={post} />
-          ))}
+          {/* List Postingan */}
+          <div className="space-y-6">
+            {FEED_DATA.map((post) => (
+              <PostCard key={post.id} data={post} />
+            ))}
+          </div>
         </main>
 
-        {/* --- RIGHT SECTION (SEJAJAR ATAS) --- */}
-        <aside className="hidden lg:block lg:col-span-4 xl:col-span-4">
-          <div className="sticky top-6 space-y-6 max-h-[calc(100vh-40px)] overflow-y-auto no-scrollbar pb-10">
+        {/* --- RIGHT SECTION --- */}
+        {/* Tambahkan sticky & top agar sidebar tidak ikut hilang saat scroll */}
+        <aside className="hidden lg:block lg:col-span-4 xl:col-span-4 sticky top-0 h-screen overflow-y-auto scrollbar-hide">
+          <div className="space-y-6 h-full pb-10">
+            {/* Akademik Fokus */}
             <div className="bg-white dark:bg-[#1e293b]/50 rounded-4xl p-8 border border-white dark:border-blue-800/20 shadow-xl">
               <h4 className="font-black text-[10px] dark:text-white uppercase tracking-widest italic mb-8 flex items-center gap-3">
                 <div className="p-2.5 bg-blue-500/10 rounded-2xl text-blue-500"><FiTarget size={18} /></div>
@@ -135,6 +141,7 @@ const HomeFeed = () => {
               </div>
             </div>
 
+            {/* Marketplace */}
             <div className="bg-white dark:bg-[#1e293b]/50 rounded-4xl p-8 border border-white dark:border-blue-800/20 shadow-xl">
               <h4 className="font-black text-[10px] dark:text-white uppercase tracking-widest italic mb-8 flex items-center gap-3">
                 <div className="p-2.5 bg-emerald-500/10 rounded-2xl text-emerald-500"><FiShoppingBag size={18} /></div>
@@ -151,12 +158,12 @@ const HomeFeed = () => {
         </aside>
       </div>
 
-      {/* --- FORM MELAYANG (CREATE POST MODAL) --- */}
+      {/* Modal */}
       {isModalOpen && (
         <CreatePostModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+        />
       )}
     </div>
   );
@@ -166,7 +173,7 @@ const HomeFeed = () => {
 const ImageGrid: React.FC<{ images: string[] }> = ({ images }) => {
   if (images.length === 1) {
     return (
-      <div className="rounded-4xl overflow-hidden mb-8 border border-white/10 shadow-xl group">
+      <div className="rounded-4xl overflow-hidden  mb-8 border border-white/10 shadow-xl group">
         <img src={images[0]} className="w-full h-auto object-cover max-h-125 group-hover:scale-105 transition-transform duration-700" alt="content" />
       </div>
     );

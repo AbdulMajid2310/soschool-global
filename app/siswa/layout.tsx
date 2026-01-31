@@ -25,7 +25,7 @@ export default function SiswaLayout({
         </div>
 
         {/* 4. CONTENT AREA (Scrollable) */}
-        <main className="flex-1 overflow-y-auto py-20 px-4 lg:px-6 text-gray-800 dark:text-gray-100">
+        <main className="flex-1 overflow-y-auto  px-4 lg:px-6 text-gray-800 dark:text-gray-100">
 
           {children}
 
