@@ -12,21 +12,26 @@ import { SiHomeassistantcommunitystore } from 'react-icons/si';
 import { BsBank2 } from 'react-icons/bs';
 import NotificationDropdown from './notifications/notificationDropdown';
 import ChatDropdown from './chat/chatDropdown';
-import { api } from '@/lib/axiosInstance';
 import ThemeToggle from '@/components/button/ThemeToggle';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { getProfileMe } from '@/redux/features/auth/thunk';
+
 
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
 const Header = ({ onMenuClick }: HeaderProps) => {
+  const dispatch = useAppDispatch();
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isNavActive = (path: string) => pathname === path;
-
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+ const { profile } = useAppSelector((state) => state.auth);
+ useEffect(() => {
+  dispatch(getProfileMe());
+}, [dispatch]);
+console.log('data user',profile)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,27 +47,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     setActiveDropdown(activeDropdown === name ? null : name);
   };
 
-  useEffect(() => {
-    const getProfile = async () => {
-      const token = localStorage.getItem('sid');
-      if (!token) return;
-
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (!payload.userAccessId) return;
-
-        setLoading(true);
-        const res = await api.get('/users/profile/me'); 
-        setUser(res.data.data); 
-      } catch (err: any) {
-        console.error("Gagal profil:", err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getProfile();
-  }, []);
-
+ 
   return (
     <>
       {/* --- HEADER DENGAN MODE DARK --- */}
@@ -148,13 +133,13 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <button onClick={() => toggleDropdown('profile')} className="relative group cursor-pointer">
                 <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden border-2 transition-all 
                   ${activeDropdown === 'profile' ? 'border-blue-500 shadow-[0_0_15px_#3b82f6]' : 'border-transparent group-hover:border-blue-500/50'}`}>
-                  <img src={user?.photo || "https://i.pravatar.cc/150?u=majid"} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={"https://i.pravatar.cc/150?u=majid"} alt="Profile" className="w-full h-full object-cover" />
                 </div>
               </button>
 
               {activeDropdown === 'profile' && (
                 <DropdownContainer title="Profil Siswa">
-                  <DropdownItem icon={<FiUser />} title={user?.name || "Siswa"} desc={`${user?.xp || 0} XP • ${user?.className || 'Class'}`} />
+                  <DropdownItem icon={<FiUser />} title={profile?.user.username || "Siswa"} desc={`${ 0} XP • ${ 'Class'}`} />
                   <DropdownItem icon={<FiSettings />} title="Pengaturan" desc="Tema & Privasi" />
                   <div className='flex justify-between items-center px-4 py-2'>
                     <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 italic">Mode Dark</p>

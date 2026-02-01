@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Sidebar from './sidebarStudent';
 import Header from './headerStudent';
+import { useFullscreen } from '@/hooks/AutoScreen';
 
 export default function SiswaLayout({
   children,
@@ -10,6 +11,7 @@ export default function SiswaLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+   useFullscreen();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans text-gray-900 dark:text-gray-100 ">
 

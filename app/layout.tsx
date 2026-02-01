@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProviders } from "@/provider/ThemeProviders";
+import { AppProvider } from "../provider/appProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     "SoSchool Digital Education", 
     "Sistem Informasi Sekolah"
   ],
-  authors: [{ name: "Majid", url: "https://soschool.site" }], // Mengacu pada info user sebagai developer
+  authors: [{ name: "Majid", url: "https://www.linkedin.com/in/abdul-majid23/" }], // Mengacu pada info user sebagai developer
   creator: "SoSchool Team",
   openGraph: {
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "SoSchool",
     images: [
       {
-        url: "/og-image.png", // Pastikan buat file image 1200x630 di folder public
+        url: "/images/profile.webp", // Pastikan buat file image 1200x630 di folder public
         width: 1200,
         height: 630,
         alt: "SoSchool Platform Preview",
@@ -70,9 +70,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProviders>
+       <AppProvider>
           {children}
-        </ThemeProviders>
+        </AppProvider>
       </body>
     </html>
 

@@ -12,11 +12,11 @@ import PricingSection from '@/components/homeSection/pricingSection';
 import LMSSection from '@/components/homeSection/LMSSection';
 import Footer from '@/components/homeSection/footerSection';
 import NewLetterSection from '@/components/homeSection/newsLetterSection';
+import { useFullscreen } from '@/hooks/AutoScreen';
 
-// --- SCROLL TO TOP COMPONENT ---
-// Diperbaiki menggunakan Tailwind v4 transitions & state visibility
 const ScrollToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  useFullscreen();
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -45,6 +45,8 @@ const ScrollToTop: React.FC = () => {
     </button>
   );
 };
+
+
 
 // --- MAIN HOME COMPONENT ---
 const Home: React.FC = () => {
