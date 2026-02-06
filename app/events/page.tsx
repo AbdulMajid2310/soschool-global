@@ -48,7 +48,7 @@ const EventsPage = () => {
     }, [activeTab, searchQuery]);
 
     return (
-        <div className="min-h-screen transition-colors  duration-300 font-sans relative overflow-hidden
+        <div className="h-screen transition-colors overflow-y-auto scrollbar-hide duration-300 font-sans relative overflow-hidden
             bg-slate-50 dark:bg-[#050811] text-slate-600 dark:text-slate-200 pt-30 pb-20 px-4 sm:px-6">
             
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.05)_0%,transparent_40%)]" />

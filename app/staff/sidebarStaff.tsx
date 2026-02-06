@@ -1,3 +1,4 @@
+import { useAppSelector } from '@/redux/hooks';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { 
@@ -106,15 +107,12 @@ const menuItems: MenuItem[] = [
   ]},
 ];
 
-type UserRole = 'admin' | 'teacher' | 'staff' | 'parent';
 
-interface SidebarProps {
-  userRole?: UserRole;
-  userName?: string;
-  userEmail?: string;
-}
 
-export default function Sidebar({ userRole = 'admin', userName = 'Admin User', userEmail = 'admin@sekolah.sch.id' }: SidebarProps) {
+
+
+
+export default function SidebarStaff({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
   const [activeView, setActiveView] = useState('dashboard');
@@ -123,6 +121,7 @@ export default function Sidebar({ userRole = 'admin', userName = 'Admin User', u
   const [expandedMenuItems, setExpandedMenuItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+   const { profile } = useAppSelector((state) => state.auth);
   
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -177,10 +176,6 @@ export default function Sidebar({ userRole = 'admin', userName = 'Admin User', u
     (item.subItems && item.subItems.some((subItem: SubMenuItem) => subItem.name.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
-  const getFilteredMenuByRole = (items: MenuItem[]): MenuItem[] => {
-    if (userRole === 'admin') return items;
-    return items.filter(item => item.id !== '10');
-  };
 
   const isActive = (item: MenuItem, subItem?: SubMenuItem) => {
     if (subItem) {
@@ -192,9 +187,8 @@ export default function Sidebar({ userRole = 'admin', userName = 'Admin User', u
     );
   };
 
-  const getUserInitial = (name: string): string => name.charAt(0).toUpperCase();
-  const roleFilteredMenuItems = getFilteredMenuByRole(filteredMenuItems);
-
+  const getUserInitial = (username: string): string => username.charAt(0).toUpperCase();
+  
   return (
     <div className="w-64  bg-white sticky top-0 pt-20 lg:pt-16 dark:bg-gray-800 shadow-md flex flex-col h-screen md:relative transition-all duration-300 ease-in-out transform">
       <div className="p-4">
@@ -204,53 +198,15 @@ export default function Sidebar({ userRole = 'admin', userName = 'Admin User', u
         </div>
       </div>
 
-      <div className="flex-1 px-4 pb-4 overflow-y-auto scrollbar-hide">
-        <nav className="space-y-1">
-          {roleFilteredMenuItems.map((item: MenuItem) => (
-            <div key={item.id}>
-              <a href={item.href} onClick={(e) => { 
-                e.preventDefault(); 
-                handleMenuClick(item.id, item.href); 
-              }} className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive(item) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
-                <div className="flex items-center">
-                  <span className="mr-3 text-lg">{item.icon}</span>
-                  {item.name}
-                </div>
-                {item.subItems && (
-                  <button onClick={(e) => { 
-                    e.preventDefault(); 
-                    e.stopPropagation(); 
-                    toggleMenuItem(item.id); 
-                  }} className="p-1">
-                    {expandedMenuItems.includes(item.id) ? <FiChevronDown /> : <FiChevronRight />}
-                  </button>
-                )}
-              </a>
-              {item.subItems && expandedMenuItems.includes(item.id) && (
-                <div className="ml-6 mt-1 space-y-1">
-                  {item.subItems.map((subItem: SubMenuItem) => (
-                    <a key={subItem.id} href={subItem.href} onClick={(e) => { 
-                      e.preventDefault(); 
-                      handleMenuClick(subItem.id, subItem.href); 
-                    }} className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${isActive(item, subItem) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
-                      <span className="mr-3">{subItem.icon}</span>
-                      {subItem.name}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </nav>
-      </div>
+      
       
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="relative" ref={profileMenuRef}>
           <button onClick={toggleProfileMenu} className="w-full flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">{getUserInitial(userName)}</div>
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">A</div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-medium text-gray-800 dark:text-white">{userName}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{userEmail}</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white">ABdul Majid</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Staff Sekolah</p>
             </div>
             <FiChevronDown className={`w-4 h-4 transition-transform text-gray-500 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
           </button>

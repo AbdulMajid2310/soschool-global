@@ -16,7 +16,7 @@ import { useFullscreen } from '@/hooks/AutoScreen';
 
 const ScrollToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
-  useFullscreen();
+  // useFullscreen();
 
   useEffect(() => {
     const toggleVisibility = () => {

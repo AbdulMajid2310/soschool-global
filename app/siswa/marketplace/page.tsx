@@ -44,7 +44,7 @@ const MarketplacePage = () => {
     }, [activeCat, searchQuery]);
 
     return (
-        <div className="min-h-screen transition-colors duration-300 font-sans relative overflow-hidden
+        <div className="h-screen overflow-y-auto scrollbar-hide transition-colors duration-300 font-sans relative overflow-hidden
             bg-slate-50 dark:bg-[#050811] text-slate-600 dark:text-slate-300 pt-30 pb-20 px-4 ">
             
             {/* Background Decor */}

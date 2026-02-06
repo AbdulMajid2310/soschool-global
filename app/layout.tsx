@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
+  // Tambahkan baris ini
+  metadataBase: new URL(
+    process.env.NODE_ENV === "production"
+      ? "https://soschool.site"
+      : "http://localhost:3003" // Sesuaikan dengan port local kamu
+  ),
   title: {
     default: "SoSchool — Revolusi Digital Management Sekolah",
     template: "%s | SoSchool"

@@ -96,9 +96,7 @@ const HomeFeed = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    // 1. Gunakan min-h-screen agar background mengikuti panjang konten
-    // 2. Tambahkan overflow-x-hidden untuk mencegah scroll horizontal liar
-    <div className="min-h-screen lg:pt-24 bg-[#f0f4ff] dark:bg-[#0f172a] pt-6 pb-20 px-4 md:px-8 transition-colors duration-500 font-sans overflow-x-hidden">
+    <div className="h-screen pt-4 bg-[#f0f4ff] dark:bg-[#0f172a]  scrollbar-hide px-4 md:px-8 transition-colors duration-500 font-sans overflow-x-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* --- CENTER SECTION --- */}

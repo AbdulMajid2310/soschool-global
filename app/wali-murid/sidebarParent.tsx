@@ -47,7 +47,7 @@ export const ORTU_MENU = [
   }
 ];
 
-export default function SidebarOrtu({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+export default function SidebarParent({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const pathname = usePathname();
   const [openGroup, setOpenGroup] = useState<string | null>("Anak Saya");
 

@@ -34,7 +34,7 @@ const TOPICS: Topic[] = [
 
 export default function BankSoalSiswa() {
   return (
-    <div className="min-h-screen bg-slate-50  dark:bg-[#050811] text-slate-900  dark:text-slate-100 px-4 pt-20 transition-colors duration-300">
+    <div className="h-screen overflow-y-auto scrollbar-hide bg-slate-50  dark:bg-[#050811] text-slate-900  dark:text-slate-100 px-4 pt-20 transition-colors duration-300">
       <div className="w-full space-y-10">
         
         {/* --- HEADER --- */}

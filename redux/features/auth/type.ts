@@ -1,3 +1,4 @@
+import { UserRole } from "../userRole/type";
 
 
 export interface UserAuth {
@@ -11,16 +12,13 @@ export interface SchoolAuth {
   name: string;
 }
 
-export interface RoleAuth {
-  name: string;
-  url: string;
-}
+
 
 export interface UserProfileData {
   userAccessId: string;
   user: UserAuth;
   school: SchoolAuth;
-  role: RoleAuth;
+  role: UserRole;
 }
 
 export interface ProfileResponseAuth {
@@ -31,7 +29,7 @@ export interface ProfileResponseAuth {
 
 export interface ProfileState {
   profile: UserProfileData | null; 
-  loading: boolean;
-  error: string | null;
+  authLoading: boolean;
+  AuthError: string | null;
   success: boolean;
 }

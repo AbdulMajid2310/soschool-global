@@ -10,8 +10,8 @@ import {
 import { IoChatbubbles, IoHome } from 'react-icons/io5';
 import { SiHomeassistantcommunitystore } from 'react-icons/si';
 import { BsBank2 } from 'react-icons/bs';
-import NotificationDropdown from './notifications/notificationDropdown';
-import ChatDropdown from './chat/chatDropdown';
+import NotificationDropdown from '../notifications/notificationDropdown';
+import ChatDropdown from '../chat/chatDropdown';
 import ThemeToggle from '@/components/button/ThemeToggle';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { getProfileMe } from '@/redux/features/auth/thunk';
