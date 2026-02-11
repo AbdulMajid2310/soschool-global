@@ -33,3 +33,16 @@ export interface ProfileState {
   AuthError: string | null;
   success: boolean;
 }
+
+export interface LoginResponse {
+  data: {
+    sid: string;
+  };
+}
+
+export interface SelectRoleResponse {
+  data: {
+    sid: string;
+    redirectUrl: string;
+  };
+}

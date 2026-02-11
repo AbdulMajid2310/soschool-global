@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { FaSave, FaBell, FaCog, FaSchool, FaCalendarAlt, FaPalette, FaTools, FaTimes } from 'react-icons/fa';
+import ProfileSchool from './profileSchool';
+import PeriodActiveCard from './periodeSchool';
 
 /* =======================
    TIPE DATA & STATE AWAL
@@ -80,7 +82,7 @@ export default function ParameterSistemPage() {
   // --- Handler untuk checkbox ---
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked, value } = e.target;
-    
+
     if (name === 'hariEfektif') {
       setParams(prev => {
         const currentDays = prev.hariEfektif;
@@ -108,20 +110,20 @@ export default function ParameterSistemPage() {
 
     // Di sini Anda akan memanggil API untuk menyimpan data
     // contoh: await api.updateSystemParams(params);
-    
+
     console.log('Parameter sistem yang disimpan:', params);
     setIsSaving(false);
     setNotification('Parameter sistem berhasil disimpan!');
-    
+
     // Sembunyikan notifikasi setelah 3 detik
     setTimeout(() => setNotification(null), 3000);
   };
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
-      
-      <div className="max-w-4xl mx-auto">
+
+      <div className="max-w-full  mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <FaCog className="text-3xl text-gray-600 dark:text-gray-400" />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Parameter Sistem</h1>
@@ -129,56 +131,10 @@ export default function ParameterSistemPage() {
 
         <form onSubmit={handleSave} className="space-y-8">
           {/* --- SECTION 1: Informasi Umum Sekolah --- */}
-          <fieldset className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-slate-700">
-            <legend className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-              <FaSchool /> Informasi Umum Sekolah
-            </legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Sekolah</label>
-                <input type="text" name="namaSekolah" value={params.namaSekolah} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                <input type="email" name="email" value={params.email} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600" />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Alamat</label>
-                <input type="text" name="alamat" value={params.alamat} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Telepon</label>
-                <input type="tel" name="nomorTelepon" value={params.nomorTelepon} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Logo Sekolah</label>
-                <div className="mt-1 flex items-center gap-2">
-                  <input type="text" name="logo" value={params.logo} onChange={handleInputChange} placeholder="nama-file.png" className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600" readOnly />
-                  <button type="button" className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded-md hover:bg-gray-300 dark:hover:bg-slate-600">Pilih File</button>
-                </div>
-              </div>
-            </div>
-          </fieldset>
+          <ProfileSchool />
 
           {/* --- SECTION 2: Tahun Ajaran --- */}
-          <fieldset className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-slate-700">
-            <legend className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-              <FaCalendarAlt /> Tahun Ajaran
-            </legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tahun Ajaran Aktif</label>
-                <input type="text" name="tahunAjaranAktif" value={params.tahunAjaranAktif} onChange={handleInputChange} placeholder="Contoh: 2023/2024" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Semester Aktif</label>
-                <select name="semesterAktif" value={params.semesterAktif} onChange={handleInputChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600">
-                  <option value="ganjil">Ganjil</option>
-                  <option value="genap">Genap</option>
-                </select>
-              </div>
-            </div>
-          </fieldset>
+          <PeriodActiveCard />
 
           {/* --- SECTION 3: Parameter Akademik --- */}
           <fieldset className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-slate-700">

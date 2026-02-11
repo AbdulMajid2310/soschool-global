@@ -1,19 +1,12 @@
+import { School } from "../school/types";
+import { User } from "../user/types";
+import { UserRole } from "../userRole/type";
+
 export interface UserAccess {
   userAccessId: string;
-  user: {
-    userId: string;
-    username: string;
-    email: string;
-  };
-  school: {
-    schoolId: string;
-    name: string;
-  } | null;
-  role: {
-    userRoleId: string;
-    name: string;
-    url: string;
-  };
+  user: User;
+  school: School | null;
+  role: UserRole;
   createdAt: string;
 }
 

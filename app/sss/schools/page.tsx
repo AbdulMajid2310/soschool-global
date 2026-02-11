@@ -6,41 +6,41 @@ import { School } from '@/redux/features/school/types';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { useRouter } from 'next/navigation';
 import React, { useState, memo, useEffect } from 'react';
-import { 
-  FiSearch, FiFilter, FiMoreVertical, FiEye, 
+import {
+  FiSearch, FiFilter, FiMoreVertical, FiEye,
   FiShield, FiGlobe, FiMapPin, FiCreditCard,
   FiPlus, FiCheckCircle, FiAlertCircle, FiExternalLink
 } from 'react-icons/fi';
 
 
 
-export default function SchoolDirectory () {
+export default function SchoolDirectory() {
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter()
-const { schools, loading } = useAppSelector((state) => state.school);
+  const { schools, loading } = useAppSelector((state) => state.school);
 
   useEffect(() => {
     dispatch(fetchSchools());
   }, [dispatch]);
 
- const handleGoToDetail = (school: School) => {
-  // 1. Simpan di SessionStorage (Agar URL tetap bersih)
-  sessionStorage.setItem("schoolId", school.schoolId);
+  const handleGoToDetail = (school: School) => {
+    // 1. Simpan di SessionStorage (Agar URL tetap bersih)
+    sessionStorage.setItem("schoolId", school.schoolId);
 
-  // 2. (Opsional) Langsung masukkan ke Redux State agar di halaman detail instant tampil
-  // Majid perlu buat reducer 'setSelectedSchool' di slice
-  dispatch(setSelectedSchool(school));
+    // 2. (Opsional) Langsung masukkan ke Redux State agar di halaman detail instant tampil
+    // Majid perlu buat reducer 'setSelectedSchool' di slice
+    dispatch(setSelectedSchool(school));
 
-  // 3. Pindah halaman
-  router.push("/sss/schools/detail");
-};
+    // 3. Pindah halaman
+    router.push("/sss/schools/detail");
+  };
 
-  
+
 
   return (
     <div className="min-h-screen bg-[#050810] text-slate-200 p-6 md:p-10">
-      
+
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
@@ -54,8 +54,8 @@ const { schools, loading } = useAppSelector((state) => state.school);
           </div>
           <p className="text-slate-500 text-sm font-medium italic uppercase tracking-widest">Manajemen Tenant & Multi-School Ecosystem</p>
         </div>
-        
-        <button onClick={()=> router.push('/sss/schools/add')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase italic transition-all shadow-lg shadow-indigo-600/20">
+
+        <button onClick={() => router.push('/sss/schools/add')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase italic transition-all shadow-lg shadow-indigo-600/20">
           <FiPlus className="text-lg" /> Daftarkan Sekolah Baru
         </button>
       </div>
@@ -64,8 +64,8 @@ const { schools, loading } = useAppSelector((state) => state.school);
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="flex-1 relative group">
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Cari nama sekolah, ID, atau wilayah..."
             className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all text-sm font-medium"
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -95,7 +95,7 @@ const { schools, loading } = useAppSelector((state) => state.school);
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-indigo-500/20 to-blue-500/20 flex items-center justify-center text-indigo-400 font-black text-sm border border-indigo-500/10 group-hover:border-indigo-500/40 transition-all">
-                        <img src={school.avatar} alt={school.name} className='h-full w-full object-cover rounded-full'/>
+                        <img src={school.avatar} alt={school.name} className='h-full w-full object-cover rounded-full' />
                       </div>
                       <div>
                         <h4 className="text-sm font-black text-white uppercase italic leading-none">{school.name}</h4>
@@ -108,70 +108,67 @@ const { schools, loading } = useAppSelector((state) => state.school);
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-2 text-slate-300">
                       <FiMapPin className="text-slate-500" size={14} />
-                      <span className="text-xs font-bold uppercase italic">Jawa Barat</span>
+                      <span className="text-xs font-bold uppercase italic">{school.address?.province}</span>
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex flex-col gap-1">
-                      <span className={`text-[10px] font-black uppercase italic px-2 py-0.5 rounded-full w-fit ${
-                        school.plan === 'Enterprise' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                        school.plan === 'Premium' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
-                      }`}>
+                      <span className={`text-[10px] font-black uppercase italic px-2 py-0.5 rounded-full w-fit ${school.plan === 'Enterprise' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                          school.plan === 'Premium' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                        }`}>
                         {school.plan}
                       </span>
                       <span className="text-xs font-bold text-slate-400 mt-1">1233 Siswa</span>
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-  {/* Indikator Titik (Dot) */}
-  <div className={`relative w-2 h-2 rounded-full ${
-    school.isActive 
-      ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]' 
-      : 'bg-slate-400 dark:bg-slate-600'
-  }`}>
-    {/* Efek Ping (Hanya muncul jika Active) */}
-    {school.isActive && (
-      <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
-    )}
-  </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                      {/* Indikator Titik (Dot) */}
+                      <div className={`relative w-2 h-2 rounded-full ${school.isActive
+                          ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]'
+                          : 'bg-slate-400 dark:bg-slate-600'
+                        }`}>
+                        {/* Efek Ping (Hanya muncul jika Active) */}
+                        {school.isActive && (
+                          <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
+                        )}
+                      </div>
 
-  {/* Label Teks */}
-  <span className={`text-[10px] font-black uppercase tracking-tighter italic ${
-    school.isActive 
-      ? 'text-emerald-600 dark:text-emerald-400' 
-      : 'text-slate-500 dark:text-slate-500'
-  }`}>
-    {school.isActive ? 'Active' : 'Inactive'}
-  </span>
-</div>
-                    <p className="text-[9px] text-slate-600 mt-1 uppercase font-bold tracking-tighter italic">Update : <span className="text-xs  text-slate-700 dark:text-slate-300 italic">
-    {new Date(school.updatedAt).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })}
-  </span></p>
+                      {/* Label Teks */}
+                      <span className={`text-[10px] font-black uppercase tracking-tighter italic ${school.isActive
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-slate-500 dark:text-slate-500'
+                        }`}>
+                        {school.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-600 mt-1 uppercase font-bold tracking-tighter italic">Created : <span className="text-xs  text-slate-700 dark:text-slate-300 italic">
+                      {new Date(school.createdAt).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </span></p>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center justify-center gap-2">
                       {/* IMPERSONATE BUTTON */}
-                      <button 
+                      <button
                         title="Impersonate (Masuk sebagai Admin)"
                         className="p-3 bg-indigo-500/10 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-xl transition-all group/btn"
                       >
                         <FiShield size={16} />
                       </button>
-                      
-                      <button 
+
+                      <button
                         title="Detail Sekolah"
-                        onClick={()=> handleGoToDetail(school)}
+                        onClick={() => handleGoToDetail(school)}
                         className="p-3 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl transition-all"
                       >
                         <FiEye size={16} />
                       </button>
-                      
-                      <button 
+
+                      <button
                         title="Menu Lainnya"
                         className="p-3 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl transition-all"
                       >
@@ -184,7 +181,7 @@ const { schools, loading } = useAppSelector((state) => state.school);
             </tbody>
           </table>
         </div>
-        
+
         {/* PAGINATION INFO */}
         <div className="p-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest">

@@ -1,0 +1,15 @@
+services:
+  soschool-app:
+    container_name: soschool-app
+    build: .
+    restart: always
+    ports:
+      - "7040:3000" # Kita pakai port 7040 untuk App Global
+    environment:
+      - NEXT_PUBLIC_API_URL=https://scchl.site
+    networks:
+      - soschool-network
+
+networks:
+  soschool-network:
+    external: true

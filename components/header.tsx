@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   FiSearch, FiBell, FiMenu,
@@ -13,9 +13,12 @@ import { BsBank2 } from 'react-icons/bs';
 
 import ThemeToggle from '@/components/button/ThemeToggle';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { getProfileMe } from '@/redux/features/auth/thunk';
+import { getProfileMe, logoutUser } from '@/redux/features/auth/thunk';
 import NotificationDropdown from '@/app/notifications/notificationDropdown';
 import ChatDropdown from '@/app/chat/chatDropdown';
+import { fetchActivePeriod } from '@/redux/features/school-period/thunk';
+import { fetchTeacherProfile } from '@/redux/features/teacher/thunk';
+import { useFullscreen } from '@/hooks/AutoScreen';
 
 // --- Types ---
 interface HeaderProps {
@@ -32,8 +35,8 @@ interface NavTabProps {
 // --- Sub-components (Memoized for performance) ---
 
 const NavTab = memo(({ href, active, icon }: NavTabProps) => (
-  <Link 
-    href={href} 
+  <Link
+    href={href}
     className={`relative flex items-center justify-center w-11 h-11 rounded-xl transition-all group 
     ${active ? 'text-blue-500 bg-blue-500/10' : 'text-slate-400 dark:text-blue-900/60 hover:text-blue-500'}`}
   >
@@ -44,8 +47,8 @@ const NavTab = memo(({ href, active, icon }: NavTabProps) => (
 NavTab.displayName = 'NavTab';
 
 const MobileNavTab = memo(({ href, active, icon }: NavTabProps) => (
-  <Link 
-    href={href} 
+  <Link
+    href={href}
     className={`p-3 rounded-2xl transition-all duration-500 
     ${active ? 'bg-blue-600 text-white -translate-y-4 shadow-[0_10px_20px_rgba(37,99,235,0.4)]' : 'text-slate-400 dark:text-blue-900 hover:text-blue-500'}`}
   >
@@ -70,14 +73,26 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+  const router = useRouter();
+
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { profile } = useAppSelector((state) => state.auth);
-  console.log('Profile', profile)
+  const schoolId = profile?.school?.schoolId;
+  const userId = profile?.user?.userId
+  // useFullscreen()
+
+  console.log('Header Rendered: ', { profile });
 
   useEffect(() => {
     if (!profile) dispatch(getProfileMe());
   }, [dispatch, profile]);
+
+  useEffect(() => {
+    if (schoolId && userId) {
+      dispatch(fetchActivePeriod(schoolId));
+      dispatch(fetchTeacherProfile({ schoolId, userId }));
+    }
+  }, [dispatch, schoolId, userId]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -86,6 +101,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         setActiveDropdown(null);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -96,10 +112,16 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
   const isNavActive = (path: string) => pathname.startsWith(path);
 
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    router.push('/login');
+  }
+
+
   return (
     <>
       <header className="h-16 md:h-20 w-full fixed top-0 z-50 flex items-center justify-between px-4 md:px-8 
-        dark:bg-white/80 bg-[#050810] backdrop-blur-xl border-b border-slate-200 dark:border-blue-900/20 shadow-sm">
+        bg-white/80 dark:bg-gray-900 backdrop-blur-xl border-b border-slate-200 dark:border-blue-900/20 shadow-sm">
 
         {/* LEFT: LOGO */}
         <div className="flex items-center gap-3 shrink-0">
@@ -150,11 +172,11 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <div className="flex items-center gap-2 border-l border-slate-200 dark:border-blue-900/20 pl-4">
             {/* Chat Icon */}
             <div className="relative">
-              <IconButton 
-                icon={<IoChatbubbles />} 
-                count={7} 
-                active={activeDropdown === 'chat'} 
-                onClick={() => toggleDropdown('chat')} 
+              <IconButton
+                icon={<IoChatbubbles />}
+                count={7}
+                active={activeDropdown === 'chat'}
+                onClick={() => toggleDropdown('chat')}
               />
               {activeDropdown === 'chat' && (
                 <DropdownContainer title="Pesan Masuk">
@@ -165,10 +187,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
             {/* Notification Icon */}
             <div className="relative">
-              <IconButton 
-                icon={<FiBell />} 
-                active={activeDropdown === 'notif'} 
-                onClick={() => toggleDropdown('notif')} 
+              <IconButton
+                icon={<FiBell />}
+                active={activeDropdown === 'notif'}
+                onClick={() => toggleDropdown('notif')}
               />
               {activeDropdown === 'notif' && (
                 <DropdownContainer title="Pusat Notifikasi">
@@ -179,12 +201,12 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
             {/* Profile */}
             <div className="relative ml-2">
-              <button 
-                onClick={() => toggleDropdown('profile')} 
+              <button
+                onClick={() => toggleDropdown('profile')}
                 className={`w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden border-2 transition-all 
                 ${activeDropdown === 'profile' ? 'border-blue-500 shadow-lg' : 'border-transparent hover:border-blue-500/50'}`}
               >
-                <img src={ "https://i.pravatar.cc/150?u=majid"} alt="Profile" className="w-full h-full object-cover" />
+                <img src={"https://i.pravatar.cc/150?u=majid"} alt="Profile" className="w-full h-full object-cover" />
               </button>
 
               {activeDropdown === 'profile' && (
@@ -193,10 +215,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                   <DropdownItem icon={<FiSettings />} title="Pengaturan" desc="Tema & Privasi" />
                   <div className='flex justify-between items-center px-4 py-2 bg-slate-50 dark:bg-white/5 rounded-xl mx-1'>
                     <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 italic">Dark Mode</p>
-                    <ThemeToggle/>
+                    <ThemeToggle />
                   </div>
                   <div className="h-px bg-slate-200 dark:bg-blue-900/20 my-2 mx-2" />
-                  <DropdownItem icon={<FiLogOut className="text-red-500" />} title="Keluar" desc="Akhiri Sesi" />
+                  <DropdownItem icon={<FiLogOut className="text-red-500" />} title="Keluar" desc="Akhiri Sesi" onClick={() => handleLogout()} />
                 </DropdownContainer>
               )}
             </div>
@@ -220,12 +242,12 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 // --- Helpers ---
 
 const IconButton = memo(({ icon, count, active, onClick }: any) => (
-  <button 
-    onClick={onClick} 
+  <button
+    onClick={onClick}
     className={`relative p-2.5 rounded-xl transition-all border outline-none
-    ${active 
-      ? 'bg-blue-600 border-blue-400 text-white shadow-blue-500/20' 
-      : 'bg-slate-100 dark:bg-blue-950/20 border-transparent text-slate-500 dark:text-blue-400 hover:border-blue-500/30'}`}
+    ${active
+        ? 'bg-blue-600 border-blue-400 text-white shadow-blue-500/20'
+        : 'bg-slate-100 dark:bg-blue-950/20 border-transparent text-slate-500 dark:text-blue-400 hover:border-blue-500/30'}`}
   >
     <span className="text-xl">{icon}</span>
     {count && (
@@ -237,8 +259,8 @@ const IconButton = memo(({ icon, count, active, onClick }: any) => (
 ));
 IconButton.displayName = 'IconButton';
 
-const DropdownItem = memo(({ icon, title, desc }: any) => (
-  <button className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-blue-500/10 transition-all text-left group">
+const DropdownItem = memo(({ icon, title, desc, onClick }: any) => (
+  <button onClick={onClick} className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-blue-500/10 transition-all text-left group">
     <div className="w-8 h-8 flex items-center justify-center rounded-lg transition-all
       bg-slate-100 dark:bg-blue-950/40 text-slate-500 dark:text-blue-400 group-hover:bg-blue-500 group-hover:text-white">
       {icon}

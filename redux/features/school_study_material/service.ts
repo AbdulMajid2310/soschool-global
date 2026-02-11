@@ -1,0 +1,31 @@
+// src/redux/features/study_material/service.ts
+import { api } from '@/lib/axiosInstance';
+import { CreateStudyMaterialDto, UpdateStudyMaterialDto } from './types';
+
+export const studyMaterialService = {
+    async create(dto: CreateStudyMaterialDto) {
+        const response = await api.post('/study-materials', dto);
+        return response.data; // successResponse { data: StudyMaterial }
+    },
+
+    async findBySubject(subjectId: string) {
+        const response = await api.get(`/study-materials/subject/${subjectId}`);
+        return response.data;
+    },
+
+    async findOne(studyMaterialId: string) {
+        const response = await api.get(`/study-materials/${studyMaterialId}`);
+        return response.data;
+    },
+
+    async update(payload: UpdateStudyMaterialDto) {
+        const { studyMaterialId, ...data } = payload;
+        const response = await api.patch(`/study-materials/${studyMaterialId}`, data);
+        return response.data;
+    },
+
+    async delete(studyMaterialId: string) {
+        const response = await api.delete(`/study-materials/${studyMaterialId}`);
+        return response.data;
+    }
+};

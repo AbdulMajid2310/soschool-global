@@ -2,6 +2,7 @@ export interface UserRole {
   userRoleId: string;
   name: string;
   url: string;
+  code: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

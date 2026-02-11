@@ -2,6 +2,7 @@ export interface User {
   userId: string;
   username: string;
   noregistrationNumber: string;
+  avatar: string;
   email: string;
   phone: string;
   isActive: boolean;

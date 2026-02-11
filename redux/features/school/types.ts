@@ -1,3 +1,5 @@
+import { Address } from "../address/types";
+
 export interface School {
   schoolId: string;
   name: string;
@@ -14,6 +16,7 @@ export interface School {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  address: Address
 }
 
 export interface SchoolState {

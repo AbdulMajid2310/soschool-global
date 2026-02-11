@@ -37,33 +37,44 @@ export default function AddSchoolForm() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch(clearError());
+  e.preventDefault();
+  dispatch(clearError());
 
-    const formData = new FormData(e.currentTarget);
-    const payload = {
-      name: formData.get("name") as string,
-      nisp: formData.get("nisp") as string,
-      email: formData.get("email") as string,
-      establishedDate: formData.get("establishedDate") as string,
-      accreditation: formData.get("accreditation") as string,
-      level, 
-      plan,
-      domain: (formData.get("domain") as string) || undefined,
-      phone: (formData.get("phone") as string) || undefined,
-      avatar: avatarRef.current?.files?.[0],
-      background: backgroundRef.current?.files?.[0],
-    };
-
-    const result = await dispatch(createSchool(payload));
-    
-    if (createSchool.fulfilled.match(result)) {
-      toast.success("Sekolah Berhasil Didaftarkan!");
-      router.push("/dashboard/schools");
-    } else {
-      toast.error(result.payload as string || "Terjadi kesalahan sistem");
-    }
+  const formData = new FormData(e.currentTarget);
+  const payload = {
+    name: formData.get("name") as string,
+    nisp: formData.get("nisp") as string,
+    email: formData.get("email") as string,
+    establishedDate: formData.get("establishedDate") as string,
+    accreditation: formData.get("accreditation") as string,
+    level, 
+    plan,
+    domain: (formData.get("domain") as string) || undefined,
+    phone: (formData.get("phone") as string) || undefined,
+    avatar: avatarRef.current?.files?.[0],
+    background: backgroundRef.current?.files?.[0],
   };
+
+  const result = await dispatch(createSchool(payload));
+
+  // Pastikan pengecekan fulfilled dilakukan SEBELUM mengakses data
+  if (createSchool.fulfilled.match(result)) {
+    // Ambil schoolId dari payload respon server
+    // Asumsi: NestJS mengembalikan { id: "..." } atau { schoolId: "..." }
+    const schoolData = result.payload; 
+    const schoolId = schoolData?.schoolId || schoolData?.schoolId;
+
+    if (schoolId) {
+      sessionStorage.setItem("schoolId", schoolId);
+    }
+
+    toast.success("Sekolah Berhasil Didaftarkan!");
+    router.push("/sss/schools/address/add");
+  } else {
+    // Handling jika gagal
+    toast.error((result.payload as string) || "Terjadi kesalahan sistem");
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-12 font-sans">
@@ -141,9 +152,9 @@ export default function AddSchoolForm() {
             </div>
           </div>
 
-          <div className="pt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[35px] border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          <div className="pt-10 grid grid-cols-1 gap-8">
+            <div className=" space-y-6">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-4xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <FiInfo className="text-blue-600 w-5 h-5" />
                   <h2 className="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest text-sm">Informasi Institusi</h2>
@@ -160,18 +171,18 @@ export default function AddSchoolForm() {
                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-2">Alamat Subdomain</label>
                   <div className="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-700 focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
                     <input name="domain" className="flex-1 p-4 bg-transparent outline-hidden font-medium" placeholder="slug-nama-sekolah" />
-                    <span className="px-5 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold border-l border-slate-200 dark:border-slate-700">.soschool.site</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-[35px] border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+            <div className="space-y-6 ">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <FiShield className="text-purple-600 w-5 h-5" />
                   <h2 className="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest text-sm">Sistem & Paket</h2>
                 </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
                 <CustomSelect 
                   label="Jenjang Pendidikan" 
@@ -193,6 +204,7 @@ export default function AddSchoolForm() {
 
                 <InputField label="Tanggal Berdiri" name="establishedDate" type="date" required />
                 <InputField label="Akreditasi" name="accreditation" placeholder="A / B / Unggul" required />
+              </div>
               </div>
             </div>
           </div>

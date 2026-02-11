@@ -1,33 +1,36 @@
 "use client";
 
+import { useRouter } from 'next/dist/client/components/navigation';
 import React from 'react';
-import { 
-  FiActivity, FiTrendingUp, FiAlertTriangle, FiAward, 
-  FiArrowRight, FiTarget, FiZap, FiStar 
+import {
+  FiActivity, FiTrendingUp, FiAlertTriangle, FiAward,
+  FiArrowRight, FiTarget, FiZap, FiStar
 } from 'react-icons/fi';
 
 const CLASS_BEHAVIOR_ANALYTICS = [
-  { 
-    id: 'C1', name: '10-IPA-1', subject: 'Informatika', 
-    totalXP: 12500, topPerformer: 'Ahmad Zaki', 
-    positiveRate: 92, alertCount: 0, status: 'Exemplary' 
+  {
+    id: 'C1', name: '10-IPA-1', subject: 'Informatika',
+    totalXP: 12500, topPerformer: 'Ahmad Zaki',
+    positiveRate: 92, alertCount: 0, status: 'Exemplary'
   },
-  { 
-    id: 'C2', name: '11-RPL-2', subject: 'Basis Data', 
-    totalXP: 8400, topPerformer: 'Siti Aminah', 
-    positiveRate: 75, alertCount: 4, status: 'Improving' 
+  {
+    id: 'C2', name: '11-RPL-2', subject: 'Basis Data',
+    totalXP: 8400, topPerformer: 'Siti Aminah',
+    positiveRate: 75, alertCount: 4, status: 'Improving'
   },
-  { 
-    id: 'C3', name: '12-RPL-1', subject: 'Web Dev', 
-    totalXP: 15600, topPerformer: 'Rani Wijaya', 
-    positiveRate: 88, alertCount: 1, status: 'Stable' 
+  {
+    id: 'C3', name: '12-RPL-1', subject: 'Web Dev',
+    totalXP: 15600, topPerformer: 'Rani Wijaya',
+    positiveRate: 88, alertCount: 1, status: 'Stable'
   },
 ];
 
 const BehaviorList = () => {
+  const router = useRouter();
+
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in duration-700">
-      
+    <div className="space-y-8 p-8 mt-10 animate-in fade-in zoom-in duration-700">
+
       {/* 1. Global Behavior Intelligence */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <BehaviorStat label="Total XP Terdistribusi" value="36.5K" sub="Bulan ini" icon={<FiZap />} color="text-cyan-500" />
@@ -37,11 +40,11 @@ const BehaviorList = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* 2. Class Comparison Table (8 Cols) */}
         <div className="lg:col-span-8 bg-white dark:bg-[#0a0f1d] p-8 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-sm overflow-hidden">
           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8 italic">Leaderboard & Kondisi Kelas</h3>
-          
+
           <div className="space-y-4">
             {CLASS_BEHAVIOR_ANALYTICS.map((cls) => (
               <div key={cls.id} className="group p-6 rounded-[2.5rem] border border-slate-50 dark:border-white/5 hover:border-violet-500/30 transition-all flex flex-wrap items-center justify-between gap-6">
@@ -75,7 +78,7 @@ const BehaviorList = () => {
                   </div>
                 </div>
 
-                <button className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl text-slate-400 group-hover:bg-violet-600 group-hover:text-white transition-all shadow-xs group-hover:shadow-violet-500/20">
+                <button onClick={() => router.push('akademik/subject')} className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl text-slate-400 group-hover:bg-violet-600 group-hover:text-white transition-all shadow-xs group-hover:shadow-violet-500/20">
                   <FiArrowRight />
                 </button>
               </div>
@@ -88,14 +91,14 @@ const BehaviorList = () => {
           <div className="bg-linear-to-br from-[#0a0f1d] to-[#1a1f3d] p-8 rounded-[3rem] border border-violet-500/20 text-white relative overflow-hidden group">
             <FiActivity className="absolute -right-6 -top-6 text-violet-500/10 group-hover:scale-110 transition-transform duration-700" size={150} />
             <h4 className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-6 italic">Behavior Analyst (AI)</h4>
-            
+
             <div className="space-y-6 relative z-10">
               <div className="p-4 bg-violet-500/10 rounded-2xl border border-violet-500/20">
                 <p className="text-[11px] font-medium leading-relaxed italic text-violet-200">
                   "Kelas **11-RPL-2** menunjukkan penurunan keaktifan diskusi sebesar 15% minggu ini. Disarankan memberikan tugas kelompok berbasis gamifikasi."
                 </p>
               </div>
-              
+
               <div className="space-y-3">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Paling Aktif Hari Ini</p>
                 <div className="flex items-center gap-3">

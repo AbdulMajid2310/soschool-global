@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3003",
+    "dev": "next dev -p 7020",
     "build": "next build",
-    "start": "next start -p 3003",
+    "start": "next start -p 7020",
     "lint": "eslint"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "next": "^16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hook-form": "^7.71.1",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "recharts": "^3.7.0"

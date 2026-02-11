@@ -6,38 +6,65 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+// 1. Request Interceptor
 api.interceptors.request.use((config) => {
-  // KONSISTEN: Ambil sid
+  // Ambil sid dari localStorage
   const token = localStorage.getItem('sid');
+  
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
+// 2. Response Interceptor
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+
+    // Cek jika error 401 dan bukan request ke endpoint login/refresh itu sendiri
+    if (
+      error.response?.status === 401 && 
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/refresh') &&
+      !originalRequest.url?.includes('/auth/login')
+    ) {
       originalRequest._retry = true;
+
       try {
-        const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {}, { withCredentials: true });
+        // Gunakan instance axios baru (bukan instance 'api' agar interceptor request tidak ikut campur)
+        const res = await axios.post(
+          `${api.defaults.baseURL}/auth/refresh`, 
+          {}, 
+          { withCredentials: true }
+        );
         
-        // KONSISTEN: Terima sid dari backend
         const { sid } = res.data.data;
         
-        localStorage.setItem('sid', sid); // Update sid
-        localStorage.removeItem('accessToken'); // HAPUS OTOMATIS JIKA ADA SISA LAMA
+        // Update sid di storage
+        localStorage.setItem('sid', sid);
         
+        // Bersihkan sisa-sisa token lama jika masih ada
+        localStorage.removeItem('accessToken');
+
+        // Ulangi request asli dengan token baru
         originalRequest.headers.Authorization = `Bearer ${sid}`;
         return api(originalRequest);
-      } catch (err) {
+      } catch (refreshError) {
+        // Jika refresh token juga gagal/expired, paksa logout
         localStorage.removeItem('sid');
-        window.location.href = '/login';
-        return Promise.reject(err);
+        
+        // Cek jika sedang di browser (menghindari error saat SSR)
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

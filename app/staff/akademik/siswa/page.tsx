@@ -1,7 +1,9 @@
 "use client"
 
+import { fetchStudents } from "@/redux/features/student/thunks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaFemale, FaMale } from "react-icons/fa";
 import { FiSearch, FiList, FiGrid, FiUser, FiInfo, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { HiOutlineStatusOnline } from "react-icons/hi";
@@ -23,6 +25,23 @@ export default function DataSiswaPage() {
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
+  const dispatch = useAppDispatch();
+  
+  // 1. Ambil schoolId dari state auth (User yang login)
+  const { profile } = useAppSelector((state) => state.auth);
+  const schoolId = profile?.school?.schoolId;
+
+  // 2. Ambil data students dari state student
+  const { students:data, loading, error } = useAppSelector((state) => state.student);
+
+  console.log('siswa', data)
+
+  // 3. Trigger fetch saat halaman dimuat
+  useEffect(() => {
+    if (schoolId) {
+      dispatch(fetchStudents(schoolId));
+    }
+  }, [dispatch, schoolId]);
 
 
   const classes = ["all", ...new Set(students.map(s => s.class))];
@@ -54,7 +73,7 @@ export default function DataSiswaPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Data Siswa</h1>
    {/* CTA */}
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 shadow">
+          <button onClick={()=> route.push('siswa/add')} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 shadow">
             + Tambah Siswa
           </button>
       </div>

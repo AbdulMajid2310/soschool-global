@@ -115,114 +115,138 @@ const menuItems: MenuItem[] = [
 export default function SidebarStaff({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [activeView, setActiveView] = useState('dashboard');
-  const [activeSubView, setActiveSubView] = useState('');
-  // PERUBAHAN 1: State awal diubah menjadi array kosong
   const [expandedMenuItems, setExpandedMenuItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-   const { profile } = useAppSelector((state) => state.auth);
-  
+  const { profile } = useAppSelector((state) => state.auth);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const handleMenuClick = (itemId: string, href: string) => {
-    router.push(href);
-    setActiveSubView('');
-    const pathParts = href.split('/');
-    setActiveView(pathParts[pathParts.length - 1]);
-    if (pathParts.length > 2) {
-      setActiveSubView(pathParts[pathParts.length - 1]);
-    }
-    if (window.innerWidth < 768) {
-      // Logika untuk menutup menu mobile
-    }
-  };
-
-  // PERUBAHAN 2: Logika toggle diubah untuk perilaku accordion
   const toggleMenuItem = (itemId: string) => {
-    setExpandedMenuItems(prev => 
-      prev.includes(itemId) ? [] : [itemId] 
-    );
+    setExpandedMenuItems(prev => prev.includes(itemId) ? [] : [itemId]);
   };
 
-  const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
-        setIsProfileMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // PERUBAHAN 3: useEffect untuk membuka menu yang aktif secara otomatis
   useEffect(() => {
     const activeParentItem = menuItems.find(item => 
       pathname.startsWith(item.href) && item.subItems
     );
-
-    if (activeParentItem) {
-      setExpandedMenuItems([activeParentItem.id]);
-    } else {
-      setExpandedMenuItems([]);
-    }
+    if (activeParentItem) setExpandedMenuItems([activeParentItem.id]);
   }, [pathname]);
 
-
-  const filteredMenuItems = menuItems.filter((item: MenuItem) => 
+  const filteredMenuItems = menuItems.filter((item) => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.subItems && item.subItems.some((subItem: SubMenuItem) => subItem.name.toLowerCase().includes(searchQuery.toLowerCase())))
+    item.subItems?.some(sub => sub.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-
-  const isActive = (item: MenuItem, subItem?: SubMenuItem) => {
-    if (subItem) {
-      return pathname === subItem.href;
-    }
-    return (
-      pathname === item.href ||
-      (pathname.startsWith(item.href) && item.href !== '/staff')
-    );
-  };
-
-  const getUserInitial = (username: string): string => username.charAt(0).toUpperCase();
-  
   return (
-    <div className="w-64  bg-white sticky top-0 pt-20 lg:pt-16 dark:bg-gray-800 shadow-md flex flex-col h-screen md:relative transition-all duration-300 ease-in-out transform">
-      <div className="p-4">
-        <div className="relative bg-gray-100 dark:bg-gray-700 rounded-lg">
-          <input type="text" placeholder="Cari menu..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-transparent text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <FiSearch className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+    <aside className={`fixed h-screen lg:relative inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-transform duration-300 lg:translate-x-0  ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      
+   
+      {/* Search Section */}
+      <div className="p-4 pt-30">
+        <div className="relative group">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Cari menu..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          />
         </div>
       </div>
 
-      
-      
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="relative" ref={profileMenuRef}>
-          <button onClick={toggleProfileMenu} className="w-full flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">A</div>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-medium text-gray-800 dark:text-white">ABdul Majid</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Staff Sekolah</p>
+      {/* Navigation Menu */}
+      <nav className="flex-1 overflow-y-auto scrollbar-hide px-3 space-y-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+        {filteredMenuItems.map((item) => {
+          const isExpanded = expandedMenuItems.includes(item.id);
+          const isParentActive = pathname.startsWith(item.href);
+
+          return (
+            <div key={item.id} className="mb-1">
+              <button
+                onClick={() => item.subItems ? toggleMenuItem(item.id) : router.push(item.href)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+                  isParentActive 
+                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`text-lg ${isParentActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                    {item.icon}
+                  </span>
+                  <span className="text-sm font-medium">{item.name}</span>
+                </div>
+                {item.subItems && (
+                  <FiChevronRight className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                )}
+              </button>
+
+              {/* Submenu Accordion */}
+              {item.subItems && (
+                <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
+                  {item.subItems.map((sub) => {
+                    const isSubActive = pathname === sub.href;
+                    return (
+                      <button
+                        key={sub.id}
+                        onClick={() => router.push(sub.href)}
+                        className={`w-full flex items-center gap-3 pl-11 pr-4 py-2 text-sm rounded-lg transition-colors ${
+                          isSubActive
+                            ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                            : 'text-gray-500 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                        }`}
+                      >
+                        <span className="text-base">{sub.icon}</span>
+                        {sub.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-            <FiChevronDown className={`w-4 h-4 transition-transform text-gray-500 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
+          );
+        })}
+      </nav>
+
+      {/* Profile Section */}
+      <div className="p-4 border-t border-gray-100 dark:border-gray-800" ref={profileMenuRef}>
+        <div className="relative">
+          <button 
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-linear-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-sm">
+              <img src="/images/background-school.webp" alt="profil" className='h-full w-full object-cover rounded-full' />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                { 'Abdul Majid'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">Staff Sekolah</p>
+            </div>
+            <FiChevronDown className={`w-4 h-4 transition-transform text-gray-400 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
           </button>
+
+          {/* Profile Dropdown Upwards */}
           {isProfileMenuOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5">
-              <div className="py-1">
-                <a href="/staff/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"><FiUser className="inline mr-2" /> Profil Saya</a>
-                <a href="/staff/settings" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"><FiSettings className="inline mr-2" /> Pengaturan</a>
-                <a href="/staff/help" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"><FiHelpCircle className="inline mr-2" /> Bantuan</a>
-                <hr className="my-1 border-gray-200 dark:border-gray-600" />
-                <a href="/logout" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"><FiLogOut className="inline mr-2" /> Keluar</a>
-              </div>
+            <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-bottom-2">
+              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <FiUser /> Profil Saya
+              </button>
+              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <FiSettings /> Pengaturan
+              </button>
+              <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
+              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30">
+                <FiLogOut /> Keluar
+              </button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    
+
+    </aside>
   );
 }
