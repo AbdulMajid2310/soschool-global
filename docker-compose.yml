@@ -4,7 +4,10 @@ services:
     build: .
     restart: always
     ports:
-      - "7000:7000" 
+      - "7000:7000"
+    # Tambahkan baris di bawah ini agar file .env terbaca
+    env_file:
+      - .env
     environment:
       - NEXT_PUBLIC_API_URL=https://scchl.site
     networks:
