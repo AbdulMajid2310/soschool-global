@@ -25,9 +25,10 @@ const schoolPeriodSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Fetch All Periods
+            // --- FETCH ALL ---
             .addCase(fetchSchoolPeriods.pending, (state) => {
                 state.loading = true;
+                state.error = null; // Bersihkan error lama saat fetch baru
             })
             .addCase(fetchSchoolPeriods.fulfilled, (state, action) => {
                 state.loading = false;
@@ -38,46 +39,34 @@ const schoolPeriodSlice = createSlice({
                 state.error = action.payload as string;
             })
 
-            // --- CREATE ---
-            .addCase(createPeriod.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(createPeriod.fulfilled, (state) => {
-                state.loading = false;
-                state.success = true; // Akan trigger useEffect di UI untuk tutup modal
-            })
-            .addCase(createPeriod.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload as string;
-            })
-
-            // Fetch Active Period
+            // --- FETCH ACTIVE ---
             .addCase(fetchActivePeriod.fulfilled, (state, action) => {
                 state.activePeriod = action.payload;
             })
-
-            //Update period
-            .addCase(updatePeriod.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(updatePeriod.fulfilled, (state) => {
-                state.loading = false;
-                state.success = true;
-            })
-            .addCase(updatePeriod.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload as string;
+            .addCase(fetchActivePeriod.rejected, (state) => {
+                // Jika tidak ada periode aktif, kita set null tanpa harus mengisi state.error
+                // agar tidak muncul alert error yang mengganggu di dashboard.
+                state.activePeriod = null;
             })
 
-            // Toggle & Delete (Handling Global Success)
+            // --- CREATE & UPDATE ---
+            // Gunakan PayloadAction<any> atau AnyAction untuk matcher agar TS tidak protes
+            .addMatcher(
+                (action): action is PayloadAction<string> => action.type.endsWith('/rejected') && !action.type.includes('fetchActive'),
+                (state, action) => {
+                    state.loading = false;
+                    state.error = action.payload; // Sekarang .payload sudah dikenali
+                }
+            )
             .addMatcher(
                 (action) => action.type.endsWith('/fulfilled') &&
-                    (action.type.includes('toggleStatus') || action.type.includes('delete')),
+                    (action.type.includes('create') ||
+                        action.type.includes('update') ||
+                        action.type.includes('toggleStatus') ||
+                        action.type.includes('delete')),
                 (state) => {
-                    state.success = true;
                     state.loading = false;
+                    state.success = true;
                 }
             );
     },

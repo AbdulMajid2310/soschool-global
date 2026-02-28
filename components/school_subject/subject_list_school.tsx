@@ -83,7 +83,7 @@ const SubjectList = ({ searchTerm, onEdit }: SubjectListProps) => {
                     <div className="flex flex-col h-full">
                         <div className="mb-4">
                             <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
-                                {subject.code}
+                                {subject.code} / {subject.sks} SKS
                             </span>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 group-hover:text-blue-600 transition-colors">
                                 {subject.name}

@@ -1,5 +1,5 @@
 import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TeacherState, SchoolTeacher, TeacherStats } from './types';
+import { TeacherState, SchoolTeacher, TeacherStats, ImportReport } from './types';
 import {
   fetchTeachers,
   registerTeacher,
@@ -7,13 +7,15 @@ import {
   toggleTeacherStatus,
   fetchTeacherProfile,
   fetchTeacherDetail,
-  deleteTeacher
+  deleteTeacher,
+  importTeacherCsv
 } from './thunk';
 
 const initialState: TeacherState & { currentTeacherProfile: SchoolTeacher | null } = {
   teachers: [],
   stats: { total: 0, active: 0, inactive: 0 },
-  currentTeacherProfile: null, // Profile guru yang sedang login
+  importReport: null,
+  currentTeacherProfile: null,
   selectedTeacherId: null,
   loading: false,
   error: null,
@@ -31,6 +33,7 @@ const teacherSlice = createSlice({
     resetTeacherStatus: (state) => {
       state.error = null;
       state.success = false;
+      state.importReport = null;
     },
     selectTeacher: (state, action: PayloadAction<string>) => {
       state.selectedTeacherId = action.payload;
@@ -45,7 +48,6 @@ const teacherSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch All Teachers (List & Stats)
       .addCase(fetchTeachers.pending, (state) => {
         state.loading = true;
       })
@@ -59,19 +61,21 @@ const teacherSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Fetch Profile (Data Guru yang login)
       .addCase(fetchTeacherProfile.fulfilled, (state, action: PayloadAction<SchoolTeacher>) => {
         state.loading = false;
         state.currentTeacherProfile = action.payload;
       })
 
-      // Fetch Detail (Satu Guru Spesifik)
       .addCase(fetchTeacherDetail.fulfilled, (state, action: PayloadAction<SchoolTeacher>) => {
         state.loading = false;
-        // Opsional: jika ingin menyimpan data detail ke state khusus
       })
 
-      // Matcher untuk Loading State (Semua aksi POST/PATCH/DELETE)
+      .addCase(importTeacherCsv.fulfilled, (state, action: PayloadAction<ImportReport>) => {
+        state.loading = false;
+        state.success = true;
+        state.importReport = action.payload;
+      })
+
       .addMatcher(
         (action) => action.type.endsWith('/pending') && !action.type.includes('fetchAll'),
         (state) => {
@@ -80,7 +84,6 @@ const teacherSlice = createSlice({
           state.error = null;
         }
       )
-      // Matcher untuk Success State
       .addMatcher(
         (action) => [
           registerTeacher.fulfilled.type,
@@ -93,7 +96,6 @@ const teacherSlice = createSlice({
           state.success = true;
         }
       )
-      // Matcher untuk Error State
       .addMatcher(
         (action) => action.type.endsWith('/rejected') && !action.type.includes('fetchAll'),
         (state, action) => {

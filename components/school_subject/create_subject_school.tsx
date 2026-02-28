@@ -33,13 +33,14 @@ const CreateSubjectModal = ({ isOpen, onClose }: CreateSubjectModalProps) => {
         name: '',
         code: '',
         category: '',
-        schoolClassroomId: ''
+        schoolClassroomId: '',
+        sks: '',
     });
 
     // Reset form saat modal ditutup atau dibuka
     useEffect(() => {
         if (!isOpen) {
-            setFormData({ name: '', code: '', category: '', schoolClassroomId: '' });
+            setFormData({ name: '', code: '', category: '', schoolClassroomId: '', sks: '' });
             setIsDropdownOpen(false);
         }
     }, [isOpen]);
@@ -80,7 +81,7 @@ const CreateSubjectModal = ({ isOpen, onClose }: CreateSubjectModalProps) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
 
                 {/* Header */}
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
@@ -122,7 +123,21 @@ const CreateSubjectModal = ({ isOpen, onClose }: CreateSubjectModalProps) => {
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                             />
                         </div>
-                        {/* Select Kategori */}
+                        {/* sks */}
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">SKS</label>
+                            <input
+                                required
+                                type="string"
+                                placeholder="Jumlah SKS"
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                value={formData.sks}
+                                onChange={(e) => setFormData({ ...formData, sks: e.target.value })}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Kategori</label>
                             <select
@@ -137,44 +152,43 @@ const CreateSubjectModal = ({ isOpen, onClose }: CreateSubjectModalProps) => {
                                 <option value="Ekstrakurikuler">Ekskul</option>
                             </select>
                         </div>
-                    </div>
+                        {/* Custom Classroom Dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Target Kelas</label>
+                            <button
+                                type="button"
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
+                            >
+                                <span className={selectedClassroom ? "text-slate-900 dark:text-white" : "text-slate-400"}>
+                                    {selectedClassroom ? selectedClassroom.name : "Pilih Ruang Kelas"}
+                                </span>
+                                <HiChevronDown className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-                    {/* Custom Classroom Dropdown */}
-                    <div className="relative" ref={dropdownRef}>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Target Kelas</label>
-                        <button
-                            type="button"
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
-                        >
-                            <span className={selectedClassroom ? "text-slate-900 dark:text-white" : "text-slate-400"}>
-                                {selectedClassroom ? selectedClassroom.name : "Pilih Ruang Kelas"}
-                            </span>
-                            <HiChevronDown className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {isDropdownOpen && (
-                            <div className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
-                                {classrooms.length === 0 ? (
-                                    <div className="px-4 py-3 text-sm text-slate-500 italic">Data kelas tidak ditemukan</div>
-                                ) : (
-                                    classrooms.map((cls) => (
-                                        <button
-                                            key={cls.schoolClassroomId}
-                                            type="button"
-                                            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-slate-300 transition-colors"
-                                            onClick={() => {
-                                                setFormData({ ...formData, schoolClassroomId: cls.schoolClassroomId });
-                                                setIsDropdownOpen(false);
-                                            }}
-                                        >
-                                            <span>{cls.name}</span>
-                                            {formData.schoolClassroomId === cls.schoolClassroomId && <HiCheck className="text-blue-500" />}
-                                        </button>
-                                    ))
-                                )}
-                            </div>
-                        )}
+                            {isDropdownOpen && (
+                                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+                                    {classrooms.length === 0 ? (
+                                        <div className="px-4 py-3 text-sm text-slate-500 italic">Data kelas tidak ditemukan</div>
+                                    ) : (
+                                        classrooms.map((cls) => (
+                                            <button
+                                                key={cls.schoolClassroomId}
+                                                type="button"
+                                                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-slate-300 transition-colors"
+                                                onClick={() => {
+                                                    setFormData({ ...formData, schoolClassroomId: cls.schoolClassroomId });
+                                                    setIsDropdownOpen(false);
+                                                }}
+                                            >
+                                                <span>{cls.name}</span>
+                                                {formData.schoolClassroomId === cls.schoolClassroomId && <HiCheck className="text-blue-500" />}
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="pt-2">

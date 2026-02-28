@@ -4,7 +4,7 @@ services:
     build: .
     restart: always
     ports:
-      - "7040:3000" # Kita pakai port 7040 untuk App Global
+      - "7000:7000" 
     environment:
       - NEXT_PUBLIC_API_URL=https://scchl.site
     networks:

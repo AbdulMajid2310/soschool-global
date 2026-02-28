@@ -1,23 +1,25 @@
-
 import { api } from '@/lib/axiosInstance';
 import { CreateSchoolPeriod, SchoolPeriod, ToggleActivePayload } from './types';
 
 export const SchoolPeriodService = {
+    // Menambahkan prefix 'api/' sesuai dengan @Controller('api/school-periods')
+
     getAllBySchool: (schoolId: string) =>
-        api.get(`school-periods/school/${schoolId}`),
+        api.get(`/school-periods/school/${schoolId}`),
 
     getActiveBySchool: (schoolId: string) =>
-        api.get(`school-periods/active/${schoolId}`),
+        api.get(`/school-periods/active/${schoolId}`),
 
+    // Menyesuaikan dengan path: :id/activate/school/:schoolId
     toggleActive: (payload: ToggleActivePayload) =>
-        api.patch(`school-periods/${payload.id}/activate/${payload.schoolId}`),
+        api.patch(`/school-periods/${payload.id}/activate/school/${payload.schoolId}`),
 
     create: (dto: CreateSchoolPeriod) =>
-        api.post(`school-periods`, dto),
+        api.post(`/school-periods`, dto),
 
     delete: (id: string) =>
-        api.delete(`school-periods/${id}`),
+        api.delete(`/school-periods/${id}`),
 
     update: (id: string, dto: any) =>
-        api.put(`school-periods/${id}`, dto)
+        api.put(`/school-periods/${id}`, dto)
 };

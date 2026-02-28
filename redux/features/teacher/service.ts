@@ -4,21 +4,32 @@ import { CreateTeacherPayload } from './types';
 export const teacherService = {
   async getBySchool(schoolId: string) {
     const response = await api.get(`/school-teachers/school/${schoolId}`);
-    return response.data; // Backend mengembalikan successResponse { data: { teachers, stats } }
+    return response.data;
   },
 
   async getProfile(schoolId: string, userId: string) {
     const response = await api.get(`/school-teachers/me/${schoolId}/${userId}`);
-    return response.data; // successResponse { data: SchoolTeacher }
+    return response.data;
   },
 
   async getOneBySchool(schoolId: string, teacherId: string) {
     const response = await api.get(`/school-teachers/school/${schoolId}/${teacherId}`);
-    return response.data; // successResponse { data: SchoolTeacher }
+    return response.data;
   },
 
   async create(payload: CreateTeacherPayload) {
     const response = await api.post('/school-teachers', payload);
+    return response.data;
+  },
+
+  async importCsv(schoolId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(`/school-teachers/import/${schoolId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 

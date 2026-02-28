@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { 
-  FiArrowLeft, FiCamera, FiCheck, FiChevronDown, 
+import {
+  FiArrowLeft, FiCamera, FiCheck, FiChevronDown,
   FiGlobe, FiMail, FiPhone, FiInfo, FiShield, FiCalendar
 } from "react-icons/fi";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -24,7 +24,7 @@ export default function EditSchoolPage() {
   const [plan, setPlan] = useState("Basic");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [previews, setPreviews] = useState({ avatar: "", background: "" });
-  
+
   const avatarRef = useRef<HTMLInputElement>(null);
   const backgroundRef = useRef<HTMLInputElement>(null);
 
@@ -32,7 +32,7 @@ export default function EditSchoolPage() {
   useEffect(() => {
     // Gunakan key yang konsisten sesuai implementasi sebelumnya
     const schoolId = sessionStorage.getItem("schoolIdid");
-    
+
     if (!selectedSchool && schoolId) {
       dispatch(fetchSchoolById(schoolId));
     } else if (selectedSchool) {
@@ -59,7 +59,7 @@ export default function EditSchoolPage() {
     if (!selectedSchool?.schoolId) return;
 
     const formData = new FormData(e.currentTarget);
-    
+
     // Sesuaikan dengan interface UpdateSchoolRequest
     const payload: UpdateSchoolRequest = {
       name: formData.get("name") as string,
@@ -69,17 +69,17 @@ export default function EditSchoolPage() {
       accreditation: formData.get("accreditation") as string,
       domain: (formData.get("domain") as string) || undefined,
       phone: (formData.get("phone") as string) || undefined,
-      level, 
+      level,
       plan,
       avatar: avatarRef.current?.files?.[0] || selectedSchool.avatar,
       background: backgroundRef.current?.files?.[0] || selectedSchool.background,
     };
 
-    const result = await dispatch(updateSchool({ 
-      id: selectedSchool.schoolId, 
-      data: payload 
+    const result = await dispatch(updateSchool({
+      id: selectedSchool.schoolId,
+      data: payload
     }));
-    
+
     if (updateSchool.fulfilled.match(result)) {
       toast.success("Data Sekolah Berhasil Diperbarui!");
       router.push("/sss/schools/detail");
@@ -95,10 +95,10 @@ export default function EditSchoolPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-12 font-sans text-slate-900 dark:text-white">
       <div className="max-w-5xl mx-auto">
-        
+
         {/* Header Section */}
         <div className="flex items-center justify-between mb-10">
-          <button 
+          <button
             type="button"
             onClick={() => router.back()}
             className="group flex items-center gap-3 text-slate-500 hover:text-blue-600 font-semibold transition-all"
@@ -108,7 +108,7 @@ export default function EditSchoolPage() {
             </div>
             <span>Batal</span>
           </button>
-          
+
           <button
             form="edit-school-form"
             type="submit"
@@ -120,7 +120,7 @@ export default function EditSchoolPage() {
         </div>
 
         <form id="edit-school-form" onSubmit={handleSubmit} className="space-y-8">
-          
+
           {/* Assets Section (Avatar & Background) */}
           <div className="relative group">
             <div className="h-64 md:h-80 w-full rounded-[40px] bg-slate-200 dark:bg-slate-800 overflow-hidden relative border-4 border-white dark:border-slate-900 shadow-2xl">
@@ -129,7 +129,7 @@ export default function EditSchoolPage() {
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-400"><FiCamera className="text-4xl mb-2" /></div>
               )}
-              <button 
+              <button
                 type="button"
                 onClick={() => backgroundRef.current?.click()}
                 className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md rounded-2xl hover:bg-white/40 transition-all text-white border border-white/30"
@@ -145,7 +145,7 @@ export default function EditSchoolPage() {
               ) : (
                 <div className="text-slate-300 dark:text-slate-700"><FiCamera className="text-3xl" /></div>
               )}
-              <button 
+              <button
                 type="button"
                 onClick={() => avatarRef.current?.click()}
                 className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white"
@@ -171,12 +171,12 @@ export default function EditSchoolPage() {
                   <InputField label="Email Resmi" name="email" type="email" defaultValue={selectedSchool?.email} required />
                   <InputField label="Nomor Telepon" name="phone" defaultValue={selectedSchool?.phone} />
                 </div>
-                
+
                 <div className="space-y-2 pt-2">
                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-2">Alamat Subdomain</label>
                   <div className="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-700 focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden font-bold">
                     <input name="domain" defaultValue={selectedSchool?.domain} className="flex-1 p-4 bg-transparent outline-none" />
-                    <span className="px-5 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 border-l border-slate-200 dark:border-slate-700">.soschool.site</span>
+
                   </div>
                 </div>
               </div>
@@ -225,7 +225,7 @@ function InputField({ label, ...props }: InputFieldProps) {
       <label className="text-[10px] font-black rounded-2xl uppercase text-slate-400 tracking-[0.2em] ml-2 group-focus-within:text-blue-500 transition-colors">
         {label}
       </label>
-      <input 
+      <input
         {...props}
         className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl p-4 ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 outline-hidden transition-all font-medium"
       />
@@ -253,15 +253,14 @@ function CustomSelect({ label, value, options, isOpen, setOpen, onSelect }: Cust
             <button
               key={opt}
               type="button"
-              onClick={() => { 
-                onSelect(opt); 
-                setOpen(false); 
+              onClick={() => {
+                onSelect(opt);
+                setOpen(false);
               }}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-between ${
-                value === opt 
-                  ? 'bg-blue-600 text-white' 
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-between ${value === opt
+                  ? 'bg-blue-600 text-white'
                   : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
-              }`}
+                }`}
             >
               {opt}
               {value === opt && <FiCheck />}

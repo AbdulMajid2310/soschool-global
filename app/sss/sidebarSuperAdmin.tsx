@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  FiHome, FiTrendingUp, FiActivity, FiDatabase, FiUsers, FiFileText, 
-  FiGrid, FiSettings, FiDollarSign, FiCreditCard, FiRefreshCw, FiSend, 
-  FiShield, FiMessageSquare, FiBook, FiFlag, FiHelpCircle, FiHeadphones, 
-  FiAlertCircle, FiServer, FiUserCheck, FiFile, FiHardDrive, FiChevronDown, FiX, FiLogOut, 
+import {
+  FiHome, FiTrendingUp, FiActivity, FiDatabase, FiUsers, FiFileText,
+  FiGrid, FiSettings, FiDollarSign, FiCreditCard, FiRefreshCw, FiSend,
+  FiShield, FiMessageSquare, FiBook, FiFlag, FiHelpCircle, FiHeadphones,
+  FiAlertCircle, FiServer, FiUserCheck, FiFile, FiHardDrive, FiChevronDown, FiX, FiLogOut,
   FiCpu,
   FiCode,
   FiPercent,
@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fi';
 import { LuBrain } from 'react-icons/lu';
 import { SiHomeassistantcommunitystore } from 'react-icons/si';
+import { FaUsersBetweenLines } from 'react-icons/fa6';
 
 interface MenuItem {
   id: string;
@@ -30,92 +31,93 @@ export default function SidebarSuperAdmin({ isOpen, onClose }: { isOpen: boolean
   const [openMenus, setOpenMenus] = useState<string[]>([]);
 
   const toggleAccordion = (id: string) => {
-    setOpenMenus(prev => 
+    setOpenMenus(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
 
   const SUPER_ADMIN_MENU: MenuItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard Pusat',
-    icon: <FiHome />,
-    children: [
-      { id: 'ecosystem-status', label: 'Status Ekosistem', icon: <FiTrendingUp />, path: '/sss/status' },
-      { id: 'transaction-monitoring', label: 'Monitoring Transaksi', icon: <FiActivity />, path: '/sss/transactions' },
-      { id: 'system-health', label: 'System Health', icon: <FiDatabase />, path: '/sss/health' }
-    ]
-  },
-  {
-    id: 'partnership',
-    label: 'Manajemen Sekolah',
-    icon: <FiGrid />,
-    children: [
-      { id: 'school-directory', label: 'Direktori Sekolah', icon: <FiUsers />, path: '/sss/schools' },
-      { id: 'verification', label: 'Verifikasi Sekolah Baru', icon: <FiFileText />, path: '/sss/verification' },
-      { id: 'license-settings', label: 'Manajemen Lisensi & Paket', icon: <FiSettings />, path: '/sss/licenses' },
-      { id: 'tenant-config', label: 'Whitelabel & Branding', icon: <FiLayout />, path: '/sss/branding' }
-    ]
-  },
-  {
-    id: 'financial',
-    label: 'SoPay & Finansial',
-    icon: <FiDollarSign />,
-    children: [
-      { id: 'gateway-config', label: 'Payment Gateway Info', icon: <FiCreditCard />, path: '/sss/gateway' },
-      { id: 'fee-config', label: 'Platform Fee (MDR)', icon: <FiPercent />, path: '/sss/fees' },
-      { id: 'reconciliation', label: 'Rekonsiliasi Bank', icon: <FiRefreshCw />, path: '/sss/reconciliation' },
-      { id: 'settlement', label: 'Settlement/Payout Sekolah', icon: <FiSend />, path: '/sss/payout' },
-      { id: 'fraud-alert', label: 'Fraud Detection', icon: <FiShield />, path: '/sss/fraud' }
-    ]
-  },
-  {
-    id: 'ai-management',
-    label: 'SoSchool AI Control',
-    icon: <LuBrain />, // Pastikan import LuBrain dari react-icons/lu
-    children: [
-      { id: 'ai-usage', label: 'Monitoring Token AI', icon: <FiActivity />, path: '/sss/usage' },
-      { id: 'ai-model-config', label: 'Model Configuration', icon: <FiCpu />, path: '/sss/config' },
-      { id: 'prompt-lab', label: 'Global Prompt Engineering', icon: <FiCode />, path: '/sss/prompts' }
-    ]
-  },
-  {
-    id: 'content-community',
-    label: 'Konten & Moderasi',
-    icon: <FiMessageSquare />,
-    children: [
-      { id: 'global-feed', label: 'Moderasi Feed Global', icon: <FiShield />, path: '/sss/moderation' },
-      { id: 'marketplace-control', label: 'Katalog Marketplace', icon: <SiHomeassistantcommunitystore />, path: '/sss/marketplace' },
-      { id: 'question-bank', label: 'Bank Soal Nasional', icon: <FiBook />, path: '/sss/questions' },
-      { id: 'global-banner', label: 'Banner & Broadcast', icon: <FiFlag />, path: '/sss/banners' }
-    ]
-  },
-  {
-    id: 'support-ticketing',
-    label: 'Support & Helpdesk',
-    icon: <FiHeadphones />,
-    children: [
-      { id: 'helpdesk', label: 'Tiket Bantuan', icon: <FiHeadphones />, path: '/sss/helpdesk' },
-      { id: 'bug-tracker', label: 'Bug Reports (Dev)', icon: <FiAlertCircle />, path: '/sss/bugs' },
-      { id: 'documentation', label: 'Pusat Panduan (Docs)', icon: <FiFileText />, path: '/sss/docs' }
-    ]
-  },
-  {
-    id: 'infrastructure',
-    label: 'System Infrastructure',
-    icon: <FiServer />,
-    children: [
-      { id: 'internal-users', label: 'Admin & sss Pusat', icon: <FiUserCheck />, path: '/sss/internal-users' },
-      { id: 'audit-log', label: 'Audit Log System', icon: <FiFile />, path: '/sss/audit' },
-      { id: 'backup-restore', label: 'Backup & Cloud Sync', icon: <FiHardDrive />, path: '/sss/backup' },
-      { id: 'api-management', label: 'API Keys & Webhooks', icon: <FiKey />, path: '/sss/api' }
-    ]
-  }
-];
+    {
+      id: 'dashboard',
+      label: 'Dashboard Pusat',
+      icon: <FiHome />,
+      children: [
+        { id: 'ecosystem-status', label: 'Status Ekosistem', icon: <FiTrendingUp />, path: '/sss/status' },
+        { id: 'transaction-monitoring', label: 'Monitoring Transaksi', icon: <FiActivity />, path: '/sss/transactions' },
+        { id: 'system-health', label: 'System Health', icon: <FiDatabase />, path: '/sss/health' },
+        { id: 'user-monitoring', label: 'Monitoring Pengguna', icon: <FaUsersBetweenLines />, path: '/sss/users' }
+      ]
+    },
+    {
+      id: 'partnership',
+      label: 'Manajemen Sekolah',
+      icon: <FiGrid />,
+      children: [
+        { id: 'school-directory', label: 'Direktori Sekolah', icon: <FiUsers />, path: '/sss/schools' },
+        { id: 'verification', label: 'Verifikasi Sekolah Baru', icon: <FiFileText />, path: '/sss/verification' },
+        { id: 'license-settings', label: 'Manajemen Lisensi & Paket', icon: <FiSettings />, path: '/sss/licenses' },
+        { id: 'tenant-config', label: 'Whitelabel & Branding', icon: <FiLayout />, path: '/sss/branding' }
+      ]
+    },
+    {
+      id: 'financial',
+      label: 'SoPay & Finansial',
+      icon: <FiDollarSign />,
+      children: [
+        { id: 'gateway-config', label: 'Payment Gateway Info', icon: <FiCreditCard />, path: '/sss/gateway' },
+        { id: 'fee-config', label: 'Platform Fee (MDR)', icon: <FiPercent />, path: '/sss/fees' },
+        { id: 'reconciliation', label: 'Rekonsiliasi Bank', icon: <FiRefreshCw />, path: '/sss/reconciliation' },
+        { id: 'settlement', label: 'Settlement/Payout Sekolah', icon: <FiSend />, path: '/sss/payout' },
+        { id: 'fraud-alert', label: 'Fraud Detection', icon: <FiShield />, path: '/sss/fraud' }
+      ]
+    },
+    {
+      id: 'ai-management',
+      label: 'SoSchool AI Control',
+      icon: <LuBrain />, // Pastikan import LuBrain dari react-icons/lu
+      children: [
+        { id: 'ai-usage', label: 'Monitoring Token AI', icon: <FiActivity />, path: '/sss/usage' },
+        { id: 'ai-model-config', label: 'Model Configuration', icon: <FiCpu />, path: '/sss/config' },
+        { id: 'prompt-lab', label: 'Global Prompt Engineering', icon: <FiCode />, path: '/sss/prompts' }
+      ]
+    },
+    {
+      id: 'content-community',
+      label: 'Konten & Moderasi',
+      icon: <FiMessageSquare />,
+      children: [
+        { id: 'global-feed', label: 'Moderasi Feed Global', icon: <FiShield />, path: '/sss/moderation' },
+        { id: 'marketplace-control', label: 'Katalog Marketplace', icon: <SiHomeassistantcommunitystore />, path: '/sss/marketplace' },
+        { id: 'question-bank', label: 'Bank Soal Nasional', icon: <FiBook />, path: '/sss/questions' },
+        { id: 'global-banner', label: 'Banner & Broadcast', icon: <FiFlag />, path: '/sss/banners' }
+      ]
+    },
+    {
+      id: 'support-ticketing',
+      label: 'Support & Helpdesk',
+      icon: <FiHeadphones />,
+      children: [
+        { id: 'helpdesk', label: 'Tiket Bantuan', icon: <FiHeadphones />, path: '/sss/helpdesk' },
+        { id: 'bug-tracker', label: 'Bug Reports (Dev)', icon: <FiAlertCircle />, path: '/sss/bugs' },
+        { id: 'documentation', label: 'Pusat Panduan (Docs)', icon: <FiFileText />, path: '/sss/docs' }
+      ]
+    },
+    {
+      id: 'infrastructure',
+      label: 'System Infrastructure',
+      icon: <FiServer />,
+      children: [
+        { id: 'internal-users', label: 'Admin & sss Pusat', icon: <FiUserCheck />, path: '/sss/internal-users' },
+        { id: 'audit-log', label: 'Audit Log System', icon: <FiFile />, path: '/sss/audit' },
+        { id: 'backup-restore', label: 'Backup & Cloud Sync', icon: <FiHardDrive />, path: '/sss/backup' },
+        { id: 'api-management', label: 'API Keys & Webhooks', icon: <FiKey />, path: '/sss/api' }
+      ]
+    }
+  ];
 
   return (
     <>
-      <div 
+      <div
         className={`fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-100 transition-opacity duration-300 lg:hidden 
         ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
@@ -127,7 +129,7 @@ export default function SidebarSuperAdmin({ isOpen, onClose }: { isOpen: boolean
         flex flex-col transition-all duration-500 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        
+
         <button onClick={onClose} className="lg:hidden absolute top-6 right-6 p-2 rounded-xl text-slate-500 dark:text-blue-400 bg-slate-100 dark:bg-blue-500/10">
           <FiX size={20} />
         </button>
@@ -138,7 +140,7 @@ export default function SidebarSuperAdmin({ isOpen, onClose }: { isOpen: boolean
             return (
               <div key={item.id} className="space-y-1">
                 {/* Parent Menu */}
-                <button 
+                <button
                   onClick={() => toggleAccordion(item.id)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group
                   ${isExpanded ? 'bg-blue-50 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-blue-100/40 hover:bg-slate-50 dark:hover:bg-blue-800/10'}`}
@@ -160,14 +162,14 @@ export default function SidebarSuperAdmin({ isOpen, onClose }: { isOpen: boolean
                   {item.children?.map((child) => {
                     const isActive = pathname === child.path;
                     return (
-                      <Link 
-                        key={child.id} 
+                      <Link
+                        key={child.id}
                         href={child.path || '#'}
-                        onClick={() => { if(window.innerWidth < 1024) onClose(); }}
+                        onClick={() => { if (window.innerWidth < 1024) onClose(); }}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[10px] font-bold uppercase italic tracking-widest
-                        ${isActive 
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
-                          : 'text-slate-500 dark:text-blue-100/30 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-50 dark:hover:bg-blue-500/5'}`}
+                        ${isActive
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'text-slate-500 dark:text-blue-100/30 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-slate-50 dark:hover:bg-blue-500/5'}`}
                       >
                         <span className="text-lg">{child.icon}</span>
                         {child.label}

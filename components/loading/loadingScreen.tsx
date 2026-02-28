@@ -8,6 +8,8 @@ export default function LoadingScreen() {
   const dispatch = useAppDispatch();
   const { profile, authLoading } = useAppSelector((state) => state.auth);
 
+  console.log(profile)
+
   useEffect(() => {
     if (!profile && !authLoading) {
       dispatch(getProfileMe());

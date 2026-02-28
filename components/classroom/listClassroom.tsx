@@ -25,7 +25,9 @@ export default function ClassroomManager({ onSelect }: ClassroomManagerProps) {
   const { profile } = useAppSelector((state) => state.auth);
   const { classrooms, loading, success, error } = useAppSelector((state) => state.classroom);
 
-  const schoolId = profile?.school?.schoolId;
+  const selectSchoolId = sessionStorage.getItem("schoolId")
+
+  const schoolId = profile?.activeContext?.schoolId || selectSchoolId
 
   // Local States
   const [isFormOpen, setIsFormOpen] = useState(false);

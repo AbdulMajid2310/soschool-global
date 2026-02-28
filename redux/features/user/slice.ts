@@ -1,10 +1,20 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { UserState } from './types';
-import { getAllUsers, createUser, updateUser, deleteUser } from './thunk';
+import {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  getUserStats,
+  getFilteredUsers
+} from './thunk';
 
 const initialState: UserState = {
   users: [],
   userDetail: null,
+  filteredUsers: [],
+  stats: null,
   loading: false,
   error: null,
 };
@@ -16,6 +26,9 @@ const userSlice = createSlice({
     clearUserDetail: (state) => {
       state.userDetail = null;
     },
+    clearFilteredUsers: (state) => {
+      state.filteredUsers = [];
+    },
     resetUserState: (state) => {
       state.error = null;
       state.loading = false;
@@ -23,7 +36,40 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      /* FETCH ALL USERS */
+
+      /* ============================
+           FETCH FILTERED USERS (School Context)
+           ============================ */
+      .addCase(getFilteredUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getFilteredUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredUsers = action.payload.data; // Simpan hasil ke state baru
+      })
+      .addCase(getFilteredUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      /* ============================
+         FETCH MONITORING STATS 
+         ============================ */
+      .addCase(getUserStats.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getUserStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stats = action.payload.data; // Simpan data statistik ke state
+      })
+      .addCase(getUserStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      /* ============================
+         FETCH ALL USERS 
+         ============================ */
       .addCase(getAllUsers.pending, (state) => {
         state.loading = true;
       })
@@ -36,7 +82,25 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      /* CREATE USER */
+      /* ============================
+         FETCH USER BY ID 
+         ============================ */
+      .addCase(getUserById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userDetail = action.payload.data;
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      /* ============================
+         CREATE, UPDATE, DELETE 
+         (Loading handling)
+         ============================ */
       .addCase(createUser.pending, (state) => {
         state.loading = true;
       })
@@ -48,7 +112,6 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      /* UPDATE USER */
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
       })
@@ -56,7 +119,6 @@ const userSlice = createSlice({
         state.loading = false;
       })
 
-      /* DELETE USER */
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
       })

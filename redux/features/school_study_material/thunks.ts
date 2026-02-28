@@ -5,12 +5,36 @@ import { CreateStudyMaterialDto, UpdateStudyMaterialDto } from './types';
 
 export const createStudyMaterial = createAsyncThunk(
     'studyMaterial/create',
-    async (dto: CreateStudyMaterialDto, { rejectWithValue }) => {
+    async (formData: FormData, { rejectWithValue }) => {
         try {
-            const response = await studyMaterialService.create(dto);
+            // Log untuk memantau data yang dikirim (Opsional - untuk dev saja)
+            console.log('--- Sending Study Material ---');
+            formData.forEach((value, key) => {
+                if (key === 'file') {
+                    const file = value as File;
+                    console.log(`Field [${key}]: ${file.name} (${file.size} bytes)`);
+                } else {
+                    console.log(`Field [${key}]:`, value);
+                }
+            });
+
+            const response = await studyMaterialService.create(formData);
+
+            console.log('--- Success Response ---');
+            console.log('Saved Data:', response.data);
+
             return response.data;
         } catch (error: any) {
-            return rejectWithValue(error.response?.data?.message || 'Gagal membuat materi');
+            // Console Error yang lebih detail untuk Majid
+            console.error('--- Create Study Material Error ---');
+            console.error('Status:', error.response?.status);
+            console.error('Message:', error.response?.data?.message);
+            console.error('Full Error Object:', error);
+
+            // Ambil pesan error spesifik dari NestJS (biasanya di error.response.data.message)
+            const errorMessage = error.response?.data?.message || 'Gagal membuat materi';
+
+            return rejectWithValue(errorMessage);
         }
     }
 );

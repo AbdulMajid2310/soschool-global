@@ -4,6 +4,7 @@ export interface Subject {
     subjectId: string;
     name: string;
     description: string;
+    sks: string;
     code: string;
     level: string;
     category: string;

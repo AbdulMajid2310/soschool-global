@@ -1,6 +1,5 @@
-// src/redux/features/school_schedule/scheduleSlice.ts
 import { createSlice, PayloadAction, ActionReducerMapBuilder } from '@reduxjs/toolkit';
-import { ScheduleState, SchoolSchedule } from './types';
+import { ScheduleState, SchoolSchedule, IGroupedSchedule, IScheduleSummary } from './types';
 import {
     fetchSchedulesBySchool,
     fetchSchedulesByClass,
@@ -14,6 +13,7 @@ import {
 const initialState: ScheduleState = {
     schedules: [],
     currentSchedule: null,
+    summary: null,
     loading: false,
     isSubmitting: false,
     error: null,
@@ -23,107 +23,86 @@ const scheduleSlice = createSlice({
     name: 'schedule',
     initialState,
     reducers: {
-        clearScheduleError: (state: ScheduleState) => {
+        clearScheduleError: (state) => {
             state.error = null;
         },
-        selectSchedule: (state: ScheduleState, action: PayloadAction<SchoolSchedule | null>) => {
+        selectSchedule: (state, action: PayloadAction<SchoolSchedule | null>) => {
             state.currentSchedule = action.payload;
-        }
+        },
+        resetScheduleState: () => initialState
     },
     extraReducers: (builder: ActionReducerMapBuilder<ScheduleState>) => {
         builder
-            // --- Fetch Detail ---
-            .addCase(fetchScheduleDetail.pending, (state: ScheduleState) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(fetchScheduleDetail.fulfilled, (state: ScheduleState, action: PayloadAction<SchoolSchedule>) => {
+            .addCase(fetchScheduleDetail.fulfilled, (state, action: PayloadAction<SchoolSchedule>) => {
                 state.loading = false;
                 state.currentSchedule = action.payload;
             })
-            .addCase(fetchScheduleDetail.rejected, (state: ScheduleState, action: any) => {
+
+            .addCase(fetchSchedulesByTeacher.fulfilled, (state, action: PayloadAction<{ summary: IScheduleSummary, schedules: IGroupedSchedule[] }>) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.schedules = action.payload.schedules;
+                state.summary = action.payload.summary;
             })
 
-            // --- Create Schedule ---
-            .addCase(createSchedule.pending, (state: ScheduleState) => {
+            .addCase(createSchedule.pending, (state) => {
                 state.isSubmitting = true;
+                state.error = null;
             })
-            .addCase(createSchedule.fulfilled, (state: ScheduleState, action: PayloadAction<SchoolSchedule>) => {
+            .addCase(createSchedule.fulfilled, (state) => {
                 state.isSubmitting = false;
-                state.schedules.push(action.payload);
-                state.schedules.sort((a: SchoolSchedule, b: SchoolSchedule) => a.startTime.localeCompare(b.startTime));
             })
-            .addCase(createSchedule.rejected, (state: ScheduleState, action: any) => {
+            .addCase(createSchedule.rejected, (state, action) => {
                 state.isSubmitting = false;
                 state.error = action.payload as string;
             })
 
-            // --- Update Schedule ---
-            .addCase(updateSchedule.pending, (state: ScheduleState) => {
+            .addCase(updateSchedule.pending, (state) => {
                 state.isSubmitting = true;
+                state.error = null;
             })
-            .addCase(updateSchedule.fulfilled, (state: ScheduleState, action: PayloadAction<SchoolSchedule>) => {
+            .addCase(updateSchedule.fulfilled, (state) => {
                 state.isSubmitting = false;
-                const index = state.schedules.findIndex((s: SchoolSchedule) => s.scheduleId === action.payload.scheduleId);
-                if (index !== -1) {
-                    state.schedules[index] = action.payload;
-                    state.schedules.sort((a: SchoolSchedule, b: SchoolSchedule) => a.startTime.localeCompare(b.startTime));
-                }
-                if (state.currentSchedule?.scheduleId === action.payload.scheduleId) {
-                    state.currentSchedule = action.payload;
-                }
+                state.currentSchedule = null;
             })
-            .addCase(updateSchedule.rejected, (state: ScheduleState, action: any) => {
+            .addCase(updateSchedule.rejected, (state, action) => {
                 state.isSubmitting = false;
                 state.error = action.payload as string;
             })
 
-            // --- Delete Schedule ---
-            .addCase(deleteSchedule.fulfilled, (state: ScheduleState, action: PayloadAction<string>) => {
-                state.schedules = state.schedules.filter((s: SchoolSchedule) => s.scheduleId !== action.payload);
-                if (state.currentSchedule?.scheduleId === action.payload) state.currentSchedule = null;
+            .addCase(deleteSchedule.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(deleteSchedule.fulfilled, (state) => {
+                state.loading = false;
             })
 
-            // --- Matchers for Fetching Schedules ---
             .addMatcher(
-                (action) => [
-                    fetchSchedulesBySchool.pending.type,
-                    fetchSchedulesByClass.pending.type,
-                    fetchSchedulesByTeacher.pending.type
-                ].includes(action.type),
-                (state: ScheduleState) => {
+                (action) => action.type.endsWith('/pending') && !action.type.includes('create') && !action.type.includes('update'),
+                (state) => {
                     state.loading = true;
                     state.error = null;
                 }
             )
-            // 2. Matcher Fulfilled
             .addMatcher(
-                (action): action is PayloadAction<SchoolSchedule[]> => [
-                    fetchSchedulesBySchool.fulfilled.type,
-                    fetchSchedulesByClass.fulfilled.type,
-                    fetchSchedulesByTeacher.fulfilled.type
-                ].includes(action.type),
-                (state: ScheduleState, action: PayloadAction<SchoolSchedule[]>) => {
+                (action) => action.type.endsWith('/rejected') && !action.type.includes('create') && !action.type.includes('update'),
+                (state, action: any) => {
                     state.loading = false;
-                    state.schedules = action.payload;
+                    state.error = action.payload as string;
                 }
             )
-            // 3. Matcher Rejected
             .addMatcher(
-                (action): action is PayloadAction<string> => [
-                    fetchSchedulesBySchool.rejected.type,
-                    fetchSchedulesByClass.rejected.type,
-                    fetchSchedulesByTeacher.rejected.type
+                (action) => [
+                    fetchSchedulesBySchool.fulfilled.type,
+                    fetchSchedulesByClass.fulfilled.type
                 ].includes(action.type),
-                (state: ScheduleState, action: PayloadAction<string>) => {
+                (state, action: PayloadAction<IGroupedSchedule[]>) => {
                     state.loading = false;
-                    state.error = action.payload;
+                    state.schedules = action.payload;
+                    state.summary = null;
                 }
             );
     },
 });
 
-export const { clearScheduleError, selectSchedule } = scheduleSlice.actions;
+export const { clearScheduleError, selectSchedule, resetScheduleState } = scheduleSlice.actions;
 export default scheduleSlice.reducer;

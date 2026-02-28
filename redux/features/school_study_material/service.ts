@@ -3,9 +3,9 @@ import { api } from '@/lib/axiosInstance';
 import { CreateStudyMaterialDto, UpdateStudyMaterialDto } from './types';
 
 export const studyMaterialService = {
-    async create(dto: CreateStudyMaterialDto) {
-        const response = await api.post('/study-materials', dto);
-        return response.data; // successResponse { data: StudyMaterial }
+    async create(formData: FormData) {
+        const response = await api.post('/study-materials', formData);
+        return response.data;
     },
 
     async findBySubject(subjectId: string) {

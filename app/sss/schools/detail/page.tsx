@@ -10,7 +10,8 @@ import {
 import { RootState } from "@/redux/store";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchSchoolById } from "@/redux/features/school/thunk";
-import { FaMapMarkedAlt, FaPlus } from "react-icons/fa";
+import { FaChalkboardTeacher, FaMapMarkedAlt, FaPlus } from "react-icons/fa";
+import StatCard from "./StatsCard";
 
 
 
@@ -27,11 +28,11 @@ export default function SchoolDetailPage() {
   }
 
   useEffect(() => {
-    // 3. Panggil API hanya jika schoolId ada
     if (schoolId) {
       dispatch(fetchSchoolById(schoolId));
     }
-  }, [dispatch, schoolId]); // Re-run jika schoolId berubah
+  }, [dispatch, schoolId]);
+
   const handleDelete = () => {
     if (confirm("Apakah Anda yakin ingin menghapus sekolah ini? Data tidak dapat dikembalikan.")) {
       console.log("Menghapus sekolah:", selectedSchool?.schoolId);
@@ -42,11 +43,11 @@ export default function SchoolDetailPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-12">
+    <div className="min-h-screen  text-gray-700 dark:text-white ">
       <div className="max-w-6xl mx-auto">
 
         {/* Top Navigation & Actions */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div className="flex  md:items-center justify-between gap-6 mb-10">
           <button
             onClick={() => router.back()}
             className="group flex items-center gap-3 text-slate-500 hover:text-blue-600 font-bold transition-all w-fit"
@@ -66,46 +67,66 @@ export default function SchoolDetailPage() {
               <span className="hidden md:inline">Hapus Sekolah</span>
             </button>
 
-            <button onClick={() => router.push('/sss/schools/edit')} className="flex items-center gap-2 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border border-slate-900 dark:border-white rounded-2xl font-bold hover:bg-blue-600 dark:hover:bg-blue-600 hover:border-blue-600 dark:hover:text-white transition-all shadow-xl shadow-slate-200 dark:shadow-none">
+            <button onClick={() => router.push('/sss/schools/edit')} className="flex items-center gap-2 px-5 sm:px-8  py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border border-slate-900 dark:border-white rounded-2xl font-bold hover:bg-blue-600 dark:hover:bg-blue-600 hover:border-blue-600 dark:hover:text-white transition-all shadow-xl shadow-slate-200 dark:shadow-none">
               <FiEdit3 />
-              <span>Edit Profil</span>
+              <span className="hidden sm:inline">Edit Profil</span>
             </button>
           </div>
         </div>
 
         {/* Hero Section */}
-        <div className="relative mb-20">
-          {/* Banner */}
-          <div className="h-64 md:h-96 w-full rounded-4xl overflow-hidden shadow-2xl relative">
-            <img src={selectedSchool?.background || "/images/background-school.png"} className="w-full h-full object-cover" alt="Banner" />
-            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="relative mb-32 group">
+          {/* Banner - Dibuat lebih sinematik */}
+          <div className="h-64 md:h-100 w-full rounded-[40px] md:rounded-[60px] overflow-hidden shadow-2xl relative">
+            <img
+              src={selectedSchool?.background || "/images/background-school.png"}
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+              alt="Banner"
+            />
+            {/* Overlay Gradient: lebih gelap di bawah agar teks putih terbaca jelas */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80" />
           </div>
 
           {/* Profile Overlay */}
-          <div className="absolute -bottom-12 left-6 right-6 md:left-12 md:right-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="flex items-end gap-6">
-              <div className="h-32 w-32 md:h-44 md:w-44 rounded-[40px] bg-white dark:bg-slate-900 border-[6px] border-[#f8fafc] dark:border-[#020617] overflow-hidden shadow-2xl shrink-0">
+          <div className="absolute -bottom-4 left-4 right-4 md:left-12 md:right-12 flex flex-col md:flex-row md:items-end gap-6">
+
+            {/* Avatar - Menggunakan shadow indigo tipis agar terlihat premium */}
+            <div className="relative sm:shrink-0 group/avatar">
+              <div className="h-24 w-24 md:h-48 md:w-48 rounded-full md:rounded-[56px] bg-white dark:bg-slate-900 border-[6px] md:border-8 border-[#f8fafc] dark:border-[#020617] overflow-hidden shadow-2xl relative z-10">
                 <img src={selectedSchool?.avatar} className="w-full h-full object-cover" alt="Logo" />
               </div>
-              <div className="mb-4">
-                <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h1 className="text-3xl md:text-5xl font-black text-white italic drop-shadow-xl tracking-tight">
-                    {selectedSchool?.name}
-                  </h1>
-                  <span className="px-4 py-1.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-blue-500/40">
-                    {selectedSchool?.plan} Plan
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-white/90 font-bold italic">
-                  <span className="flex items-center gap-2">
-                    <FiGlobe className="text-blue-400" />
-                    {selectedSchool?.domain}
-                  </span>
-                  <span className="h-1 w-1 rounded-full bg-white/40 hidden md:block" />
-                  <span className="hidden md:flex items-center gap-2">
-                    <FiMapPin className="text-red-400" />
-                    {selectedSchool?.address?.city}
-                  </span>
+              {/* Efek Glow di belakang avatar */}
+              <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 group-hover/avatar:opacity-40 transition-opacity" />
+            </div>
+
+            {/* School Info Area */}
+            <div className="flex-1 mb-1 md:mb-6">
+              <div className="flex flex-col items-start gap-2">
+                {/* Badge Plan - Glassmorphism style */}
+                <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] sm:font-black uppercase tracking-[0.2em] rounded-full shadow-lg">
+                  {selectedSchool?.plan || 'Standard'} Edition
+                </span>
+
+                {/* School Name - Diperbaiki agar tidak terpotong (line-clamp) tapi tetap besar */}
+                <h1 className="text-xl md:text-6xl font-black text-white italic drop-shadow-2xl tracking-tighter leading-tight">
+                  {selectedSchool?.name}
+                </h1>
+
+                {/* Meta Info (Domain & Location) */}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2  font-bold italic text-white/80">
+                  <a
+                    href={`https://${selectedSchool?.domain}`}
+                    target="_blank"
+                    className="flex items-center text-sm gap-2 hover:text-white transition-colors group/link"
+                  >
+                    <FiGlobe className="text-blue-400 group-hover/link:animate-spin-slow" />
+                    <span className="underline underline-offset-4 decoration-blue-500/40">{selectedSchool?.domain}</span>
+                  </a>
+
+                  <div className="flex items-center gap-2 text-sm bg-black/20 md:bg-transparent px-3 py-1 md:px-0 rounded-full backdrop-blur-sm md:backdrop-blur-none">
+                    <FiMapPin className="text-rose-500" />
+                    <span>{selectedSchool?.address?.city || 'Lokasi belum diatur'}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -117,10 +138,11 @@ export default function SchoolDetailPage() {
 
           <div className="lg:col-span-2 space-y-8">
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 md:gap-6">
-              <StatCard icon={<FiUsers />} label="Siswa" value={'2999'} color="text-blue-500" href={'/sss/schools/student'}/>
-              <StatCard icon={<FiUserCheck />} label="Guru" value={'300'} color="text-purple-500" href={'/sss/schools/teacher'}/>
-              <StatCard icon={<FiBookOpen />} label="Kelas" value={'12'} color="text-emerald-500" href={'/sss/schools/classroom'}/>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-4">
+              <StatCard icon={<FiUsers />} label="Siswa" value={'2999'} color="text-blue-500" href={'/sss/schools/student'} />
+              <StatCard icon={<FiUserCheck />} label="Guru" value={'300'} color="text-purple-500" href={'/sss/schools/teacher'} />
+              <StatCard icon={<FaChalkboardTeacher />} label="staff" value={'300'} color="text-purple-500" href={'/sss/schools/staff'} />
+              <StatCard icon={<FiBookOpen />} label="Kelas" value={'12'} color="text-emerald-500" href={'/sss/schools/classroom-config'} />
             </div>
 
             {/* Information Card */}
@@ -224,20 +246,6 @@ export default function SchoolDetailPage() {
   );
 }
 
-// Reusable Components dengan Tailwind v4 Style
-function StatCard({ icon, label, value, color, href }: any) {
-  const router= useRouter()
-  return (
-    
-    <div onClick={()=> router.push(href)} className="bg-white dark:bg-slate-900 p-6 rounded-4xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center group hover:-translate-y-2 transition-all duration-300">
-      <div className={`p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 mb-4 ${color} group-hover:scale-110 transition-transform shadow-inner`}>
-        {React.cloneElement(icon, { size: 24 })}
-      </div>
-      <p className="text-[10px] font-black uppercase text-slate-400 tracking-tighter mb-1">{label}</p>
-      <p className="text-3xl font-black text-slate-800 dark:text-white italic tracking-tighter">{value.toLocaleString()}</p>
-    </div>
-  );
-}
 
 function InfoItem({ icon, label, value, isLink }: any) {
   return (

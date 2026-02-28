@@ -2,6 +2,7 @@ export interface SchoolClassroom {
   schoolClassroomId: string;
   name: string;
   major: string;
+  level: string,
   createdAt?: string;
 }
 
@@ -15,12 +16,14 @@ export interface ClassroomState {
 export interface CreateClassroomPayload {
   name: string;
   major: string | null,
+  level: string
   schoolId: string;
 }
 
 export interface UpdateClassroomPayload {
   id: string;
   schoolId: string;
+  level: string
   name: string;
   major: string | null;
 }

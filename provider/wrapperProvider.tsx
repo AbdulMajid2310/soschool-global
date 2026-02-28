@@ -1,30 +1,31 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { Toaster } from 'react-hot-toast';
+
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { getProfileMe } from '@/redux/features/auth/thunk';
-import { getUserRoleById } from '@/redux/features/userRole/thunk';
-import { clearRoleDetail } from '@/redux/features/userRole/slice';
-import { Toaster } from 'react-hot-toast';
 
 import Header from '@/components/header';
 import LoadingScreen from '@/components/loading/loadingScreen';
-
-// Impor sidebar secara dinamis atau kelompokkan
-import SidebarStudent from '@/app/siswa/sidebarStudent';
-import SidebarParent from '@/app/wali-murid/sidebarParent';
-import SidebarTeacher from '@/app/guru/sidebarTeacher';
-import SidebarStaff from '@/app/staff/sidebarStaff';
+import SidebarStudent from '@/app/sis/sidebarStudent';
+import SidebarParent from '@/app/wm/sidebarParent';
+import SidebarTeacher from '@/app/gr/sidebarTeacher';
+import SidebarStaff from '@/app/sf/sidebarStaff';
 import SidebarSuperAdmin from '@/app/sss/sidebarSuperAdmin';
 
-const ROLE_CODES = {
-  STUDENT: '188728',
-  PARENT: '12323',
-  TEACHER: '18787',
-  STAFF: '18333',
-  SUPER_ADMIN: '1842648',
-} as const;
+// 1. Mapping Role ke Sidebar dan Prefix-nya
+const ROLE_CONFIG: Record<string, { component: React.ElementType, prefix: string }> = {
+  [process.env.NEXT_PUBLIC_ROLE_STUDENT_ID || '']: { component: SidebarStudent, prefix: '/sis' },
+  [process.env.NEXT_PUBLIC_ROLE_PARENT_ID || '']: { component: SidebarParent, prefix: '/wm' },
+  [process.env.NEXT_PUBLIC_ROLE_TEACHER_ID || '']: { component: SidebarTeacher, prefix: '/gr' },
+  [process.env.NEXT_PUBLIC_ROLE_STAFF_ID || '']: { component: SidebarStaff, prefix: '/sf' },
+  [process.env.NEXT_PUBLIC_ROLE_SUPER_ADMIN_ID || '']: { component: SidebarSuperAdmin, prefix: '/sss' },
+};
+
+// Daftar semua folder role untuk divalidasi
+const PROTECTED_PREFIXES = ['/sis', '/wm', '/gr', '/sf', '/sss'];
 
 export default function WrapperProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
@@ -33,11 +34,12 @@ export default function WrapperProvider({ children }: { children: React.ReactNod
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { profile, authLoading } = useAppSelector((state) => state.auth);
-  const { role, roleLoading } = useAppSelector((state) => state.userRole);
 
-  const isPublicRoute = useMemo(() => ['/', '/login'].includes(pathname), [pathname]);
+  const isPublicRoute = useMemo(() => ['/', '/login', '/verify-account'].includes(pathname), [pathname]);
+  const isSelectRolePage = useMemo(() => pathname === '/select-role', [pathname]);
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
 
-  // 1. Auth Guard & Profile Fetching
+  // --- LOGIC AUTH & REDIRECT (KETAT) ---
   useEffect(() => {
     const token = localStorage.getItem('sid');
 
@@ -48,86 +50,72 @@ export default function WrapperProvider({ children }: { children: React.ReactNod
 
     if (!profile && !authLoading) {
       dispatch(getProfileMe());
+      return;
     }
-  }, [dispatch, isPublicRoute, router, profile, authLoading]);
 
-  // 2. Role Detail Fetching
-  const userRoleId = profile?.role?.userRoleId;
-  useEffect(() => {
-    if (userRoleId) {
-      dispatch(getUserRoleById(userRoleId));
+    // VALIDASI AKSES ROLE
+    if (profile && !isPublicRoute && !isSelectRolePage) {
+      const activeRoleCode = String(profile.activeContext?.role?.code);
+      const config = ROLE_CONFIG[activeRoleCode];
+
+      // Tentukan apakah user sedang berada di salah satu folder role (sis, gr, sss, dll)
+      const isAccessingRoleFolder = PROTECTED_PREFIXES.some(prefix => pathname.startsWith(prefix));
+
+      if (isAccessingRoleFolder) {
+        // Jika user berada di folder role, cek apakah itu foldernya dia?
+        if (!config || !pathname.startsWith(config.prefix)) {
+          console.warn("⚠️ Akses Ilegal terdeteksi! Menendang user ke /home");
+          router.replace('/home'); // Tendang ke Home
+        }
+      }
     }
-    return () => { dispatch(clearRoleDetail()); };
-  }, [dispatch, userRoleId]);
+  }, [profile, authLoading, isPublicRoute, isSelectRolePage, pathname, router, dispatch]);
 
-  // 3. Dynamic Sidebar Mapper
-  const SidebarComponent = useMemo(() => {
-    if (!role?.code) return null;
-    const code = role.code.toLowerCase();
+  // --- RENDER SIDEBAR ---
+  const Sidebar = useMemo(() => {
+    const code = profile?.activeContext?.role?.code;
+    const config = code ? ROLE_CONFIG[String(code)] : null;
+    return config ? config.component : null;
+  }, [profile?.activeContext?.role?.code]);
 
-    const sidebars: Record<string, React.ElementType> = {
-      [ROLE_CODES.STUDENT]: SidebarStudent,
-      [ROLE_CODES.PARENT]: SidebarParent,
-      [ROLE_CODES.TEACHER]: SidebarTeacher,
-      [ROLE_CODES.STAFF]: SidebarStaff,
-      [ROLE_CODES.SUPER_ADMIN]: SidebarSuperAdmin,
-    };
-
-    const Component = sidebars[code];
-    return Component ? <Component isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} /> : null;
-  }, [role, isSidebarOpen]);
-
+  // --- RENDER LOGIC ---
   if (isPublicRoute) return <>{children}</>;
 
-  // Loading state handling
-  const isLoading = authLoading || (profile && roleLoading && !role);
-  if (isLoading) return <LoadingScreen />;
-
-  // Error state: Profile fetched but no role found
-  if (!isLoading && !role && !isPublicRoute) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <AccessDeniedCard onRetry={() => router.push('/login')} />
-      </div>
-    );
+  if (authLoading || (!profile && localStorage.getItem('sid'))) {
+    return <LoadingScreen />;
   }
 
+  if (!profile) return null;
+
   return (
-    <div className="h-screen  bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-300">
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 font-sans overflow-hidden">
       <Toaster position="top-right" toastOptions={{ style: { zIndex: 9999 } }} />
 
       <Header onMenuClick={() => setIsSidebarOpen(true)} />
 
-      <div className="flex ">
-        <aside className="hidden md:block h-screen sticky top-0 z-20 border-r border-gray-200 dark:border-gray-800">
-          {SidebarComponent}
-        </aside>
+      <div className="flex h-full">
+        {/* Sidebar hanya muncul jika user punya config dan bukan di halaman pilih role */}
+        {Sidebar && !isSelectRolePage && (
+          <aside className="hidden md:block h-full sticky top-0 z-20 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300">
+            <Sidebar isOpen={false} onClose={closeSidebar} />
+          </aside>
+        )}
 
-        {/* Mobile Sidebar with semantic <dialog> or Portal feel */}
-        {isSidebarOpen && (
-          <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}>
-            <div className="w-64 h-full bg-white dark:bg-gray-900" onClick={(e) => e.stopPropagation()}>
-              {SidebarComponent}
+        {/* Mobile Sidebar */}
+        {isSidebarOpen && Sidebar && !isSelectRolePage && (
+          <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={closeSidebar}>
+            <div className="w-64 h-full bg-white dark:bg-gray-900 shadow-xl" onClick={(e) => e.stopPropagation()}>
+              <Sidebar isOpen={true} onClose={closeSidebar} />
             </div>
           </div>
         )}
 
-        <main className="flex-1 pt-20 md:pt-20  px-4 scrollbar-hide h-screen overflow-x-hidden">
-          {children}
+        <main className="flex-1 pt-16 md:pt-20 px-4 h-full overflow-y-auto scrollbar-hide">
+          <div className="max-w-7xl mx-auto py-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>
   );
 }
-
-// Sub-component for cleaner JSX
-const AccessDeniedCard = ({ onRetry }: { onRetry: () => void }) => (
-  <div className="p-8 bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-red-100 dark:border-red-900/30 text-center">
-    <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
-    <p className="text-red-600 dark:text-red-400 font-bold mb-2 uppercase tracking-widest text-xs">Akses Ditolak</p>
-    <p className="text-sm text-gray-500 dark:text-gray-400 italic mb-6">Role tidak valid atau sesi berakhir.</p>
-    <button onClick={onRetry} className="px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-sm font-bold transition-transform active:scale-95">
-      Kembali ke Login
-    </button>
-  </div>
-);

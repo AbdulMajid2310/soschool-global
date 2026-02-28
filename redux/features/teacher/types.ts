@@ -6,16 +6,34 @@ export interface TeacherStats {
   inactive: number;
 }
 
+export interface ImportErrorDetail {
+  baris: number;
+  nama: string;
+  pesan: string;
+}
+
+export interface ImportReport {
+  total: number;
+  success: number;
+  failed: number;
+  errors: ImportErrorDetail[];
+}
+
 export interface SchoolTeacher {
   teacherId: string;
   nip?: string;
+  nuptk?: string;
+  niy?: string;
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   user: User;
 }
 
 export interface TeacherState {
   teachers: SchoolTeacher[];
-  stats: TeacherStats; // Tambahkan ini
+  stats: TeacherStats;
+  importReport: ImportReport | null;
   selectedTeacherId: string | null;
   loading: boolean;
   error: string | null;
@@ -29,5 +47,7 @@ export interface CreateTeacherPayload {
   nik: string;
   password?: string;
   nip?: string;
+  nuptk?: string;
+  niy?: string;
   phone?: string;
 }

@@ -2,7 +2,7 @@ import { api } from "@/lib/axiosInstance";
 import { ProfileResponseAuth, LoginResponse, SelectRoleResponse } from "./type";
 
 export const fetchProfileMeApi = async (): Promise<ProfileResponseAuth> => {
-  const response = await api.get<ProfileResponseAuth>('/users/profile/me');
+  const response = await api.get<ProfileResponseAuth>('/auth/me');
   return response.data;
 };
 

@@ -12,7 +12,7 @@ export interface StudyMaterial {
 export interface CreateStudyMaterialDto {
     title: string;
     description?: string;
-    fileUrl: string;
+    file: File;
     subjectId: string;
     authorId: string;
     periodId: string;

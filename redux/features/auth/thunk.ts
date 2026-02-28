@@ -8,7 +8,8 @@ export const getProfileMe = createAsyncThunk<UserProfileData, void, { rejectValu
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetchProfileMeApi();
-      return response.data; 
+      console.log(response)
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Gagal memuat profil');
     }
