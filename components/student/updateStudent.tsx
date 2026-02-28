@@ -2,9 +2,10 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useAppSelector } from "@/redux/hooks"; 
+import { useAppSelector } from "@/redux/hooks";
 import { toast } from "react-hot-toast";
 import { api } from "@/lib/axiosInstance";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 interface StudentFormInputs {
   username: string;
@@ -17,8 +18,8 @@ interface StudentFormInputs {
 
 export default function CreateStudentPage() {
   // Ambil konteks sekolah dari Redux sesuai request-mu
-  const { profile, authLoading } = useAppSelector((state) => state.auth);
-  const schoolId = profile?.school?.schoolId;
+  const { authLoading } = useAppSelector((state) => state.auth);
+  const schoolId = useSchoolId();
 
   const {
     register,
@@ -56,14 +57,14 @@ export default function CreateStudentPage() {
 
   return (
     <div className="w-full p-6">
-      
+
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6 dark:text-white  text-gray-700 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-slate-100">
-        
+
         {/* Kolom Kiri: Informasi Akun (User) */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold border-b pb-2 ">Informasi Akun (User)</h3>
-          
+
           <div>
             <label className="block text-sm font-medium  mb-1">Nama Lengkap</label>
             <input
@@ -89,7 +90,7 @@ export default function CreateStudentPage() {
             <label className="block text-sm font-medium  mb-1">Password</label>
             <input
               type="password"
-              {...register("password", { 
+              {...register("password", {
                 required: "Password wajib diisi",
                 minLength: { value: 8, message: "Minimal 8 karakter" }
               })}

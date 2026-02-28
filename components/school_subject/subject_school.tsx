@@ -9,13 +9,14 @@ import SubjectList from './subject_list_school';
 import CreateSubjectModal from './create_subject_school';
 import UpdateSubjectModal from './update_subject_school';
 import { Subject } from '@/redux/features/school_subject/types';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 // Import komponen hasil split
 
 const SubjectPage = () => {
     const dispatch = useAppDispatch();
-    const { profile } = useAppSelector(state => state.auth);
-    const schoolId = profile?.school.schoolId || '';
+    const schoolId = useSchoolId();
+
 
     const [searchTerm, setSearchTerm] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

@@ -1,17 +1,18 @@
+import { useSchoolId } from '@/hooks/useSchoolId';
 import { updateCalendar } from '@/redux/features/school_academic_calendar/thunks';
-import { useAppDispatch } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { FaSave, FaTimes } from 'react-icons/fa';
 
 interface CalendarUpdateProps {
     item: any;
-    schoolId: string;
     onClose: () => void;
 }
 
-const CalendarUpdate = ({ item, schoolId, onClose }: CalendarUpdateProps) => {
+const CalendarUpdate = ({ item, onClose }: CalendarUpdateProps) => {
     const dispatch = useAppDispatch();
-
+    const schoolId = useSchoolId();
     /**
      * HELPER: Memastikan format tanggal adalah YYYY-MM-DD
      * Jika data dari backend adalah ISO String, kita ambil 10 karakter pertama.
@@ -34,15 +35,33 @@ const CalendarUpdate = ({ item, schoolId, onClose }: CalendarUpdateProps) => {
         description: item.description || '',
         category: item.category || 'Kegiatan'
     });
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await dispatch(updateCalendar({
-            id: item.calendarId,
-            schoolId,
-            ...data
-        }));
-        onClose();
+
+        // 1. Validasi awal untuk menghilangkan error TS 'string | null'
+        if (!schoolId) {
+            toast.error("Gagal memperbarui: School ID tidak ditemukan.");
+            return;
+        }
+
+        const loadingToast = toast.loading('Memperbarui agenda...');
+
+        try {
+            // 2. Kirim data dan gunakan .unwrap() untuk menangkap error async
+            await dispatch(updateCalendar({
+                id: item.calendarId,
+                schoolId: schoolId as string, // Tegaskan ke TS bahwa ini string
+                ...data
+            })).unwrap();
+
+            // 3. Feedback sukses dan tutup modal/form
+            toast.success('Agenda berhasil diperbarui!', { id: loadingToast });
+            onClose();
+        } catch (err: any) {
+            // 4. Handle error jika update ke Supabase gagal
+            const errorMessage = err?.message || 'Gagal memperbarui agenda';
+            toast.error(errorMessage, { id: loadingToast });
+        }
     };
 
     return (

@@ -15,6 +15,7 @@ import {
 } from "react-icons/hi2";
 import toast from 'react-hot-toast';
 import { HiOutlineCollection } from 'react-icons/hi';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 interface ClassroomManagerProps {
   onSelect?: (classroom: any) => void;
@@ -22,18 +23,14 @@ interface ClassroomManagerProps {
 
 export default function ClassroomManager({ onSelect }: ClassroomManagerProps) {
   const dispatch = useAppDispatch();
-  const { profile } = useAppSelector((state) => state.auth);
   const { classrooms, loading, success, error } = useAppSelector((state) => state.classroom);
 
-  const selectSchoolId = sessionStorage.getItem("schoolId")
-
-  const schoolId = profile?.activeContext?.schoolId || selectSchoolId
-
+  const schoolId = useSchoolId();
   // Local States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', code: '', description: '', major: '' });
+  const [formData, setFormData] = useState({ name: '', code: '', description: '', major: '', level: '' });
 
   // 1. Fetch Data Initial
   useEffect(() => {
@@ -95,12 +92,12 @@ export default function ClassroomManager({ onSelect }: ClassroomManagerProps) {
 
   const startEdit = (cls: any) => {
     setEditingId(cls.id);
-    setFormData({ name: cls.name, code: cls.code, description: cls.description || '', major: cls.major || '' });
+    setFormData({ name: cls.name, code: cls.code, description: cls.description, level: cls.level || '', major: cls.major || '' });
     setIsFormOpen(true);
   };
 
   const resetForm = () => {
-    setFormData({ name: '', code: '', description: '', major: '' });
+    setFormData({ name: '', code: '', description: '', major: '', level: '' });
     setEditingId(null);
     setIsFormOpen(false);
   };

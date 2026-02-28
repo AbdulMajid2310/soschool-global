@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { confirmActionToast } from '../toast/confirmActionToast';
 import CreateStudyMaterial from './create_material_study';
 import UpdateStudyMaterial from './update_material_study';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 // Import Komponen Modular
 
@@ -25,14 +26,14 @@ const StudyMaterialManager = () => {
 
     // Global State
     const { materials, loading } = useAppSelector((state) => state.schoolStudyMaterial);
-    const { profile } = useAppSelector((state) => state.auth);
+    const schoolId = useSchoolId();
     const subjectId = typeof window !== 'undefined' ? sessionStorage.getItem('schoolSubjectId') || '' : '';
 
     // Fetch data awal
     useEffect(() => {
         if (subjectId) dispatch(fetchMaterialsBySubject(subjectId));
-        if (profile?.school?.schoolId) dispatch(fetchTeachers(profile.school.schoolId));
-    }, [dispatch, subjectId, profile]);
+        if (schoolId) dispatch(fetchTeachers(schoolId));
+    }, [dispatch, subjectId, schoolId]);
 
     const handleDelete = (id: string, title: string) => {
         confirmActionToast({

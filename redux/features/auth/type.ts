@@ -71,7 +71,7 @@ export interface SelectRoleResponse {
 export interface ProfileState {
   profile: UserProfileData | null;
   authLoading: boolean;
-  authError: string | null;
+  AuthError: string | null;
   success: boolean;
   sid: string | null; // Simpan sid di state untuk mempermudah header auth
 }

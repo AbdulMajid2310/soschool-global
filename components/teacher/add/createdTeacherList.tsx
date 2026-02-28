@@ -15,24 +15,20 @@ import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getFilteredUsers } from "@/redux/features/user/thunk";
 import { api } from "@/lib/axiosInstance";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 type IdType = 'nip' | 'nuptk' | 'niy';
 
 export default function CreatedTeacherList() {
     const dispatch = useAppDispatch();
     const { filteredUsers, loading } = useAppSelector((state) => state.users);
-    const { profile } = useAppSelector((state) => state.auth);
 
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [teacherData, setTeacherData] = useState<Record<string, { type: IdType, value: string }>>({});
     const [activePopup, setActivePopup] = useState<string | null>(null);
 
-    const schoolId = useMemo(() => {
-        const fromProfile = profile?.activeContext?.schoolId;
-        const fromSession = typeof window !== "undefined" ? sessionStorage.getItem("schoolId") : null;
-        return (fromProfile || fromSession || "") as string;
-    }, [profile]);
+    const schoolId = useSchoolId();
 
     useEffect(() => {
         if (schoolId) dispatch(getFilteredUsers({ schoolId, role: 'teacher', exists: false }));
@@ -67,24 +63,24 @@ export default function CreatedTeacherList() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSave = async () => {
-        // 1. Validasi Input
+        if (!schoolId) {
+            toast.error("School ID tidak ditemukan");
+            return;
+        }
+
         const isAnyEmpty = selectedIds.some(id => !teacherData[id]?.value.trim());
         if (isAnyEmpty) return toast.error("Semua NIP/NUPTK harus diisi!");
 
-        // 2. Persiapkan Payload
         const payload = selectedIds.map(id => ({
             userId: id,
             type: teacherData[id].type,
             value: teacherData[id].value
         }));
 
-        // 3. Eksekusi Kirim ke Backend
         setIsSubmitting(true);
         const toastId = toast.loading("Sedang mendaftarkan guru...");
 
         try {
-            // Asumsi base URL sudah diatur di axios interceptor
-            // Endpoint: POST /school-teachers/bulk/:schoolId
             const response = await api.post(`/school-teachers/bulk/${schoolId}`, {
                 teachers: payload
             });
@@ -92,13 +88,11 @@ export default function CreatedTeacherList() {
             if (response.status === 201 || response.status === 200) {
                 toast.success(`${selectedIds.length} Guru berhasil didaftarkan ke sekolah!`, { id: toastId });
 
-                // 4. Reset State Lokal
                 setSelectedIds([]);
                 setTeacherData({});
                 setActivePopup(null);
 
-                // 5. Refresh Data List (agar guru yang sudah terdaftar hilang dari list "Tersedia")
-                dispatch(getFilteredUsers({ schoolId, role: 'teacher', exists: false }));
+                dispatch(getFilteredUsers({ schoolId: schoolId as string, role: 'teacher', exists: false }));
             }
         } catch (error: any) {
             console.error("Error bulk create teacher:", error);

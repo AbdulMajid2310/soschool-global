@@ -145,7 +145,6 @@ export default function SidebarStaff({ isOpen, onClose }: { isOpen: boolean, onC
   const [expandedMenuItems, setExpandedMenuItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const { profile } = useAppSelector((state) => state.auth);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   const toggleMenuItem = (itemId: string) => {

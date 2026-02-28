@@ -27,11 +27,11 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isNavActive = (path: string) => pathname === path;
- const { profile } = useAppSelector((state) => state.auth);
- useEffect(() => {
-  dispatch(getProfileMe());
-}, [dispatch]);
-console.log('data user',profile)
+  const { profile } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(getProfileMe());
+  }, [dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -47,7 +47,7 @@ console.log('data user',profile)
     setActiveDropdown(activeDropdown === name ? null : name);
   };
 
- 
+
   return (
     <>
       {/* --- HEADER DENGAN MODE DARK --- */}
@@ -139,11 +139,11 @@ console.log('data user',profile)
 
               {activeDropdown === 'profile' && (
                 <DropdownContainer title="Profil Siswa">
-                  <DropdownItem icon={<FiUser />} title={profile?.user.username || "Siswa"} desc={`${ 0} XP • ${ 'Class'}`} />
+                  <DropdownItem icon={<FiUser />} title={profile?.user.username || "Siswa"} desc={`${0} XP • ${'Class'}`} />
                   <DropdownItem icon={<FiSettings />} title="Pengaturan" desc="Tema & Privasi" />
                   <div className='flex justify-between items-center px-4 py-2'>
                     <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 italic">Mode Dark</p>
-                    <ThemeToggle/>
+                    <ThemeToggle />
                   </div>
                   <div className="h-px bg-slate-200 dark:bg-blue-900/20 my-2 mx-2" />
                   <DropdownItem icon={<FiLogOut className="text-red-500" />} title="Keluar" desc="Log out" />
@@ -183,8 +183,8 @@ const MobileNavTab = ({ href, active, icon }: any) => (
 
 const IconButton = ({ icon, hasBadge, count, active, onClick }: any) => (
   <button onClick={onClick} className={`relative p-2.5 rounded-xl transition-all cursor-pointer border 
-    ${active 
-      ? 'bg-blue-600 border-blue-400 text-white shadow-lg' 
+    ${active
+      ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
       : 'bg-slate-100 dark:bg-blue-950/20 border-transparent text-slate-500 dark:text-blue-400 hover:border-blue-500/30'}`}>
     <span className="text-xl">{icon}</span>
     {hasBadge && <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-amber-500 rounded-full border-2 border-white dark:border-[#0a0f1d]" />}

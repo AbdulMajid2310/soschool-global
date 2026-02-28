@@ -1,32 +1,55 @@
+import { confirmActionToast } from '@/components/toast/confirmActionToast';
+import { useSchoolId } from '@/hooks/useSchoolId';
 import { deleteCalendar, fetchCalendars } from '@/redux/features/school_academic_calendar/thunks';
+import { useAppSelector } from '@/redux/hooks';
 import { AppDispatch, RootState } from '@/redux/store';
 import React, { useEffect, useState, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import { FaCalendarAlt, FaEdit, FaTrashAlt, FaClock, FaSearch, FaFilter, FaEye } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 
 const CalendarList = ({
-    schoolId,
     onEdit,
     onDetail
 }: {
-    schoolId: string,
     onEdit: (item: any) => void,
     onDetail: (item: any) => void
 }) => {
     const dispatch = useDispatch<AppDispatch>();
     const { items, loading } = useSelector((state: RootState) => state.schoolCalendarAcademic);
-
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+    const schoolId = useSchoolId();
+
 
     useEffect(() => {
         if (schoolId) dispatch(fetchCalendars(schoolId));
     }, [dispatch, schoolId]);
 
     const handleDelete = (id: string) => {
-        if (confirm('Yakin ingin menghapus agenda ini?')) {
-            dispatch(deleteCalendar({ id, schoolId }));
+        // Validasi awal agar TypeScript tenang (schoolId tidak null/undefined)
+        if (!schoolId) {
+            toast.error("Gagal menghapus: School ID tidak ditemukan.");
+            return;
         }
+
+        confirmActionToast({
+            title: 'Hapus Agenda',
+            message: 'Apakah Anda yakin ingin menghapus agenda ini? Tindakan ini tidak dapat dibatalkan.',
+            confirmText: 'Ya, Hapus',
+            variant: 'danger',
+            onConfirm: async () => {
+                try {
+                    // Gunakan .unwrap() jika Anda menggunakan Redux Toolkit 
+                    // agar masuk ke blok catch jika query/thunk gagal
+                    await dispatch(deleteCalendar({ id, schoolId })).unwrap();
+                    toast.success('Agenda berhasil dihapus');
+                } catch (error: any) {
+                    // Error dilempar ke catch di dalam confirmActionToast
+                    throw error;
+                }
+            }
+        });
     };
 
     const formatDate = (dateString: string) => {

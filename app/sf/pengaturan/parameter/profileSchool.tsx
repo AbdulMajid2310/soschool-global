@@ -5,13 +5,13 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchSchoolById } from "@/redux/features/school/thunk";
 import { FaSchool, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCamera } from "react-icons/fa";
 import { HiOutlineBadgeCheck } from "react-icons/hi";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 export default function ProfileSchool() {
-  const dispatch = useAppDispatch(); // Gunakan custom hook yang sudah kita buat
-  const { profile } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
   const { selectedSchool, loading } = useAppSelector((state) => state.school);
 
-  const schoolId = profile?.school?.schoolId;
+  const schoolId = useSchoolId();
 
   useEffect(() => {
     if (schoolId) {

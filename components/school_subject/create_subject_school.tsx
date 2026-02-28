@@ -10,6 +10,7 @@ import {
     HiOutlineBookOpen
 } from 'react-icons/hi';
 import { toast } from 'react-hot-toast'; // Opsional, sesuaikan dengan library toast kamu
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 interface CreateSubjectModalProps {
     isOpen: boolean;
@@ -20,11 +21,10 @@ const CreateSubjectModal = ({ isOpen, onClose }: CreateSubjectModalProps) => {
     const dispatch = useAppDispatch();
 
     // Ambil data pendukung dari Redux
-    const { profile } = useAppSelector(state => state.auth);
     const { classrooms } = useAppSelector((state) => state.classroom);
     const { isSubmitting } = useAppSelector((state) => state.schoolSubject);
 
-    const schoolId = profile?.school.schoolId || '';
+    const schoolId = useSchoolId();
 
     // Local States untuk Form
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -59,19 +59,31 @@ const CreateSubjectModal = ({ isOpen, onClose }: CreateSubjectModalProps) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.schoolClassroomId) {
-            return alert("Silahkan pilih kelas terlebih dahulu");
+        if (!schoolId) {
+            toast.error("School ID tidak ditemukan");
+            return;
         }
 
-        const payload = { ...formData, schoolId };
+        if (!formData.schoolClassroomId) {
+            toast.error("Silahkan pilih kelas terlebih dahulu");
+            return;
+        }
+
+        const loadingToast = toast.loading('Sedang membuat mata pelajaran...');
 
         try {
+            const payload = {
+                ...formData,
+                schoolId: schoolId as string
+            };
+
             await dispatch(createSubject(payload)).unwrap();
-            // Jika berhasil
+
+            toast.success('Mata pelajaran berhasil dibuat!', { id: loadingToast });
             onClose();
         } catch (err: any) {
-            console.error("❌ Create Error:", err);
-            // Error handling sudah dihandle thunk/service biasanya
+            const errorMessage = typeof err === 'string' ? err : (err?.message || 'Gagal membuat mata pelajaran');
+            toast.error(errorMessage, { id: loadingToast });
         }
     };
 

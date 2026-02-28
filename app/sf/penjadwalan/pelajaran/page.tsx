@@ -10,13 +10,13 @@ import UpdateScheduleModal from './updateScheduleModal';
 import RealtimeClock from '@/components/realtimeClock';
 import { confirmActionToast } from '@/components/toast/confirmActionToast';
 import toast from 'react-hot-toast';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function SchoolSchedulePage() {
   const dispatch = useAppDispatch();
 
   const { schedules, loading } = useAppSelector((state) => state.schoolSchedule);
-  const { profile } = useAppSelector((state) => state.auth);
-
+  const schoolId = useSchoolId();
   const [activeDay, setActiveDay] = useState<string>(() => {
     const today = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(new Date()).toUpperCase();
     const days = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
@@ -31,10 +31,10 @@ export default function SchoolSchedulePage() {
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
 
   useEffect(() => {
-    if (profile?.school.schoolId) {
-      dispatch(fetchSchedulesBySchool(profile.school.schoolId));
+    if (schoolId) {
+      dispatch(fetchSchedulesBySchool(schoolId));
     }
-  }, [dispatch, profile]);
+  }, [dispatch, schoolId]);
 
   const timeSlots = useMemo(() => {
     const slots: string[] = [];
@@ -73,7 +73,7 @@ export default function SchoolSchedulePage() {
         await dispatch(deleteSchedule(session.scheduleId)).unwrap();
         toast.success('Sesi berhasil dihapus!');
         // Re-fetch data agar grouping diperbarui
-        if (profile?.school.schoolId) dispatch(fetchSchedulesBySchool(profile.school.schoolId));
+        if (schoolId) dispatch(fetchSchedulesBySchool(schoolId));
       }
     });
   };

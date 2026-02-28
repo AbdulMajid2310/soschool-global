@@ -5,17 +5,18 @@ import { FiCloudLightning, FiFile, FiCheckCircle } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { importStaffExcel } from "@/redux/features/staff/thunks";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 export default function ImportStaffExcel() {
     const dispatch = useAppDispatch();
     const [file, setFile] = useState<File | null>(null);
-    const { profile } = useAppSelector((state) => state.auth);
+    const schoolId = useSchoolId();
     const { loading, importReport } = useAppSelector((state) => state.schoolStaff);
 
     const handleImport = async () => {
-        if (!file || !profile?.school?.schoolId) return;
+        if (!file || !schoolId) return;
         try {
-            await dispatch(importStaffExcel({ file, schoolId: profile.school.schoolId })).unwrap();
+            await dispatch(importStaffExcel({ file, schoolId })).unwrap();
             toast.success("Proses import selesai!");
         } catch (err: any) {
             toast.error(err || "Gagal mengunggah file");

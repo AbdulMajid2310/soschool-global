@@ -24,6 +24,7 @@ import {
 import { resetPeriodState } from '@/redux/features/school-period/slice';
 import { confirmActionToast } from '@/components/toast/confirmActionToast';
 import { useRouter } from 'next/navigation';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 // Definisi Interface Lokal agar Type-Safe
 interface PeriodFormData {
@@ -37,11 +38,9 @@ export default function SchoolPeriodManagement() {
   const router = useRouter();
 
   // 1. Selector State
-  const { profile } = useAppSelector((state) => state.auth);
   const { periods, loading, success, error } = useAppSelector((state) => state.schoolPeriod);
 
-  const schoolId = profile?.school?.schoolId;
-
+  const schoolId = useSchoolId();
   // 2. Local State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<PeriodFormData>({

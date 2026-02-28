@@ -6,6 +6,7 @@ import { fetchSchedulesBySchool } from '@/redux/features/school_schedule/thunks'
 import { fetchTeachers } from '@/redux/features/teacher/thunk';
 import RealtimeClock from '@/components/realtimeClock';
 import { HiOutlineMagnifyingGlass, HiOutlineAcademicCap, HiOutlineClock, HiOutlineXMark, HiChevronDown } from "react-icons/hi2";
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function TeacherSchedulePage() {
   const dispatch = useAppDispatch();
@@ -13,19 +14,19 @@ export default function TeacherSchedulePage() {
 
   const { schedules, loading } = useAppSelector((state) => state.schoolSchedule);
   const { teachers } = useAppSelector((state) => state.teacher);
-  const { profile } = useAppSelector((state) => state.auth);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<string>("SEMUA");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const schoolId = useSchoolId();
 
   useEffect(() => {
-    if (profile?.school.schoolId) {
-      dispatch(fetchSchedulesBySchool(profile.school.schoolId));
-      dispatch(fetchTeachers(profile.school.schoolId));
+    if (schoolId) {
+      dispatch(fetchSchedulesBySchool(schoolId));
+      dispatch(fetchTeachers(schoolId));
     }
-  }, [dispatch, profile]);
+  }, [dispatch, schoolId]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

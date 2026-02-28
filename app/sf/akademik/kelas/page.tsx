@@ -23,16 +23,16 @@ import toast from 'react-hot-toast';
 import { BiEdit } from 'react-icons/bi';
 import { TbListDetails } from 'react-icons/tb';
 import { confirmActionToast } from '@/components/toast/confirmActionToast';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function ClassroomConfigListPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   // Selectors
-  const { profile } = useAppSelector((state) => state.auth);
   const { configs, loading } = useAppSelector((state) => state.classroomConfig);
   const { activePeriod } = useAppSelector((state) => state.schoolPeriod);
-  const schoolId = profile?.school?.schoolId;
+  const schoolId = useSchoolId();
 
   // Local UI State
   const [searchTerm, setSearchTerm] = useState('');

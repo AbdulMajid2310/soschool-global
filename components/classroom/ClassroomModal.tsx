@@ -1,3 +1,4 @@
+import { useSchoolId } from "@/hooks/useSchoolId";
 import { createClassroom, updateClassroom } from "@/redux/features/classroom/thunk";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useState } from "react";
@@ -13,14 +14,12 @@ interface Props {
 
 export const ClassroomModal = ({ isOpen, onClose, isEdit }: Props) => {
     const dispatch = useAppDispatch();
-    const { profile } = useAppSelector((state) => state.auth);
     const { loading } = useAppSelector((state) => state.classroom);
     const [isLevelOpen, setIsLevelOpen] = useState(false);
 
     const [formData, setFormData] = useState({ name: '', level: '1', major: '' });
 
-    const schoolId = profile?.activeContext?.schoolId || (typeof window !== "undefined" ? sessionStorage.getItem("schoolId") : null);
-
+    const schoolId = useSchoolId();
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!schoolId || !formData.name.trim()) return toast.error("Nama wajib diisi");

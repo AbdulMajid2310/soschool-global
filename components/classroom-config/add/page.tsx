@@ -26,6 +26,7 @@ import { fetchStudents } from '@/redux/features/student/thunks';
 import { resetConfigStatus } from '@/redux/features/classroom-config/slice';
 import { CreateClassroomConfigPayload } from '@/redux/features/classroom-config/types';
 import { MemberSearchSelect } from './MemberSearchSelect';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function ClassroomConfigFormSection() {
     const router = useRouter();
@@ -40,12 +41,8 @@ export default function ClassroomConfigFormSection() {
     const { teachers } = useAppSelector((state) => state.teacher);
     const { students } = useAppSelector((state) => state.student);
     const { activePeriod } = useAppSelector((state) => state.schoolPeriod);
-    const { profile } = useAppSelector((state) => state.auth);
     const { loading, success, error, configs } = useAppSelector((state) => state.classroomConfig);
-    console.log(teachers)
-
-    const schoolId = profile?.activeContext?.schoolId || sessionStorage.getItem("schoolId");
-
+    const schoolId = useSchoolId();
     // --- Form States ---
     const [formData, setFormData] = useState({
         roomLocation: '',

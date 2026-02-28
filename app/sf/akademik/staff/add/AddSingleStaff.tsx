@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { registerStaff } from "@/redux/features/staff/thunks";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 
 export default function AddSingleStaff() {
     const dispatch = useAppDispatch();
 
-    const { profile } = useAppSelector((state) => state.auth);
+    const schoolId = useSchoolId();
     const { loading } = useAppSelector((state) => state.schoolStaff);
 
     // Initial state disesuaikan dengan CreateSchoolStaffDto
@@ -32,8 +33,6 @@ export default function AddSingleStaff() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Ambil schoolId dari profile (Redux) atau fallback ke sessionStorage
-        const schoolId = profile?.activeContext?.schoolId || sessionStorage.getItem("schoolId");
 
         if (!schoolId) {
             return toast.error("ID Sekolah tidak ditemukan!");

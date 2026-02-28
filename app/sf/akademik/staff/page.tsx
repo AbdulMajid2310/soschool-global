@@ -9,17 +9,15 @@ import { deleteStaff, fetchStaffs, toggleStaffStatus } from "@/redux/features/st
 import StaffStats from "./staffStats";
 import { confirmActionToast } from "@/components/toast/confirmActionToast";
 import AddStaffPage from "./add/page";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 export default function DataStaffPage() {
-    const router = useRouter();
     const dispatch = useAppDispatch();
 
     const [query, setQuery] = useState("");
 
-    const { profile } = useAppSelector((state) => state.auth);
     const { staffs, loading } = useAppSelector((state) => state.schoolStaff);
-    const selectSchoolId = sessionStorage.getItem("schoolId");
-    const schoolId = profile?.activeContext?.schoolId || selectSchoolId
+    const schoolId = useSchoolId();
     const [showAddStaff, setShowAddStaff] = useState(false)
 
     useEffect(() => {

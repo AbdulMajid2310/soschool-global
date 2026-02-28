@@ -16,14 +16,12 @@ import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { resetTeacherStatus } from '@/redux/features/teacher/slice';
 import { registerTeacher } from '@/redux/features/teacher/thunk';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function AddTeacher() {
   const dispatch = useAppDispatch();
-  const { profile } = useAppSelector((state) => state.auth);
   const { loading, error, success } = useAppSelector((state) => state.teacher);
-  const selectSchoolId = typeof window !== 'undefined' ? sessionStorage.getItem("schoolId") : null;
-
-  const schoolId = profile?.activeContext?.schoolId || selectSchoolId;
+  const schoolId = useSchoolId();
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({

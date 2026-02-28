@@ -6,6 +6,7 @@ import { createSchedule, fetchSchedulesBySchool } from '@/redux/features/school_
 import { fetchTeachers } from '@/redux/features/teacher/thunk';
 import { fetchSubjects } from '@/redux/features/school_subject/thunks';
 import { fetchClassroomConfigs } from '@/redux/features/classroom-config/thunk';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 interface CreateProps {
     isOpen: boolean;
@@ -120,7 +121,7 @@ const SearchableSelect = ({ label, value, options, onChange, placeholder }: any)
 
 export default function CreateScheduleModal({ isOpen, onClose, defaultDay }: CreateProps) {
     const dispatch = useAppDispatch();
-    const { profile } = useAppSelector((state) => state.auth);
+    const schoolId = useSchoolId();
     const { isSubmitting } = useAppSelector((state) => state.schoolSchedule);
     const { subjects } = useAppSelector((state) => state.schoolSubject);
     const { teachers } = useAppSelector((state) => state.teacher);
@@ -136,7 +137,6 @@ export default function CreateScheduleModal({ isOpen, onClose, defaultDay }: Cre
         classroomConfigId: ''
     });
 
-    const schoolId = profile?.school.schoolId;
 
     useEffect(() => {
         if (schoolId && isOpen) {

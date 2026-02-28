@@ -23,6 +23,7 @@ import { fetchTeachers } from '@/redux/features/teacher/thunk';
 import { fetchStudents } from '@/redux/features/student/thunks';
 import { resetConfigStatus } from '@/redux/features/classroom-config/slice';
 import { CreateClassroomConfigPayload } from '@/redux/features/classroom-config/types';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function ClassroomConfigFormPage() {
     const router = useRouter();
@@ -37,14 +38,13 @@ export default function ClassroomConfigFormPage() {
     const isEdit = !!configId;
 
     // Redux Selectors
-    const { profile } = useAppSelector((state) => state.auth);
+    const schoolId = useSchoolId();
     const { classrooms } = useAppSelector((state) => state.classroom);
     const { teachers } = useAppSelector((state) => state.teacher);
     const { students } = useAppSelector((state) => state.student);
     const { configs, loading, success, error } = useAppSelector((state) => state.classroomConfig);
     const { activePeriod } = useAppSelector((state) => state.schoolPeriod);
 
-    const schoolId = profile?.school?.schoolId;
 
     // Form States
     const [formData, setFormData] = useState({

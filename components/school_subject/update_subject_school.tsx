@@ -10,6 +10,7 @@ import {
     HiOutlinePencilAlt
 } from 'react-icons/hi';
 import toast from 'react-hot-toast';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 interface UpdateSubjectModalProps {
     isOpen: boolean;
@@ -22,8 +23,7 @@ const UpdateSubjectModal = ({ isOpen, onClose, subjectData }: UpdateSubjectModal
 
     const { classrooms } = useAppSelector((state) => state.classroom);
     const { isSubmitting } = useAppSelector((state) => state.schoolSubject);
-    const { profile } = useAppSelector(state => state.auth);
-    const schoolId = profile?.school.schoolId || '';
+    const schoolId = useSchoolId()
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -64,18 +64,27 @@ const UpdateSubjectModal = ({ isOpen, onClose, subjectData }: UpdateSubjectModal
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!schoolId) {
+            toast.error("School ID tidak ditemukan");
+            return;
+        }
+
+        const loadingToast = toast.loading('Memperbarui mata pelajaran...');
+
         const payload = {
             ...formData,
-            schoolId,
+            schoolId: schoolId as string,
             subjectId: subjectData.subjectId
         };
 
         try {
             await dispatch(updateSubject(payload)).unwrap();
-            toast.success("Mata pelajaran berhasil diperbarui!");
+
+            toast.success("Mata pelajaran berhasil diperbarui!", { id: loadingToast });
             onClose();
         } catch (err: any) {
-            // Error ditangani oleh thunk/toast di service
+            const errorMessage = typeof err === 'string' ? err : (err?.message || 'Gagal memperbarui mata pelajaran');
+            toast.error(errorMessage, { id: loadingToast });
         }
     };
 

@@ -14,11 +14,8 @@ import CalendarDetail from './calendarDetail';
 
 const AcademicCalendarPage = () => {
   const dispatch = useAppDispatch();
-  const { profile } = useAppSelector((state) => state.auth);
   const { success, loading } = useAppSelector((state) => state.schoolCalendarAcademic);
 
-  // Ambil schoolId dari profile auth
-  const schoolId = profile?.school?.schoolId || "";
 
   // State UI
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -83,7 +80,6 @@ const AcademicCalendarPage = () => {
           {isAdding && (
             <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
               <CalendarAddBulk
-                schoolId={schoolId}
                 onSuccess={() => {
                   // Status success di Redux akan menangani penutupan via useEffect
                 }}
@@ -98,7 +94,6 @@ const AcademicCalendarPage = () => {
             }`}>
             <CalendarList
               onDetail={(item) => setSelectedItem(item)}
-              schoolId={schoolId}
               onEdit={(item) => setEditingItem(item)}
             />
           </div>
@@ -108,7 +103,6 @@ const AcademicCalendarPage = () => {
         {editingItem && (
           <CalendarUpdate
             item={editingItem}
-            schoolId={schoolId}
             onClose={() => setEditingItem(null)}
           />
         )}

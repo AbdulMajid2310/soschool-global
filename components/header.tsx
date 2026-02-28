@@ -17,6 +17,7 @@ import { logoutUser } from '@/redux/features/auth/thunk';
 import NotificationDropdown from '@/app/notifications/notificationDropdown';
 import ChatDropdown from '@/app/chat/chatDropdown';
 import { fetchActivePeriod } from '@/redux/features/school-period/thunk';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const dispatch = useAppDispatch();
@@ -31,28 +32,8 @@ const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const { activePeriod } = useAppSelector((state) => state.schoolPeriod); // Pastikan state ini ada
 
   const activeContext = profile?.activeContext;
-  const schoolId = activeContext?.schoolId;
+  const schoolId = useSchoolId();
 
-  useEffect(() => {
-    if (profile?.activeContext) {
-      const role = profile.activeContext.role;
-      console.log("=== SOSCHOOL DEBUG ROLE ===");
-      console.log("ID Role (UUID):", role?.userRoleId);
-      console.log("Code Role (ENV):", role?.code);
-      console.log("Nama Role (Display):", role?.name);
-      console.log("Sekolah Aktif:", profile.activeContext.schoolName);
-      console.log("============================");
-
-      // Validasi apakah Code ini cocok dengan yang ada di .env
-      if (role?.code === process.env.NEXT_PUBLIC_ROLE_SUPER_ADMIN_ID) {
-        console.log("✅ Terdeteksi sebagai: SUPER ADMIN");
-      } else if (role?.code === process.env.NEXT_PUBLIC_ROLE_TEACHER_ID) {
-        console.log("✅ Terdeteksi sebagai: GURU");
-      }
-    } else {
-      console.log("⚠️ Belum ada Role yang dipilih (activeContext NULL)");
-    }
-  }, [profile]);
 
   // 1. Inisialisasi Data Periode (Semester)
   useEffect(() => {

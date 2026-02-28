@@ -1,6 +1,9 @@
+import { useSchoolId } from '@/hooks/useSchoolId';
 import { createBulkCalendar } from '@/redux/features/school_academic_calendar/thunks';
+import { useAppSelector } from '@/redux/hooks';
 import { AppDispatch } from '@/redux/store';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { FaPlus, FaSave, FaTrash, FaChevronDown } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 
@@ -14,9 +17,9 @@ interface FormItem {
     isOpen: boolean; // Field tambahan untuk logic buka-tutup
 }
 
-const CalendarAddBulk = ({ schoolId, onSuccess }: { schoolId: string, onSuccess: () => void }) => {
+const CalendarAddBulk = ({ onSuccess }: { onSuccess: () => void }) => {
     const dispatch = useDispatch<AppDispatch>();
-
+    const schoolId = useSchoolId();
     // Inisialisasi dengan satu baris terbuka
     const [forms, setForms] = useState<FormItem[]>([
         { name: '', startDate: '', endDate: '', category: 'Kegiatan', description: '', isOpen: true }
@@ -48,12 +51,33 @@ const CalendarAddBulk = ({ schoolId, onSuccess }: { schoolId: string, onSuccess:
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Bersihkan field isOpen sebelum dikirim ke API
-        const payload = {
-            calendars: forms.map(({ isOpen, ...rest }) => ({ ...rest, schoolId }))
-        };
-        await dispatch(createBulkCalendar(payload));
-        onSuccess();
+
+        // 1. Validasi awal: Pastikan schoolId tidak null
+        if (!schoolId) {
+            toast.error("Gagal menyimpan: School ID tidak terdeteksi.");
+            return;
+        }
+
+        const loadingToast = toast.loading('Sedang menyimpan agenda...');
+
+        try {
+            // 2. Bersihkan payload & pastikan schoolId adalah string murni
+            const payload = {
+                calendars: forms.map(({ isOpen, ...rest }) => ({
+                    ...rest,
+                    schoolId: schoolId as string // Type casting atau gunakan validasi if di atas
+                }))
+            };
+
+            // 3. Gunakan .unwrap() agar error API tertangkap di blok catch
+            await dispatch(createBulkCalendar(payload)).unwrap();
+
+            toast.success('Agenda berhasil disimpan!', { id: loadingToast });
+            onSuccess();
+        } catch (err: any) {
+            const errorMessage = err?.message || 'Gagal membuat agenda massal';
+            toast.error(errorMessage, { id: loadingToast });
+        }
     };
 
     return (

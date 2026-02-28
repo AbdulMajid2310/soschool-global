@@ -30,36 +30,9 @@ export const createSubject = createAsyncThunk(
   'subject/create',
   async (payload: CreateSubjectPayload, { rejectWithValue }) => {
     try {
-      console.log('--- [AI Debug] Memulai Create Subject ---');
-      console.log('Payload yang dikirim:', payload);
-
       const res = await subjectService.create(payload);
-
-      // Console log untuk melihat respon sukses dari API
-      console.log('✅ [AI Debug] Respon Sukses API:', res);
-
-      // Biasanya formatnya: { success: true, message: "...", data: { ... } }
-      // Kita kembalikan data intinya saja ke Redux
       return res.data;
-
     } catch (err: any) {
-      // Console log untuk membongkar error dari API
-      console.error('❌ [AI Debug] Respon Error API:');
-
-      if (err.response) {
-        // Server merespon dengan status code di luar range 2xx
-        console.error('Data Error:', err.response.data);
-        console.error('Status Error:', err.response.status);
-        console.error('Headers:', err.response.headers);
-      } else if (err.request) {
-        // Request dibuat tapi tidak ada respon dari server (Network Error)
-        console.error('Request Error (No Response):', err.request);
-      } else {
-        // Ada kesalahan saat setup request
-        console.error('Setup Error:', err.message);
-      }
-
-      // Ambil pesan error spesifik dari backend (misal dari NestJS)
       const errorMsg = err.response?.data?.message || 'Gagal membuat mata pelajaran';
       return rejectWithValue(errorMsg);
     }

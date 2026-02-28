@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { TbListDetails } from "react-icons/tb";
 import { confirmActionToast } from "@/components/toast/confirmActionToast";
 import TeacherStats from "./teacherStats";
+import { useSchoolId } from "@/hooks/useSchoolId";
 
 export default function ListTeacherSection() {
     const dispatch = useAppDispatch();
@@ -16,13 +17,10 @@ export default function ListTeacherSection() {
     const [query, setQuery] = useState("");
     const [view, setView] = useState<"list" | "grid">("list");
 
-    const { profile } = useAppSelector((state) => state.auth);
     const { teachers, loading } = useAppSelector((state) => state.teacher);
-    const selectSchoolId = sessionStorage.getItem("schoolId")
     const [showAddTeacher, setShowTeacher] = useState(false)
 
-    const schoolId = profile?.activeContext?.schoolId || selectSchoolId
-
+    const schoolId = useSchoolId();
     useEffect(() => {
         if (schoolId) dispatch(fetchTeachers(schoolId));
     }, [dispatch, schoolId]);

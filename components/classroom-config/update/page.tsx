@@ -23,6 +23,7 @@ import { fetchTeachers } from '@/redux/features/teacher/thunk';
 import { fetchStudents } from '@/redux/features/student/thunks';
 import { resetConfigStatus } from '@/redux/features/classroom-config/slice';
 import { confirmActionToast } from '@/components/toast/confirmActionToast';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function UpdateClassroomConfigPage() {
     const router = useRouter();
@@ -34,7 +35,6 @@ export default function UpdateClassroomConfigPage() {
     const classroomRef = useRef<HTMLDivElement>(null);
 
     // Redux Selectors
-    const { profile } = useAppSelector((state) => state.auth);
     const { detail, loading, success, error } = useAppSelector((state) => state.classroomConfig);
     const { classrooms } = useAppSelector((state) => state.classroom);
     const { teachers } = useAppSelector((state) => state.teacher);
@@ -42,7 +42,7 @@ export default function UpdateClassroomConfigPage() {
     const { activePeriod } = useAppSelector((state) => state.schoolPeriod);
 
     // Identitas dari State & Session
-    const schoolId = profile?.school?.schoolId;
+    const schoolId = useSchoolId();
     const [configId, setConfigId] = useState<string | null>(null);
 
     // Form States

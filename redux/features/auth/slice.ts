@@ -8,6 +8,7 @@ const initialState: ProfileState = {
   authLoading: false,
   AuthError: null,
   success: false,
+  sid: null
 };
 
 const profileSlice = createSlice({

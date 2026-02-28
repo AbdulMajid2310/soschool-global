@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { fetchClassroomConfigById } from '@/redux/features/classroom-config/thunk';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 // --- 1. TIPE DATA UNTUK SISWA ---
 interface Siswa {
@@ -59,8 +60,8 @@ export default function KelasDetailStatisPage() {
   const { detail } = useAppSelector((state) => state.classroomConfig)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
-  const { profile } = useAppSelector((state) => state.auth)
-  const schoolId = profile?.school.schoolId
+
+  const schoolId = useSchoolId();
   const configId = sessionStorage.getItem("classroomConfigId")
 
   const filteredDaftarSiswa = detail?.classroomStudents.filter(siswa =>

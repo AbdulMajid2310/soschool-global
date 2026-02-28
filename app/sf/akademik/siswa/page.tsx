@@ -1,5 +1,6 @@
 "use client"
 
+import { useSchoolId } from "@/hooks/useSchoolId";
 import { fetchStudents } from "@/redux/features/student/thunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
@@ -26,13 +27,7 @@ export default function DataSiswaPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
   const dispatch = useAppDispatch();
-  const selectSchoolId = sessionStorage.getItem("schoolId")
-
-
-  // 1. Ambil schoolId dari state auth (User yang login)
-  const { profile } = useAppSelector((state) => state.auth);
-  const schoolId = profile?.activeContext?.schoolId || selectSchoolId
-
+  const schoolId = useSchoolId();
   // 2. Ambil data students dari state student
   const { students: data, loading, error } = useAppSelector((state) => state.student);
 

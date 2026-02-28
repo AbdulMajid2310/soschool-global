@@ -5,19 +5,18 @@ import { HiOutlineCloudArrowUp, HiOutlineDocumentText } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { importTeacherCsv } from "@/redux/features/teacher/thunk";
 import toast from 'react-hot-toast';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function ImportTeacherCsv() {
   const dispatch = useAppDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // State loading tambahan
-  const { profile } = useAppSelector((state) => state.auth);
-
+  const schoolId = useSchoolId();
   const processFile = async (file: File) => {
-    const selectSchoolId = sessionStorage.getItem("schoolId");
-    const activeSchoolId = profile?.activeContext?.schoolId || selectSchoolId;
 
-    if (!activeSchoolId) {
+
+    if (!schoolId) {
       toast.error("ID Sekolah tidak ditemukan!");
       return;
     }
@@ -35,7 +34,7 @@ export default function ImportTeacherCsv() {
 
     try {
       await dispatch(importTeacherCsv({
-        schoolId: String(activeSchoolId),
+        schoolId: String(schoolId),
         file
       })).unwrap();
 

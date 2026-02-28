@@ -12,19 +12,18 @@ import { confirmActionToast } from '../toast/confirmActionToast';
 import { ClassroomHeader } from './ClassroomHeader';
 import { ClassroomCard } from './ClassroomCard';
 import { ClassroomModal } from './ClassroomModal';
+import { useSchoolId } from '@/hooks/useSchoolId';
 
 export default function SchoolClassroomSection() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { profile } = useAppSelector((state) => state.auth);
   const { classrooms, loading, success, error } = useAppSelector((state) => state.classroom);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', level: '1', major: '' });
 
-  const schoolId = profile?.activeContext?.schoolId || (typeof window !== "undefined" ? sessionStorage.getItem("schoolId") : null);
-
+  const schoolId = useSchoolId();
   useEffect(() => {
     if (schoolId) dispatch(fetchClassrooms(schoolId));
   }, [dispatch, schoolId]);
