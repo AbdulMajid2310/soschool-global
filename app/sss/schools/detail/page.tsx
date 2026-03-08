@@ -17,20 +17,29 @@ import {
   FiMapPin,
   FiCpu,
   FiExternalLink,
+  FiActivity,
+  FiTrendingUp,
+  FiHome,
+  FiHeart,
 } from "react-icons/fi";
 import { RootState } from "@/redux/store";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchSchoolById } from "@/redux/features/school/thunk";
+import {
+  deleteSchool,
+  fetchSchoolById,
+  fetchSchoolSummary,
+} from "@/redux/features/school/thunk";
 import { FaChalkboardTeacher, FaMapMarkedAlt, FaPlus } from "react-icons/fa";
 import StatCard from "./StatsCard";
+import { useSchoolId } from "@/hooks/useSchoolId";
+import toast from "react-hot-toast";
+import { confirmActionToast } from "@/components/toast/confirmActionToast";
 
 export default function SchoolDetailPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const schoolId = sessionStorage.getItem("schoolId");
-  const { selectedSchool, loading, error } = useAppSelector(
-    (state: RootState) => state.school,
-  );
+  const schoolId = useSchoolId();
+  const { summarySchool } = useAppSelector((state: RootState) => state.school);
 
   if (!schoolId) {
     router.replace("/sss/schools"); // Tendang balik ke list jika ID hilang
@@ -38,19 +47,30 @@ export default function SchoolDetailPage() {
 
   useEffect(() => {
     if (schoolId) {
-      dispatch(fetchSchoolById(schoolId));
+      dispatch(fetchSchoolSummary(schoolId));
     }
   }, [dispatch, schoolId]);
 
   const handleDelete = () => {
-    if (
-      confirm(
-        "Apakah Anda yakin ingin menghapus sekolah ini? Data tidak dapat dikembalikan.",
-      )
-    ) {
-      console.log("Menghapus sekolah:", selectedSchool?.schoolId);
-      // Logic delete di sini
-    }
+    const schoolId = summarySchool?.meta.schoolId;
+    const schoolName = summarySchool?.meta.name;
+
+    if (!schoolId) return toast.error("ID Sekolah tidak ditemukan");
+
+    confirmActionToast({
+      title: "Hapus Institusi",
+      message: `Apakah Anda yakin ingin menghapus ${schoolName}? Seluruh data akademik dan akun terkait akan terhapus permanen.`,
+      variant: "danger",
+      confirmText: "Ya, Hapus Permanen",
+      onConfirm: async () => {
+        // Menjalankan thunk dan unwrap untuk menangkap hasil/error
+        await dispatch(deleteSchool(schoolId)).unwrap();
+
+        // Jika berhasil
+        toast.success("Sekolah berhasil dihapus dari sistem SoSchool");
+        router.push("/sss/schools");
+      },
+    });
   };
 
   return (
@@ -98,7 +118,8 @@ export default function SchoolDetailPage() {
           <div className="h-64 md:h-100 w-full rounded-[40px] md:rounded-[60px] overflow-hidden shadow-2xl relative">
             <img
               src={
-                selectedSchool?.background || "/images/background-school.png"
+                summarySchool?.meta?.background ||
+                "/images/background-school.png"
               }
               className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
               alt="Banner"
@@ -113,7 +134,7 @@ export default function SchoolDetailPage() {
             <div className="relative sm:shrink-0 group/avatar">
               <div className="h-24 w-24 md:h-48 md:w-48 rounded-full md:rounded-[56px] bg-white dark:bg-slate-900 border-[6px] md:border-8 border-[#f8fafc] dark:border-[#020617] overflow-hidden shadow-2xl relative z-10">
                 <img
-                  src={selectedSchool?.avatar}
+                  src={summarySchool?.meta?.avatar}
                   className="w-full h-full object-cover"
                   alt="Logo"
                 />
@@ -127,31 +148,32 @@ export default function SchoolDetailPage() {
               <div className="flex flex-col items-start gap-2">
                 {/* Badge Plan - Glassmorphism style */}
                 <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] sm:font-black uppercase tracking-[0.2em] rounded-full shadow-lg">
-                  {selectedSchool?.plan || "Standard"} Edition
+                  {summarySchool?.meta?.plan || "Standard"} Edition
                 </span>
 
                 {/* School Name - Diperbaiki agar tidak terpotong (line-clamp) tapi tetap besar */}
                 <h1 className="text-xl md:text-6xl font-black text-white italic drop-shadow-2xl tracking-tighter leading-tight">
-                  {selectedSchool?.name}
+                  {summarySchool?.meta?.name}
                 </h1>
 
                 {/* Meta Info (Domain & Location) */}
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2  font-bold italic text-white/80">
                   <a
-                    href={`https://${selectedSchool?.domain}`}
+                    href={`https://${summarySchool?.meta?.domain}`}
                     target="_blank"
                     className="flex items-center text-sm gap-2 hover:text-white transition-colors group/link"
                   >
                     <FiGlobe className="text-blue-400 group-hover/link:animate-spin-slow" />
                     <span className="underline underline-offset-4 decoration-blue-500/40">
-                      {selectedSchool?.domain}
+                      {summarySchool?.meta?.domain}
                     </span>
                   </a>
 
                   <div className="flex items-center gap-2 text-sm bg-black/20 md:bg-transparent px-3 py-1 md:px-0 rounded-full backdrop-blur-sm md:backdrop-blur-none">
                     <FiMapPin className="text-rose-500" />
                     <span>
-                      {selectedSchool?.address?.city || "Lokasi belum diatur"}
+                      {summarySchool?.meta?.address?.city ||
+                        "Lokasi belum diatur"}
                     </span>
                   </div>
                 </div>
@@ -164,34 +186,59 @@ export default function SchoolDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
           <div className="lg:col-span-2 space-y-8">
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <StatCard
                 icon={<FiUsers />}
-                label="Siswa"
-                value={"2999"}
-                color="text-blue-500"
-                href={"/sss/schools/student"}
+                label="Total Siswa"
+                value={summarySchool?.census?.totalStudents || 0}
+                color="blue"
+                trend={summarySchool?.analysis?.classroomUtilizationRate}
+                href="/sss/schools/student"
               />
+
               <StatCard
                 icon={<FiUserCheck />}
-                label="Guru"
-                value={"300"}
-                color="text-purple-500"
-                href={"/sss/schools/teacher"}
+                label="Total Guru"
+                value={summarySchool?.census?.totalTeachers || 0}
+                color="purple"
+                trend={summarySchool?.analysis?.teacherStudentRatio}
+                href="/sss/schools/teacher"
               />
+
               <StatCard
                 icon={<FaChalkboardTeacher />}
-                label="staff"
-                value={"300"}
-                color="text-purple-500"
-                href={"/sss/schools/staff"}
+                label="Total Staff"
+                value={summarySchool?.census?.totalStaffs || 0}
+                color="violet"
+                trend={summarySchool?.analysis?.operationalLoad}
+                href="/sss/schools/staff"
               />
+
+              <StatCard
+                icon={<FiHeart />}
+                label="Total Orang Tua"
+                value={summarySchool?.census?.totalParents || 0}
+                color="rose"
+                trend={summarySchool?.analysis?.parentEngagementRate}
+                href="/sss/schools/parent"
+              />
+
+              <StatCard
+                icon={<FiHome />}
+                label="Total Ruangan"
+                value={summarySchool?.census?.totalClassrooms || 0}
+                color="amber"
+                trend={`${summarySchool?.analysis?.averageClassCapacity || 0} Kapasitas`}
+                href="/sss/schools/classroom"
+              />
+
               <StatCard
                 icon={<FiBookOpen />}
-                label="Kelas"
-                value={"12"}
-                color="text-emerald-500"
-                href={"/sss/schools/classroom-config"}
+                label="Konfigurasi Kelas"
+                value={summarySchool?.census?.totalClassroomConfigs || 0}
+                color="emerald"
+                trend={summarySchool?.analysis?.configCoverage}
+                href="/sss/schools/classroom-config"
               />
             </div>
 
@@ -209,20 +256,16 @@ export default function SchoolDetailPage() {
                 <InfoItem
                   icon={<FiAward />}
                   label="Akreditasi"
-                  value={selectedSchool?.accreditation}
+                  value={summarySchool?.meta?.accreditation}
                 />
-                <InfoItem
-                  icon={<FiCpu />}
-                  label="Kurikulum"
-                  value={"Merdeka"}
-                />
+
                 <InfoItem
                   icon={<FiCalendar />}
                   label="Tanggal Berdiri"
                   value={
-                    selectedSchool?.establishedDate
+                    summarySchool?.meta?.establishedDate
                       ? new Date(
-                          selectedSchool.establishedDate,
+                          summarySchool?.meta.establishedDate,
                         ).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "long",
@@ -231,21 +274,16 @@ export default function SchoolDetailPage() {
                       : "-"
                   }
                 />
-                <InfoItem
-                  icon={<FiExternalLink />}
-                  label="Website"
-                  value={selectedSchool?.domain}
-                  isLink
-                />
+
                 <InfoItem
                   icon={<FiMail />}
                   label="Email Resmi"
-                  value={selectedSchool?.email}
+                  value={summarySchool?.meta?.email}
                 />
                 <InfoItem
                   icon={<FiPhone />}
                   label="Kontak"
-                  value={selectedSchool?.phone}
+                  value={summarySchool?.meta?.phone}
                 />
               </div>
 
@@ -254,17 +292,17 @@ export default function SchoolDetailPage() {
                   Alamat Fisik & Lokasi
                 </p>
 
-                {selectedSchool?.address ? (
+                {summarySchool?.meta?.address ? (
                   // TAMPILAN JIKA ALAMAT ADA
                   <div className="space-y-4">
                     <div className="relative p-6 bg-slate-50 dark:bg-gray-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-gray-700">
                       <p className="text-slate-600 dark:text-slate-300 text-md leading-relaxed italic">
-                        &quot;{selectedSchool.address.street},{" "}
-                        {selectedSchool.address.village},{" "}
-                        {selectedSchool.address.district},{" "}
-                        {selectedSchool.address.city},{" "}
-                        {selectedSchool.address.province} -{" "}
-                        {selectedSchool.address.postalCode}&quot;
+                        &quot;{summarySchool?.meta.address.street},{" "}
+                        {summarySchool?.meta.address.village},{" "}
+                        {summarySchool?.meta.address.district},{" "}
+                        {summarySchool?.meta.address.city},{" "}
+                        {summarySchool?.meta.address.province} -{" "}
+                        {summarySchool?.meta.address.postalCode}&quot;
                       </p>
                     </div>
                   </div>
@@ -306,9 +344,12 @@ export default function SchoolDetailPage() {
                 <StatusRow label="Account Status" value="Active" isActive />
                 <StatusRow
                   label="Jenjang Pendidikan"
-                  value={selectedSchool?.level}
+                  value={summarySchool?.meta?.level}
                 />
-                <StatusRow label="NISP / NPSN" value={selectedSchool?.nisp} />
+                <StatusRow
+                  label="NISP / NPSN"
+                  value={summarySchool?.meta?.nisp}
+                />
                 <StatusRow label="Storage Used" value="1.2 GB / 10 GB" />
               </div>
 
@@ -317,9 +358,12 @@ export default function SchoolDetailPage() {
                   Subscription
                 </p>
                 <p className="text-xl font-black italic mb-4">
-                  {selectedSchool?.plan} Edition
+                  {summarySchool?.meta?.plan} Edition
                 </p>
-                <button className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-bold text-sm transition-all">
+                <button
+                  type="button"
+                  className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl font-bold text-sm transition-all"
+                >
                   Upgrade Plan
                 </button>
               </div>
