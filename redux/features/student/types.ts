@@ -1,11 +1,14 @@
+import { ClassroomConfig } from "../classroom-config/types";
 import { User } from "../user/types";
 
 export interface Student {
   studentId: string;
   nis: string;
   isActive: boolean;
+  isStatus: string;
   user: User;
   createdAt: string;
+  classroom: ClassroomConfig;
 }
 
 export interface StudentState {
@@ -37,4 +40,9 @@ export interface UpdateStudentPayload {
 export interface DeleteStudentPayload {
   studentId: string;
   schoolId: string;
+}
+
+export interface DeleteBulkStudentPayload {
+  schoolId: string;
+  studentIds: string[]; // Menggunakan Array string
 }

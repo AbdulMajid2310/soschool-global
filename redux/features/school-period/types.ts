@@ -8,7 +8,7 @@ export interface SchoolPeriod {
 
 export interface CreateSchoolPeriod {
   academicYear: string;
-  semester: 'GANJIL' | 'GENAP';
+  semester: string;
   schoolId: string;
 }
 

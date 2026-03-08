@@ -4,31 +4,44 @@ import { Student } from "../student/types";
 import { SchoolTeacher } from "../teacher/types";
 
 export interface classroomCobfigData {
-    classroomConfigId: string
-    student: Student
-    status: string
+  classroomConfigId: string;
+  student: Student;
+  status: string;
 }
 
 export interface ClassroomConfig {
-    classroomConfigId: string;
-    roomLocation: string;
-    period: SchoolPeriod;
-    classroom: SchoolClassroom;
-    homeroomTeacher: SchoolTeacher;
-    classroomStudents: classroomCobfigData[];
+  classroomConfigId: string;
+  roomLocation: string;
+  period: SchoolPeriod;
+  classroom: SchoolClassroom;
+  homeroomTeacher: SchoolTeacher;
+  classroomStudents: classroomCobfigData[];
 }
 
 export interface CreateClassroomConfigPayload {
-    roomLocation: string;
-    periodId: string;
-    schoolClassroomId: string;
-    homeroomTeacherId: string;
-    studentIds: string[];
-    schoolId: string;
+  roomLocation: string;
+  periodId: string;
+  schoolClassroomId: string;
+  homeroomTeacherId: string;
+  studentIds: string[];
+  schoolId: string;
+}
+
+// types.ts
+
+export interface StudentVaildation {
+  studentId: string;
+  nis: string;
+  username: string;
+}
+
+export interface ClassroomConfigCsv {
+  validStudents: StudentVaildation[]; // Sesuai JSON: validStudents
+  invalidNis: string[]; // Sesuai JSON: invalidNis
 }
 
 export interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
+  success: boolean;
+  message: string;
+  data: T;
 }

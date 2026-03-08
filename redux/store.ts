@@ -16,6 +16,7 @@ import schoolStudyMaterialSlice from './features/school_study_material/slice'
 import schoolScheduleSlice from './features/school_schedule/slice'
 import academicCalendarSlice from './features/school_academic_calendar/slice'
 import schoolStaffSlice from "./features/staff/slice"
+import classroomStudentSlice from "./features/classroom-student/slices"
 export const store = configureStore({
   reducer: {
     auth: profileReducerAuth,
@@ -33,7 +34,8 @@ export const store = configureStore({
     schoolStudyMaterial: schoolStudyMaterialSlice,
     schoolSchedule: schoolScheduleSlice,
     schoolCalendarAcademic: academicCalendarSlice,
-    schoolStaff: schoolStaffSlice
+    schoolStaff: schoolStaffSlice,
+    classroomStudent: classroomStudentSlice
   },
 });
 

@@ -1,39 +1,91 @@
-"use client"
+"use client";
 
+import React, { useState } from "react";
+import ClassroomStudentList from "@/components/classroom-student/ClassroomStudentList";
 import ListStudentSection from "@/components/student/listStudentSchoolSection";
+import ButtonBackUI from "@/components/ui/button/ButtonBack";
 import { useRouter } from "next/navigation";
-import { FaChevronLeft, FaUserPlus } from "react-icons/fa";
+import { FaUsers, FaLayerGroup } from "react-icons/fa6";
+import { BsPersonFillAdd } from "react-icons/bs";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function StudentPage() {
-    const router = useRouter()
-    return (
-        <div>
-            <div className="flex justify-between">
+  const router = useRouter();
+  const { students } = useAppSelector((state) => state.student);
 
-                <button
-                    onClick={() => router.back()}
-                    className="group flex items-center gap-3 text-slate-400 hover:text-indigo-600 transition-all duration-300"
-                >
-                    <div className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 transition-colors">
-                        <FaChevronLeft className="text-sm group-hover:-translate-x-1 transition-transform duration-300" />
-                    </div>
-                    <span className="text-xl font-black uppercase italic tracking-tighter">
-                        Kembali
-                    </span>
-                </button>
-                <button
-                    onClick={() => router.push("student/add")}
-                    className="group relative flex items-center justify-center gap-2 px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold tracking-tight shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] dark:shadow-none transition-all duration-300 active:scale-95 overflow-hidden"
-                >
-                    <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+  // State untuk Switcher
+  const [activeTab, setActiveTab] = useState<"master" | "mapping">("master");
 
-                    <FaUserPlus className="text-xl stroke-[3px] transition-transform duration-300" />
+  const tabClass = (tab: string) => `
+    flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300
+    ${
+      activeTab === tab
+        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none translate-y-[-2px]"
+        : "bg-white dark:bg-slate-900 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-slate-100 dark:border-slate-800"
+    }
+  `;
 
-                </button>
-            </div>
-            <div>
-                <ListStudentSection />
-            </div>
+  return (
+    <div className="space-y-4 p-4  animate-in fade-in duration-700">
+      <ButtonBackUI />
+      {/* Top Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-4">
+          <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
+              Database Siswa
+            </h1>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+              SoSchool Management System
+            </p>
+          </div>
         </div>
-    )
+
+        <div className="flex  flex-wrap items-center gap-3 p-2 bg-slate-100/50 dark:bg-slate-900/50 rounded-4xl w-fit border border-slate-200/50 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={() => setActiveTab("master")}
+            className={tabClass("master")}
+          >
+            <FaUsers size={18} />
+            <span className="hidden lg:inline "> Master Data </span>(
+            {students.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("mapping")}
+            className={tabClass("mapping")}
+          >
+            <FaLayerGroup size={18} />
+            <span className="hidden lg:inline "> Data Kelas</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("student/add")}
+            className="group flex items-center justify-center gap-3 px-8 py-3 bg-slate-900 dark:bg-indigo-600 text-white rounded-3xl font-black uppercase text-[10px] tracking-widest shadow-xl transition-all active:scale-95 cursor-pointer"
+          >
+            <BsPersonFillAdd className="text-lg group-hover:rotate-12 transition-transform" />
+            <span className="hidden lg:inline ">Tambah</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Modern Switcher / Tabs */}
+
+      {/* Dynamic Content Rendering */}
+      <div className="mt-4 transition-all duration-500">
+        {activeTab === "master" ? (
+          <div className="animate-in slide-in-from-left-4 duration-500">
+            <ListStudentSection />
+          </div>
+        ) : (
+          <div className="animate-in slide-in-from-right-4 duration-500">
+            <ClassroomStudentList />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

@@ -1,6 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StudentState, Student } from './types';
-import { deleteStudent, fetchStudents, registerStudent, updateStudentData } from './thunks';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { StudentState, Student } from "./types";
+import {
+  deleteStudent,
+  fetchStudents,
+  registerStudent,
+  updateStudentData,
+  deleteBulkStudents,
+} from "./thunks";
 
 const initialState: StudentState = {
   students: [],
@@ -10,7 +16,7 @@ const initialState: StudentState = {
 };
 
 const studentSlice = createSlice({
-  name: 'student',
+  name: "student",
   initialState,
   reducers: {
     resetStudentStatus: (state) => {
@@ -20,24 +26,26 @@ const studentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Students
       .addCase(fetchStudents.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchStudents.fulfilled, (state, action: PayloadAction<Student[]>) => {
-        state.loading = false;
-        state.students = action.payload;
-      })
+      .addCase(
+        fetchStudents.fulfilled,
+        (state, action: PayloadAction<Student[]>) => {
+          state.loading = false;
+          state.students = action.payload;
+        },
+      )
       .addCase(fetchStudents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
-      // Register Student
       .addCase(registerStudent.pending, (state) => {
         state.loading = true;
         state.success = false;
+        state.error = null;
       })
       .addCase(registerStudent.fulfilled, (state) => {
         state.loading = false;
@@ -48,33 +56,47 @@ const studentSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // ... di dalam extraReducers studentSlice ...
+      .addCase(updateStudentData.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(updateStudentData.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(updateStudentData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
-// Update Student Data
-.addCase(updateStudentData.pending, (state) => {
-  state.loading = true;
-})
-.addCase(updateStudentData.fulfilled, (state) => {
-  state.loading = false;
-  state.success = true;
-})
-.addCase(updateStudentData.rejected, (state, action) => {
-  state.loading = false;
-  state.error = action.payload as string;
-})
+      .addCase(deleteStudent.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(deleteStudent.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(deleteStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
-// Delete Student
-.addCase(deleteStudent.pending, (state) => {
-  state.loading = true;
-})
-.addCase(deleteStudent.fulfilled, (state) => {
-  state.loading = false;
-  state.success = true;
-})
-.addCase(deleteStudent.rejected, (state, action) => {
-  state.loading = false;
-  state.error = action.payload as string;
-});
+      .addCase(deleteBulkStudents.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(deleteBulkStudents.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(deleteBulkStudents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

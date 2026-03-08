@@ -1,423 +1,212 @@
-"use client"
+"use client";
 
 import { useSchoolId } from "@/hooks/useSchoolId";
-import { fetchStudents } from "@/redux/features/student/thunks";
+import {
+  fetchStudents,
+  deleteStudent,
+  deleteBulkStudents,
+} from "@/redux/features/student/thunks";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaFemale, FaMale } from "react-icons/fa";
-import { FiSearch, FiList, FiGrid, FiUser, FiInfo, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { HiOutlineStatusOnline } from "react-icons/hi";
-
-const students = Array.from({ length: 40 }).map((_, i) => ({
-  id: i + 1,
-  nis: `20240${i + 1}`,
-  name: `Siswa ${i + 1}`,
-  image: `https://i.pravatar.cc/150`,
-  class: `X-${(i % 3) + 1}`,
-  gender: i % 2 === 0 ? "Laki-laki" : "Perempuan",
-  status: i % 6 === 0 ? "Nonaktif" : "Aktif",
-}));
+import { useEffect, useState, useMemo } from "react";
+import { toast } from "react-hot-toast";
+import {
+  FiSearch,
+  FiList,
+  FiGrid,
+  FiTrash2,
+  FiCheckSquare,
+  FiSquare,
+} from "react-icons/fi";
+import { StudentTableView } from "./StudentTableView";
+import { StudentGridView } from "./StudentGridView";
+import { SearchModal } from "../SearchModal";
 
 export default function ListStudentSection() {
-  const route = useRouter()
-  const [query, setQuery] = useState("");
-  const [view, setView] = useState<'list' | 'grid'>('list');
-  const [selectedClass, setSelectedClass] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedGender, setSelectedGender] = useState("all");
+  const router = useRouter();
   const dispatch = useAppDispatch();
-
-
-  // 1. Ambil schoolId dari state auth (User yang login)
   const schoolId = useSchoolId();
-  // 2. Ambil data students dari state student
-  const { students: data, loading, error } = useAppSelector((state) => state.student);
 
-  console.log('siswa', data)
+  const { students: data, loading } = useAppSelector((state) => state.student);
 
-  // 3. Trigger fetch saat halaman dimuat
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<"list" | "grid">("list");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   useEffect(() => {
     if (schoolId) {
       dispatch(fetchStudents(schoolId));
     }
   }, [dispatch, schoolId]);
 
+  const filteredStudents = useMemo(() => {
+    return data.filter((s) => {
+      const matchQuery =
+        s.user.username.toLowerCase().includes(query.toLowerCase()) ||
+        s.nis.includes(query);
+      return matchQuery;
+    });
+  }, [data, query]);
 
-  const classes = ["all", ...new Set(students.map(s => s.class))];
-  const statuses = ["all", "Aktif", "Nonaktif"];
-  const genders = ["all", "Laki-laki", "Perempuan"];
+  const isAllSelected =
+    filteredStudents.length > 0 &&
+    selectedIds.length === filteredStudents.length;
 
-  const filteredStudents = students.filter((s) => {
-    const matchQuery =
-      s.name.toLowerCase().includes(query.toLowerCase()) ||
-      s.nis.includes(query);
+  const handleSelectAll = () => {
+    if (isAllSelected) setSelectedIds([]);
+    else setSelectedIds(filteredStudents.map((s) => s.studentId));
+  };
 
-    const matchClass =
-      selectedClass === "all" || s.class === selectedClass;
+  const handleRefresh = () => {
+    if (schoolId) {
+      dispatch(fetchStudents(schoolId));
+      toast.success("Data diperbarui");
+    }
+  };
 
-    const matchStatus =
-      selectedStatus === "all" || s.status === selectedStatus;
+  const handleDeleteSingle = async (studentId: string) => {
+    if (!schoolId) return;
+    if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
+      try {
+        await dispatch(deleteStudent({ schoolId, studentId })).unwrap();
+        toast.success("Siswa berhasil dihapus");
+        setSelectedIds((prev) => prev.filter((id) => id !== studentId));
+      } catch (err: any) {
+        toast.error(err || "Gagal menghapus");
+      }
+    }
+  };
 
-    const matchGender =
-      selectedGender === "all" || s.gender === selectedGender;
+  const handleDeleteBulk = async () => {
+    if (!schoolId || selectedIds.length === 0) return;
 
+    if (confirm(`Hapus ${selectedIds.length} siswa yang dipilih?`)) {
+      try {
+        await dispatch(
+          deleteBulkStudents({ schoolId, studentIds: selectedIds }),
+        ).unwrap();
 
-    return matchQuery && matchClass && matchStatus;
-  });
-
+        toast.success("Semua siswa terpilih berhasil dihapus");
+        setSelectedIds([]); // Reset checkbox setelah berhasil
+      } catch (err: any) {
+        toast.error(err || "Gagal menghapus massal");
+      }
+    }
+  };
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold  tracking-tight">Manajemen Siswa</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola data Siswa akademik SoSchool</p>
-      </div>
-
-      {/* Statistik */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Siswa</p>
-          <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{students.length}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Siswa Aktif</p>
-          <p className="text-2xl font-bold text-green-600">
-            {students.filter(s => s.status === 'Aktif').length}
-          </p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Siswa Nonaktif</p>
-          <p className="text-2xl font-bold text-red-600">
-            {students.filter(s => s.status === 'Nonaktif').length}
-          </p>
-        </div>
-      </div>
-      <div className="flex justify-between items-center">
-
-        {/* Filter Buttons */}
-        <div className=" space-y-2 w-full">
-          <div className="flex justify-between items-center w-full">
-
-            {/* Kelas */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                Kelas
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {classes.map((cls) => (
-                  <button
-                    key={cls}
-                    onClick={() => setSelectedClass(cls)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition
-            ${selectedClass === cls
-                        ? "bg-blue-600 text-white shadow"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                  >
-                    {cls === "all" ? "Semua" : cls}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 justify-end">
-              {/* Search */}
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Cari siswa atau NIS..."
-                  className="pl-9 pr-3 py-2 w-56 border rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* View Switch */}
-              <div className="flex border rounded-lg overflow-hidden border-gray-300 dark:border-gray-700">
-                <button
-                  onClick={() => setView("list")}
-                  className={`px-3 py-2 transition ${view === "list"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    }`}
-                >
-                  <FiList />
-                </button>
-                <button
-                  onClick={() => setView("grid")}
-                  className={`px-3 py-2 transition ${view === "grid"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    }`}
-                >
-                  <FiGrid />
-                </button>
-              </div>
-
-
+    <div className="space-y-6 bg-transparent">
+      {/* Toolbar Section */}
+      <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div className="flex  flex-col-reverse xl:flex-row gap-6 items-center">
+          {/* SISI KIRI: Select All & Search */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full flex-1">
+            <div className="w-full">
+              <SearchModal
+                onSearch={(q) => setQuery(q)}
+                onRefresh={handleRefresh}
+                isLoading={loading}
+              />
             </div>
           </div>
 
-          <div className="flex gap-4">
-            {/* Status */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                Status
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {statuses.map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => setSelectedStatus(st)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition
-            ${selectedStatus === st
-                        ? st === "Aktif"
-                          ? "bg-green-600 text-white shadow"
-                          : st === "Nonaktif"
-                            ? "bg-red-600 text-white shadow"
-                            : "bg-gray-700 text-white shadow"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                  >
-                    <HiOutlineStatusOnline className="w-3 h-3" />
-                    {st === "all" ? "Semua" : st}
-                  </button>
-                ))}
-              </div>
+          {/* SISI KANAN: View Switcher, Stats & Delete */}
+          <div className="flex  items-center justify-center sm:justify-between xl:justify-end gap-4 w-full xl:w-auto ">
+            {/* View Switcher */}
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl shadow-inner">
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className={`px-5 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                  view === "list"
+                    ? "bg-white dark:bg-slate-900 shadow-sm text-indigo-600 ring-1 ring-slate-200/50"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                <FiList size={16} />
+                <span className="hidden sm:inline">List</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                className={`px-5 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                  view === "grid"
+                    ? "bg-white dark:bg-slate-900 shadow-sm text-indigo-600 ring-1 ring-slate-200/50"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                <FiGrid size={16} />
+                <span className="hidden sm:inline">Grid</span>
+              </button>
             </div>
-
-            {/* Gender */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                Gender
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {genders.map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => setSelectedGender(g)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition
-            ${selectedGender === g
-                        ? g === "Laki-laki"
-                          ? "bg-blue-600 text-white shadow"
-                          : g === "Perempuan"
-                            ? "bg-pink-600 text-white shadow"
-                            : "bg-gray-700 text-white shadow"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                  >
-                    {g === "Laki-laki" && <FaMale />}
-                    {g === "Perempuan" && <FaFemale />}
-                    {g === "all" ? "Semua" : g}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-      </div>
-
-      {/* List View */}
-      {view === 'list' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow overflow-x-auto">
-          <div className="w-full text-sm">
-            <div className="grid grid-cols-7 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300">
-              <div className="col-span-2">Nama</div>
-              <div>NIS</div>
-              <div>Kelas</div>
-              <div>Jenis Kelamin</div>
-              <div>Status</div>
-              <div className="text-right">Aksi</div>
-            </div>
-
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredStudents.map((s) => (
-                <div
-                  key={s.id}
-                  className="grid grid-cols-7 gap-4 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                >
-                  {/* Avatar + Nama */}
-                  <div className="col-span-2 flex items-center gap-3">
-                    <img
-                      src={"https://i.pravatar.cc/150"}
-                      alt={s.name}
-                      className="w-9 h-9 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                    />
-                    <span className="font-medium text-gray-800 dark:text-gray-100">
-                      {s.name}
-                    </span>
-                  </div>
-                  {/* NIS */}
-                  <div className="text-gray-800 dark:text-gray-100">
-                    {s.nis}
-                  </div>
-
-
-
-                  {/* Kelas */}
-                  <div className="text-gray-700 dark:text-gray-300">
-                    {s.class}
-                  </div>
-
-                  {/* Gender */}
-                  <div className="text-gray-700 dark:text-gray-300">
-                    {s.gender}
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-            ${s.status === "Aktif"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                        }`}
-                    >
-                      {s.status}
-                    </span>
-                  </div>
-
-                  {/* Aksi */}
-                  <div className="flex justify-end gap-3">
-                    <button
-                      onClick={() => route.push('/staff/akademik/siswa/detail/bio')}
-                      title="Detail"
-                      className="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 transition"
-                    >
-                      <FiInfo size={16} />
-                    </button>
-
-                    <button
-                      title="Edit"
-                      className="p-2 rounded-lg text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900 transition"
-                    >
-                      <FiEdit2 size={16} />
-                    </button>
-
-                    <button
-                      title="Hapus"
-                      className="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900 transition"
-                    >
-                      <FiTrash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* Grid View */}
-      {view === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredStudents.map((s) => (
-            <div
-              key={s.id}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 hover:shadow-lg transition flex flex-col"
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className={`flex items-center justify-center gap-3 px-3 lg:px-6 py-3.5 rounded-2xl transition-all font-black text-[10px] uppercase tracking-[0.15em] shrink-0 w-auto  ${
+                isAllSelected
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none"
+                  : "bg-slate-50 dark:bg-slate-800 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
             >
-              <div>
-                <div
-                  key={s.id}
-                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-5 flex flex-col"
-                >
-                  {/* Header */}
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <img
-                        src="https://i.pravatar.cc/150"
-                        alt="user"
-                        className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
-                      />
-                      {/* Status Dot */}
-                      <span
-                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white
-          ${s.status === "Aktif" ? "bg-green-500" : "bg-red-500"}`}
-                      />
-                    </div>
+              {isAllSelected ? (
+                <FiCheckSquare size={18} />
+              ) : (
+                <FiSquare size={18} />
+              )}
+              <span className="hidden lg:inline">
+                {isAllSelected ? "Deselect All" : "Select All"}
+              </span>
+            </button>
 
-                    <div className="flex-1">
-
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        NIS {s.nis}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Kelas {s.class}
-                      </p>
-                    </div>
-
-                    {/* Gender */}
-                    <div className="flex items-center gap-1 text-lg">
-                      {s.gender === "Laki-laki" ? (
-                        <FaMale className="text-blue-500" />
-                      ) : (
-                        <FaFemale className="text-pink-500" />
-                      )}
-                    </div>
-
-                  </div>
-                  <p className="font-semibold p-3 text-gray-800 dark:text-gray-100 text-base leading-tight">
-                    {s.name}
-                  </p>
-                  {/* Divider */}
-                  <div className="my-1 border-t border-gray-200 dark:border-gray-700" />
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between">
-                    {/* Status */}
-                    <span
-                      className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
-        ${s.status === "Aktif"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                        }`}
-                    >
-                      <HiOutlineStatusOnline />
-                      {s.status}
-                    </span>
-
-                    <div className="flex items-center gap-3">
-                      {/* Detail */}
-                      <button
-                        onClick={() => route.push('/staff/akademik/siswa/detail/bio')}
-                        title="Detail"
-                        className="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 transition"
-                      >
-                        <FiInfo size={16} />
-                      </button>
-
-                      {/* Edit */}
-                      <button
-                        title="Edit"
-                        className="p-2 rounded-lg text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900 transition"
-                      >
-                        <FiEdit2 size={16} />
-                      </button>
-
-                      {/* Delete */}
-                      <button
-                        title="Hapus"
-                        className="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900 transition"
-                      >
-                        <FiTrash2 size={16} />
-                      </button>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-
-
-            </div>
-
-          ))}
+            {/* Bulk Delete Button */}
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                onClick={handleDeleteBulk}
+                className="flex items-center gap-3 px-6 py-3.5 bg-rose-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-rose-600 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-rose-200 dark:shadow-none animate-in zoom-in duration-300"
+              >
+                <FiTrash2 size={16} />
+                <span className="hidden lg:inline">Hapus </span>
+                {selectedIds.length}
+              </button>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Content Section */}
+      <div className="mt-8">
+        {view === "list" ? (
+          <StudentTableView
+            students={filteredStudents}
+            selectedIds={selectedIds}
+            setSelectedIds={setSelectedIds}
+            onDetail={(id) => router.push(`/staff/akademik/siswa/detail/${id}`)}
+            onEdit={(s) => console.log("Edit", s)} // Ganti dengan fungsi edit kamu
+            onDelete={handleDeleteSingle}
+          />
+        ) : (
+          <StudentGridView
+            students={filteredStudents}
+            selectedIds={selectedIds}
+            setSelectedIds={setSelectedIds}
+            onDetail={(id) => router.push(`/staff/akademik/siswa/detail/${id}`)}
+            onEdit={(s) => console.log("Edit", s)} // Ganti dengan fungsi edit kamu
+            onDelete={handleDeleteSingle}
+          />
+        )}
+      </div>
     </div>
   );
 }
+
+const StatCard = ({ label, count, color }: any) => (
+  <div className="bg-white dark:bg-gray-800 px-5 py-3 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col min-w-24">
+    <span className="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">
+      {label}
+    </span>
+    <span className={`text-xl font-black tracking-tighter ${color}`}>
+      {count}
+    </span>
+  </div>
+);

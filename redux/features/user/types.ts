@@ -1,3 +1,5 @@
+import { Address } from "../address/types";
+
 export interface User {
   userId: string;
   username: string;
@@ -5,11 +7,13 @@ export interface User {
   avatar: string;
   email: string;
   phone: string;
+  gender: string;
   isActive: boolean;
   isVerified: boolean;
   isApproved: boolean;
   createdAt: string;
   updatedAt: string;
+  address: Address;
 }
 
 // Tambahkan Interface untuk Statistik Monitoring
@@ -52,7 +56,7 @@ export interface UserStatsResponse {
 export interface UserState {
   users: User[];
   userDetail: User | null;
-  filteredUsers: User[],
+  filteredUsers: User[];
   stats: UserStats | null; // Tambahkan ini untuk monitoring
   loading: boolean;
   error: string | null;
