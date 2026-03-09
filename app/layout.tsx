@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "../provider/appProvider";
 
@@ -13,34 +13,43 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
   // Tambahkan baris ini
   metadataBase: new URL(
     process.env.NODE_ENV === "production"
       ? "https://soschool.site"
-      : "http://localhost:3003" // Sesuaikan dengan port local kamu
+      : "http://localhost:3003", // Sesuaikan dengan port local kamu
   ),
   title: {
     default: "SoSchool — Revolusi Digital Management Sekolah",
-    template: "%s | SoSchool"
+    template: "%s | SoSchool",
   },
-  description: "Platform All-in-One manajemen sekolah cerdas berbasis Cloud & AI. Tingkatkan efisiensi administrasi, LMS interaktif, dan transparansi pendidikan dalam satu ekosistem terpadu.",
+  description:
+    "Platform All-in-One manajemen sekolah cerdas berbasis Cloud & AI. Tingkatkan efisiensi administrasi, LMS interaktif, dan transparansi pendidikan dalam satu ekosistem terpadu.",
   keywords: [
-    "Manajemen Sekolah Digital", 
-    "LMS Indonesia", 
-    "Aplikasi Sekolah Cloud", 
-    "SoSchool Digital Education", 
-    "Sistem Informasi Sekolah"
+    "Manajemen Sekolah Digital",
+    "LMS Indonesia",
+    "Aplikasi Sekolah Cloud",
+    "SoSchool Digital Education",
+    "Sistem Informasi Sekolah",
   ],
-  authors: [{ name: "Majid", url: "https://www.linkedin.com/in/abdul-majid23/" }], // Mengacu pada info user sebagai developer
+  authors: [
+    { name: "Majid", url: "https://www.linkedin.com/in/abdul-majid23/" },
+  ], // Mengacu pada info user sebagai developer
   creator: "SoSchool Team",
   openGraph: {
     type: "website",
     locale: "id_ID",
     url: "https://soschool.site",
     title: "SoSchool — Solusi Digital Seluruh Sekolah",
-    description: "Belajar tanpa batas dengan ekosistem digital terpadu. Modernisasi sekolah Anda sekarang!",
+    description:
+      "Belajar tanpa batas dengan ekosistem digital terpadu. Modernisasi sekolah Anda sekarang!",
     siteName: "SoSchool",
     images: [
       {
@@ -75,12 +84,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-       <AppProvider>
-          {children}
-        </AppProvider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
-
   );
 }

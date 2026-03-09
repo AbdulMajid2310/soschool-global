@@ -8,8 +8,7 @@ import {
   HiOutlinePaperAirplane,
   HiOutlinePlus,
   HiOutlineChevronDown,
-  HiOutlineXMark,
-  HiOutlineAcademicCap,
+  HiOutlineBriefcase,
   HiOutlineIdentification,
 } from "react-icons/hi2";
 import { toast } from "react-hot-toast";
@@ -18,16 +17,16 @@ import { getFilteredUsers } from "@/redux/features/user/thunk";
 import { api } from "@/lib/axiosInstance";
 import { useSchoolId } from "@/hooks/useSchoolId";
 
-export default function CreatedStudentList() {
+export default function CreatedStaffList() {
   const dispatch = useAppDispatch();
   const { filteredUsers, loading } = useAppSelector((state) => state.users);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // State data dipecah agar NIS wajib dan NISN opsional
-  const [studentData, setStudentData] = useState<
-    Record<string, { nis: string; nisn: string; entryYear: string }>
+  // State data disesuaikan dengan entitas SchoolStaff
+  const [staffData, setStaffData] = useState<
+    Record<string, { position: string; nip: string; employeeId: string }>
   >({});
 
   const [activePopup, setActivePopup] = useState<string | null>(null);
@@ -37,7 +36,8 @@ export default function CreatedStudentList() {
 
   useEffect(() => {
     if (schoolId)
-      dispatch(getFilteredUsers({ schoolId, role: "student", exists: false }));
+      // Mengambil user dengan role selain student yang belum terdaftar di sekolah ini
+      dispatch(getFilteredUsers({ schoolId, role: "staff", exists: false }));
   }, [dispatch, schoolId]);
 
   const toggleUser = (userId: string) => {
@@ -46,13 +46,13 @@ export default function CreatedStudentList() {
       setActivePopup(null);
     } else {
       setSelectedIds((prev) => [...prev, userId]);
-      if (!studentData[userId]) {
-        setStudentData((d) => ({
+      if (!staffData[userId]) {
+        setStaffData((d) => ({
           ...d,
           [userId]: {
-            nis: "",
-            nisn: "",
-            entryYear: new Date().getFullYear().toString(),
+            position: "", // Wajib diisi sesuai entitas
+            nip: "",
+            employeeId: "",
           },
         }));
       }
@@ -61,7 +61,7 @@ export default function CreatedStudentList() {
   };
 
   const updateData = (id: string, field: string, val: string) => {
-    setStudentData((prev) => ({
+    setStaffData((prev) => ({
       ...prev,
       [id]: { ...prev[id], [field]: val },
     }));
@@ -79,39 +79,40 @@ export default function CreatedStudentList() {
   const handleSave = async () => {
     if (!schoolId) return toast.error("School ID tidak ditemukan");
 
-    // Validasi: NIS Wajib diisi untuk semua yang terpilih
-    const isNisMissing = selectedIds.some((id) => !studentData[id]?.nis.trim());
-    if (isNisMissing)
-      return toast.error("Semua siswa terpilih wajib memiliki NIS!");
+    // Validasi: Jabatan (Position) Wajib diisi sesuai entitas
+    const isPositionMissing = selectedIds.some(
+      (id) => !staffData[id]?.position.trim(),
+    );
+    if (isPositionMissing)
+      return toast.error("Semua staff terpilih wajib memiliki Jabatan!");
 
     const payload = selectedIds.map((id) => ({
       userId: id,
-      nis: studentData[id].nis,
-      nisn: studentData[id].nisn || null, // NISN Opsional
-      entryYear: studentData[id].entryYear,
+      position: staffData[id].position,
+      nip: staffData[id].nip || null,
+      employeeId: staffData[id].employeeId || null,
+      isActive: true,
     }));
 
     setIsSubmitting(true);
-    const toastId = toast.loading("Mendaftarkan siswa...");
+    const toastId = toast.loading("Mendaftarkan staff...");
 
     try {
-      const response = await api.post(`/school-students/bulk/${schoolId}`, {
-        students: payload,
+      const response = await api.post(`/school-staffs/bulk/${schoolId}`, {
+        staffs: payload,
       });
 
       if (response.data.success) {
-        toast.success(`${selectedIds.length} Siswa berhasil didaftarkan!`, {
+        toast.success(`${selectedIds.length} Staff berhasil didaftarkan!`, {
           id: toastId,
         });
         setSelectedIds([]);
-        setStudentData({});
+        setStaffData({});
         setActivePopup(null);
-        dispatch(
-          getFilteredUsers({ schoolId, role: "student", exists: false }),
-        );
+        dispatch(getFilteredUsers({ schoolId, role: "staff", exists: false }));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Gagal mendaftarkan siswa", {
+      toast.error(error.response?.data?.message || "Gagal mendaftarkan staff", {
         id: toastId,
       });
     } finally {
@@ -129,8 +130,8 @@ export default function CreatedStudentList() {
         />
         <input
           type="text"
-          placeholder="Cari calon siswa..."
-          className="w-full pl-14 pr-6 py-5 border border-slate-100 dark:border-slate-800 rounded-4xl text-xs font-bold outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 transition-all bg-white dark:bg-slate-900"
+          placeholder="Cari calon pegawai/guru..."
+          className="w-full pl-14 pr-6 py-5 border border-slate-100 dark:border-slate-800 rounded-4xl text-xs font-bold outline-none shadow-sm focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white dark:bg-slate-900"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -141,17 +142,17 @@ export default function CreatedStudentList() {
         {displayedUsers.map((user) => {
           const isSelected = selectedIds.includes(user.userId);
           const isOpen = activePopup === user.userId;
-          const data = studentData[user.userId];
+          const data = staffData[user.userId];
 
           return (
             <div key={user.userId} className="relative">
               <div
-                className={`flex flex-col items-center p-5 transition-all rounded-[2.5rem] border-2 ${isSelected ? "bg-white dark:bg-slate-900 border-indigo-500 shadow-xl" : "bg-slate-50/50 dark:bg-slate-800/20 border-transparent"}`}
+                className={`flex flex-col items-center p-5 transition-all rounded-[2.5rem] border-2 ${isSelected ? "bg-white dark:bg-slate-900 border-emerald-500 shadow-xl" : "bg-slate-50/50 dark:bg-slate-800/20 border-transparent"}`}
               >
                 <div className="absolute right-3 top-3">
                   <button
                     onClick={() => toggleUser(user.userId)}
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${isSelected ? "bg-indigo-600 text-white shadow-lg" : "bg-white dark:bg-slate-800 text-slate-300 border hover:border-indigo-300"}`}
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${isSelected ? "bg-emerald-600 text-white shadow-lg" : "bg-white dark:bg-slate-800 text-slate-300 border hover:border-emerald-300"}`}
                   >
                     {isSelected ? (
                       <HiOutlineCheck size={20} strokeWidth={3} />
@@ -175,7 +176,7 @@ export default function CreatedStudentList() {
                     {user.username}
                   </h4>
                   <p className="text-[9px] font-bold text-slate-400 mb-4 tracking-tighter">
-                    ID : {user.registrationNumber || "-"}
+                    REG : {user.registrationNumber || "-"}
                   </p>
 
                   {isSelected && (
@@ -183,10 +184,10 @@ export default function CreatedStudentList() {
                       onClick={() =>
                         setActivePopup(isOpen ? null : user.userId)
                       }
-                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-[9px] font-black uppercase text-indigo-600"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl text-[9px] font-black uppercase text-emerald-600"
                     >
-                      <HiOutlineAcademicCap size={14} />
-                      {data?.nis ? `NIS: ${data.nis}` : `Set Identitas`}
+                      <HiOutlineBriefcase size={14} />
+                      {data?.position ? data.position : `Set Jabatan`}
                       <HiOutlineChevronDown
                         size={12}
                         className={isOpen ? "rotate-180" : ""}
@@ -196,11 +197,10 @@ export default function CreatedStudentList() {
                 </div>
               </div>
 
-              {/* DROPDOWN / MODAL SETTING */}
+              {/* MODAL SETTING STAFF */}
               {isOpen && (
                 <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                   <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-                    {/* INFO USER DI DROPDOWN */}
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
                       <img
                         src={
@@ -214,18 +214,44 @@ export default function CreatedStudentList() {
                         <h5 className="text-xs font-black uppercase">
                           {user.username}
                         </h5>
-                        <p className="text-[10px] text-slate-500 font-bold tracking-widest">
-                          {user.registrationNumber || "SO-NEW"}
+                        <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">
+                          Calon Staff SoSchool
                         </p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      {/* NIS - WAJIB */}
+                      {/* JABATAN / POSITION - WAJIB */}
                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase text-indigo-600 flex items-center gap-1">
-                          Nomor Induk Siswa (NIS){" "}
+                        <label className="text-[9px] font-black uppercase text-emerald-600 flex items-center gap-1">
+                          Jabatan / Posisi{" "}
                           <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <HiOutlineBriefcase
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                            size={16}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Contoh: Guru Matematika, Admin..."
+                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-bold border-2 border-transparent focus:border-emerald-500 outline-none"
+                            value={data.position}
+                            onChange={(e) =>
+                              updateData(
+                                user.userId,
+                                "position",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      {/* NIP */}
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black uppercase text-slate-400">
+                          NIP (Opsional)
                         </label>
                         <div className="relative">
                           <HiOutlineFingerPrint
@@ -233,22 +259,21 @@ export default function CreatedStudentList() {
                             size={16}
                           />
                           <input
-                            title="nis"
                             type="text"
-                            placeholder="Masukkan NIS..."
-                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-bold border-2 border-transparent focus:border-indigo-500 outline-none"
-                            value={data.nis}
+                            placeholder="Masukkan NIP..."
+                            className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-bold outline-none"
+                            value={data.nip}
                             onChange={(e) =>
-                              updateData(user.userId, "nis", e.target.value)
+                              updateData(user.userId, "nip", e.target.value)
                             }
                           />
                         </div>
                       </div>
 
-                      {/* NISN - OPSIONAL */}
+                      {/* EMPLOYEE ID */}
                       <div className="space-y-1.5">
                         <label className="text-[9px] font-black uppercase text-slate-400">
-                          NISN (Opsional)
+                          Internal ID / Employee ID
                         </label>
                         <div className="relative">
                           <HiOutlineIdentification
@@ -256,39 +281,26 @@ export default function CreatedStudentList() {
                             size={16}
                           />
                           <input
-                            title="nisn"
                             type="text"
-                            placeholder="Masukkan NISN..."
+                            placeholder="Masukkan ID Pegawai..."
                             className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-bold outline-none"
-                            value={data.nisn}
+                            value={data.employeeId}
                             onChange={(e) =>
-                              updateData(user.userId, "nisn", e.target.value)
+                              updateData(
+                                user.userId,
+                                "employeeId",
+                                e.target.value,
+                              )
                             }
                           />
                         </div>
                       </div>
 
-                      {/* TAHUN MASUK */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase text-slate-400">
-                          Tahun Masuk
-                        </label>
-                        <input
-                          title="tahun masuk"
-                          type="number"
-                          className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-bold outline-none"
-                          value={data.entryYear}
-                          onChange={(e) =>
-                            updateData(user.userId, "entryYear", e.target.value)
-                          }
-                        />
-                      </div>
-
                       <button
                         onClick={() => setActivePopup(null)}
-                        className="w-full py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase italic shadow-lg mt-2"
+                        className="w-full py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase italic shadow-lg mt-2"
                       >
-                        Simpan Identitas
+                        Simpan Identitas Staff
                       </button>
                     </div>
                   </div>
@@ -307,21 +319,21 @@ export default function CreatedStudentList() {
               <span className="text-white text-sm font-black uppercase italic tracking-tighter">
                 Konfirmasi
               </span>
-              <span className="text-indigo-400 text-[10px] font-bold uppercase">
-                {selectedIds.length} Siswa Terpilih
+              <span className="text-emerald-400 text-[10px] font-bold uppercase">
+                {selectedIds.length} Staff Terpilih
               </span>
             </div>
             <button
               disabled={isSubmitting}
               onClick={handleSave}
-              className="flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-4xl text-[10px] font-black uppercase italic hover:scale-105 transition-all disabled:opacity-50"
+              className="flex items-center gap-3 px-10 py-5 bg-emerald-600 text-white rounded-4xl text-[10px] font-black uppercase italic hover:scale-105 transition-all disabled:opacity-50"
             >
               {isSubmitting ? (
                 "Proses..."
               ) : (
                 <>
-                  <HiOutlinePaperAirplane size={18} className="rotate-45" />{" "}
-                  Daftarkan Sekarang
+                  <HiOutlinePaperAirplane size={18} className="rotate-45" />
+                  Daftarkan Staff
                 </>
               )}
             </button>

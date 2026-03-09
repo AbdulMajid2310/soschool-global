@@ -1,27 +1,29 @@
-"use client"
+"use client";
 
-import DataStaffPage from "@/app/sf/akademik/staff/page";
+import ButtonBackUI from "@/components/ui/button/ButtonBack";
 import { useRouter } from "next/navigation";
-import { FaChevronLeft } from "react-icons/fa";
+import ButtonAddData from "@/components/ui/button/ButtonAddData";
+import { BiAddToQueue } from "react-icons/bi";
+import StaffSection from "@/components/staff/StaffSection";
 
 export default function StaffPage() {
-    const router = useRouter()
-    return (
-        <div>
-            <button
-                onClick={() => router.back()}
-                className="group flex items-center gap-3 text-slate-400 hover:text-indigo-600 transition-all duration-300"
-            >
-                <div className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 transition-colors">
-                    <FaChevronLeft className="text-sm group-hover:-translate-x-1 transition-transform duration-300" />
-                </div>
-                <span className="text-xl font-black uppercase italic tracking-tighter">
-                    Kembali
-                </span>
-            </button>
-            <div>
-                <DataStaffPage />
-            </div>
-        </div>
-    )
+  const router = useRouter();
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md p-4 rounded-4xl border border-slate-200/60 dark:border-white/5 shadow-sm">
+        <ButtonBackUI />
+
+        <ButtonAddData
+          label="Tambah Staff"
+          icon={BiAddToQueue}
+          onClick={() => router.push("/sss/schools/staff/add")}
+        />
+      </div>
+
+      <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200/50 dark:border-white/5 p-2">
+        <StaffSection />
+      </div>
+    </div>
+  );
 }
