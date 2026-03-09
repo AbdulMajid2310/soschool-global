@@ -29,7 +29,7 @@ export default function ButtonAddData({
         <div className="  rounded-lg group-hover:rotate-90 transition-transform duration-500">
           <Icon className="size-6 " />
         </div>
-        <span className="group-hover:translate-x-1 font-black transition-transform duration-300">
+        <span className="group-hover:translate-x-1 hidden lg:inline font-black transition-transform duration-300">
           {label}
         </span>
       </div>

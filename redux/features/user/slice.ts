@@ -1,14 +1,15 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { UserState } from './types';
+import { createSlice } from "@reduxjs/toolkit";
+import { UserState } from "./types";
 import {
   getAllUsers,
   getUserById,
+  getUserByNik,
   createUser,
   updateUser,
   deleteUser,
   getUserStats,
-  getFilteredUsers
-} from './thunk';
+  getFilteredUsers,
+} from "./thunk";
 
 const initialState: UserState = {
   users: [],
@@ -20,7 +21,7 @@ const initialState: UserState = {
 };
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     clearUserDetail: (state) => {
@@ -32,44 +33,35 @@ const userSlice = createSlice({
     resetUserState: (state) => {
       state.error = null;
       state.loading = false;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
-
-      /* ============================
-           FETCH FILTERED USERS (School Context)
-           ============================ */
       .addCase(getFilteredUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(getFilteredUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.filteredUsers = action.payload.data; // Simpan hasil ke state baru
+        state.filteredUsers = action.payload.data;
       })
       .addCase(getFilteredUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      /* ============================
-         FETCH MONITORING STATS 
-         ============================ */
+
       .addCase(getUserStats.pending, (state) => {
         state.loading = true;
       })
       .addCase(getUserStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.stats = action.payload.data; // Simpan data statistik ke state
+        state.stats = action.payload.data;
       })
       .addCase(getUserStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
 
-      /* ============================
-         FETCH ALL USERS 
-         ============================ */
       .addCase(getAllUsers.pending, (state) => {
         state.loading = true;
       })
@@ -82,9 +74,6 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      /* ============================
-         FETCH USER BY ID 
-         ============================ */
       .addCase(getUserById.pending, (state) => {
         state.loading = true;
       })
@@ -97,10 +86,19 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      /* ============================
-         CREATE, UPDATE, DELETE 
-         (Loading handling)
-         ============================ */
+      .addCase(getUserByNik.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserByNik.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userDetail = action.payload.data;
+      })
+      .addCase(getUserByNik.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       .addCase(createUser.pending, (state) => {
         state.loading = true;
       })
@@ -118,15 +116,24 @@ const userSlice = createSlice({
       .addCase(updateUser.fulfilled, (state) => {
         state.loading = false;
       })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
 
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
       })
       .addCase(deleteUser.fulfilled, (state) => {
         state.loading = false;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
 export const { clearUserDetail, resetUserState } = userSlice.actions;
+
 export default userSlice.reducer;
