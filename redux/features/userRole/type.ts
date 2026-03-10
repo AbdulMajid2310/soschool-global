@@ -8,12 +8,17 @@ export interface UserRole {
   updatedAt: string;
 }
 
+export interface BulkAccessPayload {
+  schoolId: string;
+  userRoleId: string;
+  userIds: string[];
+}
+
 export interface UserRoleResponse {
   success: boolean;
   message: string;
   data: UserRole[];
 }
-
 
 export interface SingleUserRoleResponse {
   success: boolean;

@@ -5,26 +5,34 @@ import {
   createParent,
   updateParent,
   deleteParent,
+  deleteBulkParents,
   createParentByUserId,
   fetchParentById,
 } from "./thunks";
 
 const initialState: ParentState = {
   parents: [],
+  stats: {
+    total: 0,
+    active: 0,
+    inactive: 0,
+  },
   currentParent: null,
   loading: false,
   error: null,
+  success: false,
 };
 
 const parentSlice = createSlice({
   name: "schoolParents",
   initialState,
   reducers: {
+    resetParentStatus: (state) => {
+      state.error = null;
+      state.success = false;
+    },
     clearCurrentParent: (state) => {
       state.currentParent = null;
-    },
-    clearError: (state) => {
-      state.error = null;
     },
     setSelectedParent: (state, action: PayloadAction<SchoolParent | null>) => {
       state.currentParent = action.payload;
@@ -32,22 +40,23 @@ const parentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch All
       .addCase(fetchParents.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchParents.fulfilled, (state, action) => {
-        state.loading = false;
-        state.parents = action.payload;
-      })
+      .addCase(
+        fetchParents.fulfilled,
+        (
+          state,
+          action: PayloadAction<{ parents: SchoolParent[]; stats: any }>,
+        ) => {
+          state.loading = false;
+          state.parents = action.payload.parents;
+          state.stats = action.payload.stats;
+        },
+      )
       .addCase(fetchParents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-
-      .addCase(fetchParentById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
       })
       .addCase(
         fetchParentById.fulfilled,
@@ -56,64 +65,46 @@ const parentSlice = createSlice({
           state.currentParent = action.payload;
         },
       )
-      .addCase(fetchParentById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      // Create
-      .addCase(createParent.fulfilled, (state, action) => {
-        state.parents.unshift(action.payload);
-      })
-      // Update
-      .addCase(updateParent.fulfilled, (state, action) => {
-        const index = state.parents.findIndex(
-          (p) => p.parentId === action.payload.parentId,
-        );
-        if (index !== -1) state.parents[index] = action.payload;
-      })
-      // Delete
-      .addCase(deleteParent.fulfilled, (state, action) => {
-        state.parents = state.parents.filter(
-          (p) => p.parentId !== action.payload,
-        );
-      })
-
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("parents/") &&
+          action.type.endsWith("/pending") &&
+          !action.type.includes("fetchAll"),
+        (state) => {
+          state.loading = true;
+          state.error = null;
+          state.success = false;
+        },
+      )
       .addMatcher(
         (action) =>
           [
             createParent.fulfilled.type,
             createParentByUserId.fulfilled.type,
-          ].includes(action.type),
-        (state, action: PayloadAction<SchoolParent>) => {
-          state.loading = false;
-          state.parents.unshift(action.payload); // Tambah ke baris paling atas tabel
-        },
-      )
-      .addMatcher(
-        (action) =>
-          [
-            createParent.pending.type,
-            createParentByUserId.pending.type,
+            updateParent.fulfilled.type,
+            deleteParent.fulfilled.type,
+            deleteBulkParents.fulfilled.type,
           ].includes(action.type),
         (state) => {
-          state.loading = true;
+          state.loading = false;
+          state.success = true;
           state.error = null;
         },
       )
       .addMatcher(
         (action) =>
-          [
-            createParent.rejected.type,
-            createParentByUserId.rejected.type,
-          ].includes(action.type),
+          action.type.startsWith("parents/") &&
+          action.type.endsWith("/rejected") &&
+          !action.type.includes("fetchAll"),
         (state, action: any) => {
           state.loading = false;
-          state.error = action.payload;
+          state.error = action.payload || "Terjadi kesalahan";
+          state.success = false;
         },
       );
   },
 });
 
-export const { clearCurrentParent, clearError, setSelectedParent } =
+export const { resetParentStatus, clearCurrentParent, setSelectedParent } =
   parentSlice.actions;
 export default parentSlice.reducer;

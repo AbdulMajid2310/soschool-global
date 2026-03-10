@@ -4,14 +4,22 @@ import {
   UpdateParentPayload,
   SchoolParent,
   CreateParentByUserIdPayload,
+  ParentStats,
 } from "./types";
 
 export const parentApiService = {
   getAll: (schoolId: string) =>
-    api.get<{ data: SchoolParent[] }>(`/school-parents/school/${schoolId}`),
+    api.get<{ data: { parents: SchoolParent[]; stats: ParentStats } }>(
+      `/school-parents/school/${schoolId}`,
+    ),
+
+  getAllGlobal: () =>
+    api.get<{ data: { parents: SchoolParent[]; stats: ParentStats } }>(
+      `/school-parents`,
+    ),
 
   getById: (schoolId: string, parentId: string) =>
-    api.get(`/school-parents/${schoolId}/${parentId}`),
+    api.get<{ data: SchoolParent }>(`/school-parents/${schoolId}/${parentId}`),
 
   create: (payload: CreateParentPayload) =>
     api.post<{ data: SchoolParent }>("/school-parents", payload),
@@ -28,6 +36,8 @@ export const parentApiService = {
   remove: (schoolId: string, parentId: string) =>
     api.delete(`/school-parents/${schoolId}/${parentId}`),
 
-  removeBulk: (schoolId: string, ids: string[]) =>
-    api.post(`/school-parents/delete-bulk/${schoolId}`, { ids }),
+  removeBulk: (schoolId: string, userIds: string[]) =>
+    api.delete(`/school-parents/bulk-remove/${schoolId}`, {
+      data: { userIds },
+    }),
 };

@@ -5,7 +5,7 @@ export interface Student {
   studentId: string;
   nis: string;
   isActive: boolean;
-  isStatus: string;
+  status: string;
   user: User;
   createdAt: string;
   classroom: ClassroomConfig;
