@@ -17,6 +17,7 @@ export interface School {
   createdAt: string;
   updatedAt: string;
   address: Address;
+  location: string;
 }
 
 export interface SchoolAnalysis {

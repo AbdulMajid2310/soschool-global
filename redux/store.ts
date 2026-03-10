@@ -5,7 +5,7 @@ import roleSlice from "./features/userRole/slice";
 import userSlice from "./features/user/slice";
 import userAccessSlice from "./features/user-access/slice";
 import schoolSlice from "./features/school/slice";
-import schoolAddressSlice from "./features/address/slice";
+import addressSlice from "./features/address/slice";
 import studentSlice from "./features/student/slice";
 import classroomSlice from "./features/classroom/slice";
 import teacherSlice from "./features/teacher/slice";
@@ -18,6 +18,7 @@ import academicCalendarSlice from "./features/school_academic_calendar/slice";
 import schoolStaffSlice from "./features/staff/slice";
 import classroomStudentSlice from "./features/classroom-student/slices";
 import schoolParentsSlice from "./features/school-parents/slices";
+import schoolAddressSlice from "./features/school-address/slice";
 export const store = configureStore({
   reducer: {
     auth: profileReducerAuth,
@@ -25,7 +26,7 @@ export const store = configureStore({
     userRole: roleSlice,
     userAccess: userAccessSlice,
     school: schoolSlice,
-    schoolAddress: schoolAddressSlice,
+    address: addressSlice,
     student: studentSlice,
     classroom: classroomSlice,
     teacher: teacherSlice,
@@ -38,6 +39,7 @@ export const store = configureStore({
     schoolStaff: schoolStaffSlice,
     classroomStudent: classroomStudentSlice,
     schoolParents: schoolParentsSlice,
+    schoolAddress: schoolAddressSlice,
   },
 });
 

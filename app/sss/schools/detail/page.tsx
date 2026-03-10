@@ -15,10 +15,6 @@ import {
   FiUserCheck,
   FiTrash2,
   FiMapPin,
-  FiCpu,
-  FiExternalLink,
-  FiActivity,
-  FiTrendingUp,
   FiHome,
   FiHeart,
 } from "react-icons/fi";
@@ -26,7 +22,6 @@ import { RootState } from "@/redux/store";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   deleteSchool,
-  fetchSchoolById,
   fetchSchoolSummary,
 } from "@/redux/features/school/thunk";
 import { FaChalkboardTeacher, FaMapMarkedAlt, FaPlus } from "react-icons/fa";
@@ -34,6 +29,7 @@ import StatCard from "./StatsCard";
 import { useSchoolId } from "@/hooks/useSchoolId";
 import toast from "react-hot-toast";
 import { confirmActionToast } from "@/components/toast/confirmActionToast";
+import CardAddressModule from "@/components/school_address/CardAddressModal";
 
 export default function SchoolDetailPage() {
   const router = useRouter();
@@ -172,8 +168,7 @@ export default function SchoolDetailPage() {
                   <div className="flex items-center gap-2 text-sm bg-black/20 md:bg-transparent px-3 py-1 md:px-0 rounded-full backdrop-blur-sm md:backdrop-blur-none">
                     <FiMapPin className="text-rose-500" />
                     <span>
-                      {summarySchool?.meta?.address?.city ||
-                        "Lokasi belum diatur"}
+                      {summarySchool?.meta.location || "Lokasi belum diatur"}
                     </span>
                   </div>
                 </div>
@@ -287,49 +282,7 @@ export default function SchoolDetailPage() {
                 />
               </div>
 
-              <div className="mt-12 pt-10 border-t border-slate-100 dark:border-slate-800">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
-                  Alamat Fisik & Lokasi
-                </p>
-
-                {summarySchool?.meta?.address ? (
-                  // TAMPILAN JIKA ALAMAT ADA
-                  <div className="space-y-4">
-                    <div className="relative p-6 bg-slate-50 dark:bg-gray-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-gray-700">
-                      <p className="text-slate-600 dark:text-slate-300 text-md leading-relaxed italic">
-                        &quot;{summarySchool?.meta.address.street},{" "}
-                        {summarySchool?.meta.address.village},{" "}
-                        {summarySchool?.meta.address.district},{" "}
-                        {summarySchool?.meta.address.city},{" "}
-                        {summarySchool?.meta.address.province} -{" "}
-                        {summarySchool?.meta.address.postalCode}&quot;
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  // TAMPILAN JIKA ALAMAT KOSONG (EMPTY STATE)
-                  <div className="flex flex-col items-center justify-center p-8 bg-amber-50/50 dark:bg-amber-900/10 rounded-3xl border border-dashed border-amber-200 dark:border-amber-900/30 text-center">
-                    <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-2xl mb-4">
-                      <FaMapMarkedAlt className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
-                      Alamat Belum Dikonfigurasi
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-gray-400 mb-6 max-w-70">
-                      Instansi ini belum memiliki data lokasi fisik yang
-                      terdaftar di sistem SoSchool.
-                    </p>
-
-                    <button
-                      onClick={() => router.push("/sss/schools/address/add")}
-                      className="flex items-center gap-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-500/20"
-                    >
-                      <FaPlus className="w-3 h-3" />
-                      Lengkapi Alamat Sekarang
-                    </button>
-                  </div>
-                )}
-              </div>
+              <CardAddressModule />
             </div>
           </div>
 
