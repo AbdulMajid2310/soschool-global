@@ -10,6 +10,7 @@ import {
   FiUserMinus,
   FiTrash2,
   FiAlertCircle,
+  FiMail,
 } from "react-icons/fi";
 import { TbListDetails } from "react-icons/tb";
 import { toast } from "react-hot-toast";
@@ -31,6 +32,7 @@ import { useSchoolId } from "@/hooks/useSchoolId";
 import { SearchModal } from "../SearchModal";
 import CardSchoolStaff from "./CardSchoolStaff";
 import { ScrollFilter } from "../ScrollFilter";
+import { sendBulkVerification } from "@/redux/features/authEmail/thunks";
 
 interface SelectedData {
   staffId: string;
@@ -185,6 +187,29 @@ export default function StaffSection() {
     });
   };
 
+  const handleBulkVerifyEmail = () => {
+    const userIds = selectedIds.map((i) => i.userId).filter(Boolean);
+
+    if (userIds.length === 0) return toast.error("Pilih staff terlebih dahulu");
+
+    confirmActionToast({
+      title: "Verifikasi Email",
+      message: `Kirim email aktivasi ke ${userIds.length} staff terpilih?`,
+      confirmText: "Ya, Kirim",
+      variant: "warning",
+      onConfirm: async () => {
+        try {
+          await dispatch(sendBulkVerification(userIds)).unwrap();
+          toast.success("Email verifikasi sedang diproses");
+          setSelectedIds([]);
+          setShowOption(false);
+        } catch (err: any) {
+          toast.error(err || "Gagal memproses permintaan");
+        }
+      },
+    });
+  };
+
   return (
     <div className="p-4 md:p-8 space-y-10 min-h-screen animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -205,6 +230,7 @@ export default function StaffSection() {
       <div className="bg-white dark:bg-slate-900 p-5 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col xl:flex-row justify-between gap-6">
         <div className="flex gap-3 items-center">
           <button
+            type="button"
             title={isAllSelected ? "Batal pilih" : "Pilih semua"}
             onClick={handleSelectAll}
             className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${isAllSelected ? "bg-indigo-600 text-white shadow-lg" : "bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600"}`}
@@ -222,6 +248,7 @@ export default function StaffSection() {
           {selectedIds.length > 0 && (
             <div className="relative">
               <button
+                type="button"
                 title="Opsi Massal"
                 onClick={() => setShowOption(!showOption)}
                 className="flex items-center gap-3 px-6 py-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl relative z-30 animate-in zoom-in"
@@ -237,6 +264,15 @@ export default function StaffSection() {
                   />
                   <div className="absolute left-0 mt-4 w-72 bg-white dark:bg-slate-800 rounded-4xl shadow-2xl border border-slate-100 dark:border-slate-700 p-3 z-30 animate-in slide-in-from-top-2">
                     <button
+                      type="button"
+                      title="Kirim Verifikasi Email"
+                      onClick={handleBulkVerifyEmail}
+                      className="flex items-center gap-4 w-full px-5 py-4 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-2xl font-black text-[10px] uppercase transition-all"
+                    >
+                      <FiMail size={20} /> Kirim Email Verifikasi
+                    </button>
+                    <button
+                      type="button"
                       title="Beri Akses"
                       onClick={() => handleBulkAccess("add")}
                       disabled={accessActionLoading}
@@ -245,6 +281,7 @@ export default function StaffSection() {
                       <FiUserPlus size={20} /> Beri Akses Login
                     </button>
                     <button
+                      type="button"
                       title="Cabut Akses"
                       onClick={() => handleBulkAccess("remove")}
                       disabled={accessActionLoading}
@@ -254,6 +291,7 @@ export default function StaffSection() {
                     </button>
                     <div className="h-px bg-slate-100 dark:bg-slate-700 my-2 mx-4" />
                     <button
+                      type="button"
                       title="Hapus Massal"
                       onClick={handleBulkDelete}
                       className="flex items-center gap-4 w-full px-5 py-4 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-2xl font-black text-[10px] uppercase transition-all"

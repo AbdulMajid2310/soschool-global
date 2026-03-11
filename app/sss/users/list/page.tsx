@@ -19,6 +19,7 @@ import { deleteUser, getAllUsers } from "@/redux/features/user/thunk";
 import { useRouter } from "next/navigation";
 import { BiSolidUserDetail } from "react-icons/bi";
 import ButtonBackUI from "@/components/ui/button/ButtonBack";
+import { confirmActionToast } from "@/components/toast/confirmActionToast";
 
 export default function UserListSection() {
   const dispatch = useAppDispatch();
@@ -64,15 +65,21 @@ export default function UserListSection() {
     );
   }, [users, searchQuery]);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus user ${name}?`)) {
-      const resultAction = await dispatch(deleteUser(id));
-      if (deleteUser.fulfilled.match(resultAction)) {
-        toast.success("User berhasil dihapus");
-      } else {
-        toast.error("Gagal menghapus user");
-      }
-    }
+  const handleDelete = (id: string, name: string) => {
+    confirmActionToast({
+      title: "Hapus Pengguna",
+      message: `Apakah Anda yakin ingin menghapus user ${name}? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: "Ya, Hapus User",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          const resultAction = await dispatch(deleteUser(id)).unwrap();
+          toast.success(`User ${name} berhasil dihapus`);
+        } catch (error: any) {
+          toast.error(error || "Gagal menghapus user");
+        }
+      },
+    });
   };
 
   const handleDetailUser = (userId: string) => {
@@ -96,9 +103,9 @@ export default function UserListSection() {
   return (
     <div className="space-y-8 animate-in p-4 fade-in slide-in-from-bottom-4 duration-700">
       {/* Header & Navigation */}
+      <ButtonBackUI />
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <ButtonBackUI />
           <div>
             <h2 className="text-3xl font-black italic uppercase tracking-tighter dark:text-white leading-none">
               List Pengguna

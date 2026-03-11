@@ -1,5 +1,6 @@
 import { SchoolStaff } from "@/redux/features/staff/types";
 import React from "react";
+import { FaWindowClose } from "react-icons/fa";
 import {
   FiCheck,
   FiX,
@@ -9,6 +10,7 @@ import {
   FiTrash2,
   FiMoreVertical,
 } from "react-icons/fi";
+import { MdVerified } from "react-icons/md";
 
 interface StaffProps {
   staff: SchoolStaff;
@@ -71,13 +73,24 @@ const CardSchoolStaff: React.FC<StaffProps> = ({
             )}
           </div>
 
-          <div className="min-w-0">
-            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 truncate leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+          <div className="min-w-0 space-y-2">
+            <h3 className="text-base capitalize font-bold text-gray-900 dark:text-gray-100 truncate leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {user.username}
             </h3>
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-xs capitalize font-medium text-gray-500 dark:text-gray-400 mt-0.5">
               {position}
             </p>
+            {user.isVerified ? (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-medium w-fit">
+                <MdVerified size={16} />
+                <span className="text-xs">Terverifikasi</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 text-sm font-medium w-fit">
+                <FaWindowClose size={16} />
+                <span className="text-xs">Belum Verifikasi</span>
+              </div>
+            )}
           </div>
         </div>
 
