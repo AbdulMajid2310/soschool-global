@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   soschool-app:
     container_name: soschool-app
@@ -5,14 +7,22 @@ services:
     restart: always
     ports:
       - "7000:7000"
-    # Tambahkan baris di bawah ini agar file .env terbaca
     env_file:
       - .env
     environment:
       - NEXT_PUBLIC_API_URL=https://scchl.site
+      - NODE_ENV=production
+    # Pembatasan RAM agar total penggunaan proyek tetap di bawah 4GB
+    deploy:
+      resources:
+        limits:
+          memory: 1024M  # Membatasi penggunaan maksimal 1GB
+        reservations:
+          memory: 256M  # Memesan RAM minimal agar aplikasi stabil saat startup
     networks:
-      - soschool-network
+      - net_majid_dev
 
 networks:
-  soschool-network:
+  # Menggunakan network yang sama dengan backend dan redis agar bisa komunikasi internal
+  net_majid_dev:
     external: true
