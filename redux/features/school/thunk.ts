@@ -66,6 +66,18 @@ export const updateSchool = createAsyncThunk(
   },
 );
 
+export const updateStatus = createAsyncThunk(
+  "school/updateStatus",
+  async ({ id, isActive }: { id: string; isActive: boolean }, thunkAPI) => {
+    try {
+      return await schoolService.updateSchoolStatus(id, isActive);
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
+
 export const deleteSchool = createAsyncThunk(
   "school/delete",
   async (id: string, { rejectWithValue }) => {

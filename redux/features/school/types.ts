@@ -18,6 +18,7 @@ export interface School {
   updatedAt: string;
   address: Address;
   location: string;
+  notifications: string;
 }
 
 export interface SchoolAnalysis {
@@ -70,4 +71,5 @@ export interface UpdateSchoolRequest extends Partial<
 > {
   avatar?: File | string; // Bisa File baru atau string URL lama
   background?: File | string;
+  notifications?: string;
 }

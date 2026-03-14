@@ -20,6 +20,8 @@ import classroomStudentSlice from "./features/classroom-student/slices";
 import schoolParentsSlice from "./features/school-parents/slices";
 import schoolAddressSlice from "./features/school-address/slice";
 import authEmailSlice from "./features/authEmail/slice";
+import soschoolDocuementSlice from "./features/school-documents/slices";
+
 export const store = configureStore({
   reducer: {
     auth: profileReducerAuth,
@@ -42,6 +44,7 @@ export const store = configureStore({
     schoolParents: schoolParentsSlice,
     schoolAddress: schoolAddressSlice,
     authEmail: authEmailSlice,
+    schoolDocuments: soschoolDocuementSlice,
   },
 });
 

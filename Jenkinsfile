@@ -1,53 +1,60 @@
 pipeline {
     agent any
-
+    
     environment {
-        // Folder operasional di VPS Majid
-        APP_PATH = '/home/majids/soschool-global'
+        // Folder operasional sesuai hasil 'ls' tadi
+        PROJECT_DIR = '/home/majids/soschool-global'
+        // Gunakan kredensial yang sama jika SSH key-nya sama
+        GIT_CREDS = 'git-soschool' 
     }
-
+    
     stages {
-        stage('1. Checkout & Sync') {
+        stage('1. Sync Kode & Backup Env') {
             steps {
-                dir("${APP_PATH}") {
-                    // Menarik kode terbaru dari GitHub ke folder operasional
-                    checkout scm
-                    
-                    // Memastikan file .env tetap aman
-                    echo "Memeriksa file environment..."
-                    sh '[ -f .env ] || echo "WARNING: File .env tidak ditemukan! Pastikan sudah ada di VPS."'
+                script {
+                    // 1. Backup .env frontend (isinya biasanya NEXT_PUBLIC_API_URL)
+                    sh "if [ -f ${PROJECT_DIR}/.env ]; then cp ${PROJECT_DIR}/.env /home/majids/soschool-global.env.bak; fi"
+
+                    dir("${PROJECT_DIR}") {
+                        // Bersihkan folder agar tidak ada file hantu
+                        deleteDir() 
+                        
+                        // Tarik kode dari repo global (Frontend)
+                        git credentialsId: "${GIT_CREDS}", 
+                            url: 'https://github.com/AbdulMajid2310/soschool-global.git', 
+                            branch: 'main'
+                    }
+
+                    // 2. Kembalikan .env frontend
+                    sh "if [ -f /home/majids/soschool-global.env.bak ]; then cp /home/majids/soschool-global.env.bak ${PROJECT_DIR}/.env; fi"
                 }
             }
         }
 
         stage('2. Build & Deploy Docker') {
             steps {
-                dir("${APP_PATH}") {
-                    echo "Memulai proses build dan deploy container..."
-                    // Menjalankan Docker Compose sesuai file yang kamu buat
-                    // --build akan menjalankan build '.' yang ada di file compose kamu
-                    sh 'docker-compose up -d --build --remove-orphans'
+                dir("${PROJECT_DIR}") {
+                    // Gunakan --remove-orphans agar container lama yang tidak terpakai otomatis bersih
+                    // Pastikan docker-compose.yml di sini sudah ada limit RAM 1024M
+                    sh 'docker compose up -d --build --remove-orphans'
                 }
             }
         }
 
-        stage('3. Monitoring & Cleanup') {
+        stage('3. Cleanup Image') {
             steps {
-                echo "Membersihkan image lama dan memantau RAM..."
-                // Menghapus image 'none' agar penyimpanan tidak penuh
+                // Menghapus image sisa build (penting agar disk VPS tidak penuh)
                 sh 'docker image prune -f'
-                // Menampilkan statistik untuk memastikan limit 1GB aktif
-                sh "docker stats soschool-app --no-stream"
             }
         }
     }
-
+    
     post {
         success {
-            echo "Deployment soschool-global (Frontend) Berhasil di port 7000!"
+            echo 'Deployment soschool-global berhasil!'
         }
         failure {
-            echo "Deployment Gagal! Periksa koneksi ke GitHub atau log Docker."
+            echo 'Deployment soschool-global gagal. Cek log console!'
         }
     }
 }

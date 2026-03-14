@@ -7,6 +7,7 @@ import {
   deleteSchool,
   fetchSchoolById,
   fetchSchoolSummary,
+  updateStatus,
 } from "./thunk";
 
 const initialState: SchoolState = {
@@ -93,6 +94,25 @@ const schoolSlice = createSlice({
         state.selectedSchool = action.payload; // Update data di detail
       })
       .addCase(updateSchool.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // Update Status
+      .addCase(updateStatus.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.schools.findIndex(
+          (s) => s.schoolId === action.payload.schoolId,
+        );
+        if (index !== -1) {
+          state.schools[index] = action.payload; // Update data di list
+        }
+        state.selectedSchool = action.payload; // Update data di detail
+      })
+      .addCase(updateStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

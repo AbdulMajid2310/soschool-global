@@ -125,7 +125,7 @@ export default function WrapperProvider({
   if (!profile) return null;
 
   return (
-    <div className="h-screen bg-[#F4F7FA] dark:bg-gray-900 font-sans overflow-hidden">
+    <div className="h-screen bg-[#F4F7FA] dark:text-white text-gray-700  dark:bg-gray-900 font-sans overflow-hidden">
       <Toaster
         position="top-right"
         toastOptions={{ style: { zIndex: 9999 } }}

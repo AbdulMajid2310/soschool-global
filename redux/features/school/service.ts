@@ -63,6 +63,11 @@ const schoolService = {
     return response.data.data;
   },
 
+  updateSchoolStatus: async (id: string, isActive: boolean) => {
+    const response = await api.patch(`/schools/${id}/status`, { isActive });
+    return response.data;
+  },
+
   // ... di dalam object schoolService
   update: async (
     schoolId: string,
