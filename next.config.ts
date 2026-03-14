@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.soschool.site",
+        pathname: "/v1/storage/view/**",
+      },
     ],
   },
 };

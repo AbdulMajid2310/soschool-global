@@ -22,10 +22,12 @@ import ButtonAddNoTitle from "../ui/button/ButtonAddNoTitle";
 import toast from "react-hot-toast";
 import ButtonAction from "../ui/button/ButtonAction";
 import { confirmActionToast } from "../toast/confirmActionToast";
+import { useRouter } from "next/navigation";
 
 export default function ListSchoolDocument() {
   const dispatch = useAppDispatch();
   const schoolId = useSchoolId();
+  const router = useRouter();
 
   const { documents, isLoading } = useAppSelector(
     (state) => state.schoolDocuments,
@@ -38,7 +40,8 @@ export default function ListSchoolDocument() {
   }, [dispatch, schoolId]);
 
   const handleView = (url: string) => {
-    if (url) window.open(url, "_blank");
+    router.push("/view-document");
+    sessionStorage.setItem("fileHash", url);
   };
 
   const handleDownload = (url: string, filename: string) => {
