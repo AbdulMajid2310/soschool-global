@@ -71,7 +71,7 @@ export default function CreateStaffSection() {
       </div>
 
       {/* Content Area */}
-      <div className="relative min-h-100 bg-white dark:bg-gray-900 rounded-[2.5rem] p-6 md:p-10 shadow-2xl shadow-slate-200/60 dark:shadow-none border border-gray-100 dark:border-gray-800">
+      <div className="relative min-h-100 bg-white dark:bg-gray-900  shadow-2xl shadow-slate-200/60 dark:shadow-none">
         {/* Animasi sederhana saat perpindahan tab (Opsional: bisa gunakan Framer Motion) */}
         <div
           key={method}

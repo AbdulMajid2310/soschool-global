@@ -32,6 +32,45 @@ export const registerStaff = createAsyncThunk(
   },
 );
 
+export const registerBulkStaff = createAsyncThunk(
+  "staff/registerBulk",
+  async (
+    payload: { schoolId: string; staffs: any[] },
+    { rejectWithValue, dispatch },
+  ) => {
+    try {
+      // Console data yang akan dikirim
+      console.log("🚀 Mengirim data bulk staff ke server:", {
+        schoolId: payload.schoolId,
+        totalStaffs: payload.staffs.length,
+        data: payload.staffs,
+      });
+
+      const response = await staffService.createBulk(
+        payload.schoolId,
+        payload.staffs,
+      );
+
+      // Console respon dari server
+      console.log("✅ Respon berhasil dari server:", response.data);
+
+      dispatch(fetchStaffs(payload.schoolId));
+      return response.data;
+    } catch (err: any) {
+      // Console error jika terjadi kegagalan
+      console.error("❌ Error saat pendaftaran bulk staff:", {
+        message: err.response?.data?.message,
+        status: err.response?.status,
+        error: err,
+      });
+
+      return rejectWithValue(
+        err.response?.data?.message || "Gagal mendaftarkan staff secara massal",
+      );
+    }
+  },
+);
+
 export const updateStaffData = createAsyncThunk(
   "staff/update",
   async (

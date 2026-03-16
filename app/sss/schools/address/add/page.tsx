@@ -39,7 +39,7 @@ export default function AddSchoolAddressPage() {
     try {
       await dispatch(createSchoolAddress(payload)).unwrap();
       toast.success("Alamat sekolah berhasil disimpan!");
-      router.push("/dashboard/school");
+      router.push("/sss/schools");
     } catch (err: any) {
       toast.error(err || "Gagal menyimpan alamat sekolah.");
     }

@@ -30,6 +30,7 @@ import { useSchoolId } from "@/hooks/useSchoolId";
 import toast from "react-hot-toast";
 import { confirmActionToast } from "@/components/toast/confirmActionToast";
 import CardAddressModule from "@/components/school_address/CardAddressModal";
+import ButtonBackUI from "@/components/ui/button/ButtonBack";
 
 export default function SchoolDetailPage() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function SchoolDetailPage() {
   const { summarySchool } = useAppSelector((state: RootState) => state.school);
 
   if (!schoolId) {
-    router.replace("/sss/schools"); // Tendang balik ke list jika ID hilang
+    router.back();
   }
 
   useEffect(() => {
@@ -74,16 +75,7 @@ export default function SchoolDetailPage() {
       <div className="max-w-6xl mx-auto">
         {/* Top Navigation & Actions */}
         <div className="flex  md:items-center justify-between gap-6 mb-10">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="group flex items-center gap-3 text-slate-500 hover:text-blue-600 font-bold transition-all w-fit"
-          >
-            <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group-hover:shadow-md">
-              <FiArrowLeft className="w-5 h-5" />
-            </div>
-            <span>Kembali</span>
-          </button>
+          <ButtonBackUI />
 
           <div className="flex items-center gap-3">
             <button

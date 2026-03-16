@@ -1,5 +1,6 @@
 "use client";
 
+import CardSchoolSection from "@/components/school/CardSchoolSection";
 import { setSelectedSchool } from "@/redux/features/school/slice";
 import { fetchSchools } from "@/redux/features/school/thunk";
 import { School } from "@/redux/features/school/types";
@@ -8,15 +9,8 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useMemo } from "react";
 import {
   FiSearch,
-  FiLayers,
-  FiActivity,
-  FiGlobe,
   FiCpu,
   FiPlus,
-  FiBox,
-  FiZap,
-  FiUsers,
-  FiArrowRight,
   FiSliders,
 } from "react-icons/fi";
 
@@ -165,84 +159,21 @@ export default function SchoolDirectory() {
       {/* --- DATA ROWS (CUSTOM GRID) --- */}
       <div className="space-y-2">
         {/* --- MINIMALIST HEADER --- */}
-        <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+        <div className="hidden lg:grid grid-cols-12  gap-4 px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
           <div className="col-span-5">Institutional Identity</div>
           <div className="col-span-3">Network Domain</div>
           <div className="col-span-2 text-center">License Plan</div>
           <div className="col-span-2 text-right">System Access</div>
         </div>
 
-        {/* --- CLEAN DATA ROWS --- */}
-        {filteredSchools.map((school) => (
-          <div
-            key={school.schoolId}
-            className="group relative bg-white dark:bg-[#1c202a] border border-slate-100 dark:border-white/5 rounded-2xl lg:rounded-full p-4 lg:px-8 lg:py-3 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-white/2 hover:shadow-sm"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-              {/* SECTION 1: IDENTITY (Fokus pada Legibilitas) */}
-              <div className="col-span-1 lg:col-span-5 flex items-center gap-4">
-                <div className="w-12 h-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
-                  <img
-                    src={school.avatar}
-                    alt=""
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm tracking-tight group-hover:text-indigo-600 transition-colors">
-                    {school.name}
-                  </h3>
-                  <span className="text-[10px] font-medium text-slate-400 font-mono tracking-tighter uppercase">
-                    NISP: {school.nisp}
-                  </span>
-                </div>
-              </div>
-
-              {/* SECTION 2: NETWORK (Lebih Minimalis) */}
-              <div className="col-span-1 lg:col-span-3 flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400">
-                  <FiGlobe size={14} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    {school.domain}
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                    {school.address?.province || "Main Cluster"}
-                  </span>
-                </div>
-              </div>
-
-              {/* SECTION 3: PLAN (Pill Style) */}
-              <div className="col-span-1 lg:col-span-2 flex items-center lg:justify-center">
-                <span
-                  className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border
-                  ${
-                    school.plan === "Enterprise"
-                      ? "bg-indigo-500 text-white border-indigo-600 shadow-md shadow-indigo-500/20"
-                      : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-transparent"
-                  }`}
-                >
-                  {school.plan}
-                </span>
-              </div>
-
-              {/* SECTION 4: ACTIONS (Sleek Button) */}
-              <div className="col-span-1 lg:col-span-2 text-right">
-                <button
-                  type="button"
-                  onClick={() => handleGoToDetail(school)}
-                  className="w-full lg:w-10 lg:h-10 inline-flex items-center justify-center bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 rounded-xl lg:rounded-full transition-all hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-black group/btn"
-                >
-                  <span className="lg:hidden text-[10px] font-black uppercase tracking-[0.2em] mr-2">
-                    Open Dashboard
-                  </span>
-                  <FiArrowRight className="text-lg group-hover/btn:translate-x-0.5 transition-transform" />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+        <CardSchoolSection
+          schools={filteredSchools}
+          onDetailClick={(schoolId) => {
+            sessionStorage.setItem("schoolId", schoolId);
+            window.dispatchEvent(new Event("storage"));
+            router.push(`/sss/schools/detail`);
+          }}
+        />
       </div>
     </div>
   );

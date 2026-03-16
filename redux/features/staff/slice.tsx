@@ -7,7 +7,8 @@ import {
   toggleStaffStatus,
   deleteStaff,
   deleteBulkStaffs, // Tambahkan thunk baru
-  importStaffCsv, // Gunakan nama yang konsisten dengan Thunk
+  importStaffCsv,
+  registerBulkStaff, // Gunakan nama yang konsisten dengan Thunk
 } from "./thunks";
 
 const initialState: StaffState = {
@@ -90,6 +91,7 @@ const staffSlice = createSlice({
         (action) =>
           [
             registerStaff.fulfilled.type,
+            registerBulkStaff.fulfilled.type,
             updateStaffData.fulfilled.type,
             toggleStaffStatus.fulfilled.type,
             deleteStaff.fulfilled.type,

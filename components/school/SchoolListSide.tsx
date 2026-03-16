@@ -5,9 +5,11 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchSchools } from "@/redux/features/school/thunk";
 import { useSchoolId } from "@/hooks/useSchoolId";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function SchoolListSide() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const { schools, loading } = useAppSelector((state) => state.school);
   const activeSchoolId = useSchoolId();
@@ -15,6 +17,13 @@ export default function SchoolListSide() {
   useEffect(() => {
     dispatch(fetchSchools());
   }, [dispatch]);
+
+  const handleSchoolSelect = (schoolId: string) => {
+    sessionStorage.setItem("schoolId", schoolId);
+
+    window.dispatchEvent(new Event("storage"));
+    router.refresh();
+  };
 
   // Fungsi untuk ambil inisial jika avatar kosong
   const getInitials = (name: string) => {
@@ -56,8 +65,8 @@ export default function SchoolListSide() {
             return (
               <div
                 key={school.schoolId}
-                onClick={() => sessionStorage.setItem("id", school.schoolId)}
-                className={`group p-4 rounded-4xl border transition-all duration-300 relative overflow-hidden ${
+                onClick={() => handleSchoolSelect(school.schoolId)}
+                className={`group p-4 rounded-4xl border transition-all cursor-pointer duration-300 relative overflow-hidden ${
                   isActive
                     ? "bg-emerald-600 border-emerald-400 "
                     : "bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/5 hover:border-emerald-500/30"

@@ -28,6 +28,7 @@ export default function ListSchoolDocument() {
   const dispatch = useAppDispatch();
   const schoolId = useSchoolId();
   const router = useRouter();
+  console.log("schoolId", schoolId);
 
   const { documents, isLoading } = useAppSelector(
     (state) => state.schoolDocuments,
@@ -83,14 +84,19 @@ export default function ListSchoolDocument() {
                 {documents?.length || 0}
               </span>
             </h3>
-            <ButtonAddNoTitle
-              icon={<HiOutlineDocumentPlus className="text-xl" />}
-            />
+            <div
+              onClick={() => sessionStorage.setItem("schoolId", schoolId || "")}
+            >
+              <ButtonAddNoTitle
+                icon={<HiOutlineDocumentPlus className="text-xl" />}
+              />
+            </div>
           </div>
 
           <div className="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-hide pr-2 custom-scrollbar">
             {isLoading ? (
               <div className="space-y-3">
+                ,
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}

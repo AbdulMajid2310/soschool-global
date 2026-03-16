@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { FiTrash2, FiSave, FiChevronDown } from "react-icons/fi";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useSchoolId } from "@/hooks/useSchoolId";
 import { createBulkDocs } from "@/redux/features/school-documents/thunks";
 import toast from "react-hot-toast";
-import { resetSchoolDocument } from "@/redux/features/school-documents/slices";
 import { MdDocumentScanner, MdOutlineAddToPhotos } from "react-icons/md";
 
 const CATEGORIES = ["MOU", "Legalitas", "Akreditasi", "Lainnya"];
@@ -24,14 +22,13 @@ const AddSchoolDocument = () => {
   ]);
 
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const schoolId = useSchoolId();
 
-  const { isLoading, isSuccess, isError, message } = useAppSelector(
-    (state) => state.schoolDocuments,
-  );
+  const { isLoading } = useAppSelector((state) => state.schoolDocuments);
   const { profile } = useAppSelector((state) => state.auth);
   const userId = profile?.user.userId;
+
+  console.log("userId", userId, "schoolId:", schoolId);
 
   // Logic Validasi: Cek apakah ada field wajib yang kosong
   const isFormInvalid = inputs.some(

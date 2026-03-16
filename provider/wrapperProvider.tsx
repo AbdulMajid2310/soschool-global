@@ -136,7 +136,7 @@ export default function WrapperProvider({
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
       )}
 
-      <div className="flex h-full">
+      <div className="flex h-full ">
         {/* Desktop Sidebar */}
         {shouldShowLayout && SidebarComponent && (
           <aside className="hidden md:block h-full sticky top-0 z-20 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
@@ -163,7 +163,7 @@ export default function WrapperProvider({
         <main
           className={`flex-1 h-full overflow-y-auto scrollbar-hide ${shouldShowLayout ? "pt-16 md:pt-20" : ""}`}
         >
-          <div className="max-w-7xl mx-auto py-6 px-4">{children}</div>
+          <div className="max-w-360 mx-auto py-6 px-4">{children}</div>
         </main>
       </div>
     </div>
