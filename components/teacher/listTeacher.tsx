@@ -24,12 +24,16 @@ import {
   FiUserMinus,
   FiPlus,
   FiAlertCircle,
+  FiEdit,
+  FiEye,
+  FiActivity,
 } from "react-icons/fi";
 import { TbListDetails } from "react-icons/tb";
 import { toast } from "react-hot-toast";
 import { confirmActionToast } from "@/components/toast/confirmActionToast";
 import TeacherStats from "./teacherStats";
 import { SearchModal } from "../SearchModal";
+import { useRouter } from "next/navigation";
 
 interface SelectedData {
   teacherId: string;
@@ -39,6 +43,7 @@ interface SelectedData {
 export default function ListTeacherSection() {
   const dispatch = useAppDispatch();
   const schoolId = useSchoolId();
+  const router = useRouter();
 
   const { teachers, loading: teacherLoading } = useAppSelector(
     (state) => state.teacher,
@@ -175,34 +180,13 @@ export default function ListTeacherSection() {
     });
   };
 
+  const handleDetailStudent = (userId: string) => {
+    router.push(`/profile/administration/biodata`);
+    sessionStorage.setItem("userId", userId);
+  };
+
   return (
     <div className="p-4 md:p-8 space-y-8 text-slate-900 dark:text-white min-h-screen max-w-7xl mx-auto animate-in fade-in duration-500">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-5xl font-black uppercase italic tracking-tighter leading-none">
-            Manajemen <span className="text-indigo-600">Guru</span>
-          </h1>
-          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.3em] mt-2">
-            Pusat Kendali Administrasi & Akses Tenaga Pengajar
-          </p>
-        </div>
-        <button
-          type="button"
-          title="Tambah Guru Baru"
-          onClick={() => {
-            /* Logic Tambah Guru */
-          }}
-          className="group flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-4xl font-black uppercase tracking-widest shadow-2xl shadow-indigo-500/20 hover:bg-indigo-700 active:scale-95 transition-all"
-        >
-          <FiPlus
-            className="group-hover:rotate-90 transition-transform duration-300"
-            size={20}
-          />
-          Tambah Guru
-        </button>
-      </div>
-
       <TeacherStats />
 
       {/* Toolbar */}
@@ -331,21 +315,31 @@ export default function ListTeacherSection() {
             return (
               <div
                 key={t.teacherId}
-                className={`group relative bg-white dark:bg-slate-900 rounded-4xl p-8 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${isSelected ? "border-indigo-600 ring-8 ring-indigo-500/5 shadow-2xl" : "border-slate-50 dark:border-slate-800 shadow-sm"}`}
+                className={`group relative bg-white dark:bg-slate-900 rounded-4xl p-8 border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${
+                  isSelected
+                    ? "border-indigo-600 ring-8 ring-indigo-500/5 shadow-2xl"
+                    : "border-slate-50 dark:border-slate-800 shadow-sm"
+                }`}
               >
+                {/* Checkbox Selection */}
                 <button
                   type="button"
-                  title={isSelected ? "Batal pilih guru ini" : "Pilih guru ini"}
+                  title={isSelected ? "Batal pilih" : "Pilih guru"}
                   onClick={() => handleSelectOne(t.teacherId, t.user.userId)}
-                  className={`absolute top-6 left-6 z-10 p-2 rounded-xl transition-all ${isSelected ? "bg-indigo-600 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-200 group-hover:text-slate-400"}`}
+                  className={`absolute top-5 left-5 z-20 p-2.5 rounded-2xl transition-all duration-300 transform active:scale-90 ${
+                    isSelected
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 scale-110"
+                      : "bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-300 border border-slate-100 dark:border-slate-700 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 -translate-y-2"
+                  }`}
                 >
                   {isSelected ? (
-                    <FiCheckSquare size={20} />
+                    <FiCheckSquare size={22} className="drop-shadow-sm" />
                   ) : (
-                    <FiSquare size={20} />
+                    <FiSquare size={22} />
                   )}
                 </button>
 
+                {/* Profile Info */}
                 <div className="text-center space-y-4">
                   <div className="relative inline-block">
                     <img
@@ -357,12 +351,14 @@ export default function ListTeacherSection() {
                       alt={t.user.username}
                     />
                     <div
-                      className={`absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-4 border-white dark:border-slate-900 ${t.isActive ? "bg-emerald-500" : "bg-slate-300"}`}
+                      className={`absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-4 border-white dark:border-slate-900 ${
+                        t.isActive ? "bg-emerald-500" : "bg-slate-300"
+                      }`}
                     />
                   </div>
 
                   <div>
-                    <h3 className="font-black uppercase italic text-sm truncate px-2">
+                    <h3 className="font-black uppercase italic text-sm truncate px-2 text-slate-800 dark:text-slate-200">
                       {t.user.username}
                     </h3>
                     <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-1">
@@ -370,22 +366,54 @@ export default function ListTeacherSection() {
                     </p>
                   </div>
 
-                  <div className="pt-4 flex gap-2">
+                  {/* Action Buttons */}
+                  <div className="pt-4 grid grid-cols-4 gap-2">
+                    {/* Status Toggle */}
                     <button
                       type="button"
-                      title={t.isActive ? "Nonaktifkan guru" : "Aktifkan guru"}
+                      title={t.isActive ? "Nonaktifkan" : "Aktifkan"}
                       onClick={() =>
                         handleToggleStatus(t.teacherId, t.isActive)
                       }
-                      className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${t.isActive ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-600 hover:text-white"}`}
+                      className={`flex items-center justify-center p-3 rounded-2xl transition-all ${
+                        t.isActive
+                          ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white"
+                          : "bg-slate-50 text-slate-400 hover:bg-slate-600 hover:text-white"
+                      }`}
                     >
-                      {t.isActive ? "Aktif" : "Off"}
+                      <FiActivity size={18} />
                     </button>
+
+                    {/* Detail Button */}
                     <button
                       type="button"
-                      title="Hapus data guru"
+                      title="Lihat Detail"
+                      onClick={() => handleDetailStudent(t.user.userId)}
+                      className="flex items-center justify-center p-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-2xl transition-all"
+                    >
+                      <FiEye size={18} />
+                    </button>
+
+                    {/* Update/Edit Button */}
+                    <button
+                      type="button"
+                      title="Edit Data"
+                      onClick={() =>
+                        router.push(
+                          `/sf/academic/teacher/edit/${t.user.userId}`,
+                        )
+                      }
+                      className="flex items-center justify-center p-3 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white rounded-2xl transition-all"
+                    >
+                      <FiEdit size={18} />
+                    </button>
+
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      title="Hapus Data"
                       onClick={() => handleDelete(t.teacherId)}
-                      className="p-3.5 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all"
+                      className="flex items-center justify-center p-3 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all"
                     >
                       <FiTrash2 size={18} />
                     </button>

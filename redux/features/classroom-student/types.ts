@@ -1,19 +1,13 @@
+import { Student } from "../student/types";
+
 export interface ClassroomStudent {
   classroomStudentId: string;
-  status: 'ACTIVE' | 'MUTATED' | 'DROPOUT' | 'GRADUATED';
+  status: "ACTIVE" | "MUTATED" | "DROPOUT" | "GRADUATED";
   joinedAt: string;
   entryDate: string;
   exitDate?: string;
   notes?: string;
-  student: {
-    studentId: string;
-    nis: string;
-    user: {
-      username: string;
-      avatar?: string;
-      email: string;
-    };
-  };
+  student: Student;
   classroomConfig: {
     classroomConfigId: string;
     classroom: {

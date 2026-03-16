@@ -5,6 +5,8 @@ import { FiEdit2, FiInfo, FiTrash2 } from "react-icons/fi";
 import { ActionButton } from "../ui/button/ActionButton";
 import { StatusBadge } from "../classroom-student/HelperClassroom";
 import { Student } from "@/redux/features/student/types";
+import Image from "next/image";
+import { getInitials } from "@/utils/stringHelper";
 
 // Interface harus sama dengan yang di ListStudentSection
 interface SelectedData {
@@ -115,14 +117,21 @@ export const StudentTableView = ({
                   </td>
                   <td className="px-4 py-5">
                     <div className="flex items-center gap-4">
-                      <img
-                        alt={s.user?.username || "avatar"}
-                        src={
-                          s.user?.avatar ||
-                          `https://ui-avatars.com/api/?name=${s.user?.username || "S"}&background=6366f1&color=fff&bold=true`
-                        }
-                        className="w-11 h-11 rounded-[1.1rem] object-cover shadow-sm"
-                      />
+                      <div className="relative w-11 h-11 flex items-center justify-center overflow-hidden rounded-2xl shadow-sm bg-linear-to-br from-indigo-500 to-blue-600">
+                        {s.user?.avatar ? (
+                          <Image
+                            src={s.user.avatar}
+                            alt={s.user.username || "avatar"}
+                            fill
+                            sizes="44px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span className="text-sm font-black text-white italic uppercase tracking-tighter">
+                            {getInitials(s.user?.username)}
+                          </span>
+                        )}
+                      </div>
                       <div className="space-y-0.5">
                         <p className="font-black text-slate-800 dark:text-slate-100 text-sm tracking-tight uppercase italic">
                           {s.user?.username || "Unknown"}

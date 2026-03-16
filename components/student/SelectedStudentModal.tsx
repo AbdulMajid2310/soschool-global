@@ -10,6 +10,8 @@ import {
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useSchoolId } from "@/hooks/useSchoolId";
 import { fetchStudents } from "@/redux/features/student/thunks";
+import Image from "next/image";
+import { getInitials } from "@/utils/stringHelper";
 
 interface Props {
   selectedIds: string[];
@@ -153,14 +155,29 @@ export default function SelectedStudentModal({ selectedIds, onSelect }: Props) {
                         }`}
                       >
                         <div className="flex items-center gap-4 text-left">
-                          <img
-                            src={
-                              item.user.avatar ||
-                              `https://api.dicebear.com/7.x/initials/svg?seed=${item.user.username}`
-                            }
-                            className={`h-12 w-12 rounded-2xl object-cover transition-all ${isSelected ? "ring-4 ring-white/20" : "shadow-sm group-hover:scale-105"}`}
-                            alt={`Foto ${item.user.username}`}
-                          />
+                          <div
+                            className={`relative h-12 w-12 overflow-hidden rounded-2xl flex items-center justify-center transition-all ${
+                              isSelected
+                                ? "ring-4 ring-white/20 scale-95 shadow-lg"
+                                : "shadow-sm group-hover:scale-105"
+                            }`}
+                          >
+                            {item.user.avatar ? (
+                              <Image
+                                src={item.user.avatar}
+                                alt={`Foto ${item.user.username}`}
+                                fill
+                                sizes="48px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-linear-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
+                                <span className="text-lg font-black text-white italic uppercase tracking-tighter drop-shadow-sm">
+                                  {getInitials(item.user.username)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                           <div>
                             <p
                               className={`text-sm font-black uppercase italic leading-none ${isSelected ? "text-white" : "text-slate-700 dark:text-white"}`}

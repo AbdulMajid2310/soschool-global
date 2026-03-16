@@ -12,6 +12,9 @@ import { useState } from "react";
 import StudentActionModal from "./StudentActionModal";
 import { MdMeetingRoom } from "react-icons/md";
 import { PiStudentBold } from "react-icons/pi";
+import { FaUserAlt } from "react-icons/fa";
+import Image from "next/image";
+import { getInitials } from "@/utils/stringHelper";
 
 export const StudentCard = ({ data }: { data: ClassroomStudent }) => {
   const router = useRouter();
@@ -27,6 +30,11 @@ export const StudentCard = ({ data }: { data: ClassroomStudent }) => {
     sessionStorage.setItem("classroomConfigId", classroomConfigId);
     router.push("./classroom-config/detail");
   };
+
+  const handleDetailProfile = (userId: string) => {
+    sessionStorage.setItem("userId", userId);
+    router.push("/profile/administration/biodata");
+  };
   return (
     <div className="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-1 border border-slate-100 dark:border-slate-800 hover:border-indigo-500/30 transition-all duration-500 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10">
       {/* Decorative Background Element */}
@@ -37,14 +45,23 @@ export const StudentCard = ({ data }: { data: ClassroomStudent }) => {
         <div className="flex justify-center items-center">
           <div className="relative">
             <div className="absolute inset-0 bg-indigo-500 rounded-4xl blur-md opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
-            <img
-              src={
-                data.student.user.avatar ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${data.student.user.username}`
-              }
-              className="relative w-24 h-24 rounded-4xl object-cover border-4 border-white dark:border-slate-800 shadow-xl group-hover:scale-105 transition-transform duration-500"
-              alt={data.student.user.username}
-            />
+            <div className="relative w-24 h-24 p-1 bg-white dark:bg-slate-800 rounded-4xl shadow-xl group-hover:scale-105 transition-transform duration-500 overflow-hidden flex items-center justify-center">
+              {data.student.user.avatar ? (
+                <Image
+                  src={data.student.user.avatar}
+                  alt={data.student.user.username}
+                  fill
+                  sizes="96px"
+                  className="object-cover rounded-4xl border-4 border-white dark:border-slate-800"
+                />
+              ) : (
+                <div className="w-full h-full rounded-4xl bg-linear-to-br from-indigo-500 to-blue-600 flex items-center justify-center border-4 border-white dark:border-slate-800">
+                  <span className="text-3xl font-black text-white italic uppercase tracking-tighter">
+                    {getInitials(data.student.user.username)}
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="absolute -bottom-2 -right-1 bg-indigo-600 text-white p-2.5 rounded-2xl shadow-lg border-4 border-white dark:border-slate-900 transform group-hover:rotate-12 transition-transform">
               <HiOutlineAcademicCap size={16} />
             </div>
@@ -114,12 +131,21 @@ export const StudentCard = ({ data }: { data: ClassroomStudent }) => {
           <div className="flex gap-2  px-2">
             <button
               type="button"
+              title="profile"
+              onClick={() => handleDetailProfile(data.student.user.userId)}
+              className="flex-1 py-1 rounded-2xl font-black text-xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+            >
+              <FaUserAlt />
+            </button>
+            <button
+              type="button"
               title="Update Status"
               onClick={() => setModalConfig({ isOpen: true, type: "STATUS" })}
               className="flex-1 py-1 rounded-2xl font-black text-2xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
             >
               <PiStudentBold />
             </button>
+
             <button
               type="button"
               title="pindah kelas"

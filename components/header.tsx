@@ -157,6 +157,7 @@ const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
           {/* Dropdown Profile */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => toggleDropdown("profile")}
               className={`flex items-center gap-2 p-1 rounded-xl transition-all ${activeDropdown === "profile" ? "bg-blue-500/10" : ""}`}
             >
@@ -187,7 +188,7 @@ const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
                 <DropdownAction
                   icon={<FiUser />}
                   title="Profil Saya"
-                  onClick={() => router.push("/settings/profile")}
+                  onClick={() => router.push("/profile")}
                 />
                 <DropdownAction
                   icon={<FiRepeat className="text-blue-500" />}

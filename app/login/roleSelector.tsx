@@ -106,6 +106,7 @@ export default function RoleSelector({
 
                 {school.accessDetails.map((detail) => (
                   <button
+                    type="button"
                     key={detail.userAccessId}
                     onClick={() => onSelectRole(detail.userAccessId)}
                     disabled={loading}

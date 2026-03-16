@@ -153,26 +153,6 @@ export default function UpdateClassroomConfigModal() {
 
   return (
     <div className="max-w-7xl mx-auto pb-20 px-4 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex items-center gap-5 mb-10">
-        <button
-          title="kembali"
-          type="button"
-          onClick={() => router.back()}
-          className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-slate-400 hover:text-amber-600 transition-colors"
-        >
-          <HiOutlineChevronLeft size={24} />
-        </button>
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight italic uppercase">
-            Update Konfigurasi
-          </h1>
-          <p className="text-slate-500 font-medium text-sm italic">
-            Edit wali kelas, lokasi, dan daftar siswa aktif
-          </p>
-        </div>
-      </div>
-
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 lg:grid-cols-3 gap-8"
@@ -250,13 +230,13 @@ export default function UpdateClassroomConfigModal() {
             />
 
             {/* List Preview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-100 scrollbar-hide overflow-y-auto pr-2 custom-scrollbar">
-              {formData.studentIds.map((id) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-100 scrollbar-hide overflow-y-auto pr-2 scrollbar-hide">
+              {formData.studentIds.map((id, index) => {
                 const s = students.find((item) => item.studentId === id);
                 if (!s) return null;
                 return (
                   <div
-                    key={id}
+                    key={index}
                     className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-3xl border border-transparent hover:border-amber-100 group animate-in zoom-in duration-200"
                   >
                     <div className="flex items-center gap-3">

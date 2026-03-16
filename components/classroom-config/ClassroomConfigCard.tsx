@@ -1,4 +1,5 @@
 import { ClassroomConfig } from "@/redux/features/classroom-config/types";
+import { getInitials } from "@/utils/stringHelper";
 import { BiEdit } from "react-icons/bi";
 import {
   HiOutlineAcademicCap,
@@ -81,7 +82,7 @@ export const ClassroomConfigCard = ({
             />
           ) : (
             <div className="h-14 w-14 flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 rounded-full border-2 border-white dark:border-slate-700">
-              <HiOutlineUser size={28} />
+              {getInitials(config.homeroomTeacher?.user?.username)}
             </div>
           )}
         </div>

@@ -212,18 +212,6 @@ export default function StaffSection() {
 
   return (
     <div className="p-4 md:p-8 space-y-10 min-h-screen animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter italic uppercase">
-            Personalia <span className="text-indigo-600">Staff</span>
-          </h1>
-          <p className="text-gray-400 mt-2 font-bold flex items-center gap-2 text-[10px] uppercase tracking-[0.2em]">
-            <span className="w-8 h-1 bg-indigo-500 inline-block"></span>
-            Manajemen Operasional Non-Akademik
-          </p>
-        </div>
-      </div>
-
       <StaffStats />
 
       {/* Action Toolbar */}

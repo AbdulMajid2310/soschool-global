@@ -161,18 +161,6 @@ export const ListParentSchoolModal = () => {
 
   return (
     <div className="p-4 md:p-8 space-y-8 min-h-screen animate-in fade-in duration-500">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter italic uppercase">
-            Data <span className="text-indigo-600">Orang Tua</span>
-          </h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">
-            Kelola wali murid dan relasi anak didik SoSchool
-          </p>
-        </div>
-      </div>
-
       {/* Action Toolbar */}
       <div className="bg-white dark:bg-slate-900 p-5 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col xl:flex-row justify-between gap-6">
         <div className="flex gap-3 items-center">
