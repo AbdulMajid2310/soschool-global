@@ -1,19 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ClassroomStudentList from "@/components/classroom-student/ClassroomStudentList";
 import ListStudentSection from "@/components/student/listStudentSchoolSection";
 import { useRouter } from "next/navigation";
 import { FaUsers, FaLayerGroup } from "react-icons/fa6";
 import { BsPersonFillAdd } from "react-icons/bs";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useSchoolId } from "@/hooks/useSchoolId";
+import { fetchStudentsByPeriod } from "@/redux/features/classroom-student/thunks";
 
 export default function StudentPage() {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { students } = useAppSelector((state) => state.student);
+  const schoolId = useSchoolId();
+  const { activePeriod } = useAppSelector((state) => state.schoolPeriod);
 
   // State untuk Switcher
   const [activeTab, setActiveTab] = useState<"master" | "mapping">("master");
+  useEffect(() => {
+    if (schoolId && activePeriod) {
+      dispatch(
+        fetchStudentsByPeriod({ schoolId, periodId: activePeriod.periodId }),
+      );
+    }
+  }, [dispatch, schoolId, activePeriod]);
 
   const tabClass = (tab: string) => `
     flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300

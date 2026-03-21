@@ -21,6 +21,7 @@ import schoolParentsSlice from "./features/school-parents/slices";
 import schoolAddressSlice from "./features/school-address/slice";
 import authEmailSlice from "./features/authEmail/slice";
 import soschoolDocuementSlice from "./features/school-documents/slices";
+import artificialIntelligenceSlice from "./features/artificial-intelligence/slice";
 
 export const store = configureStore({
   reducer: {
@@ -45,6 +46,7 @@ export const store = configureStore({
     schoolAddress: schoolAddressSlice,
     authEmail: authEmailSlice,
     schoolDocuments: soschoolDocuementSlice,
+    artificialIntelligence: artificialIntelligenceSlice,
   },
 });
 

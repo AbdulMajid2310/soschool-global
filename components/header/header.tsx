@@ -21,8 +21,13 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logoutUser } from "@/redux/features/auth/thunk";
 import { fetchActivePeriod } from "@/redux/features/school-period/thunk";
 import { useSchoolId } from "@/hooks/useSchoolId";
+import { useUserId } from "@/hooks/useAuthContext";
+import { fetchTeacherProfile } from "@/redux/features/teacher/thunk";
+import { QuickLink } from "./QuickLink";
+import { IconButton } from "./IconButton";
+import { DropdownAction } from "./DropdownAction";
 
-const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
+export const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const router = useRouter();
@@ -32,15 +37,20 @@ const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
 
   // Ambil data Global State
   const { profile } = useAppSelector((state) => state.auth);
-  const { activePeriod } = useAppSelector((state) => state.schoolPeriod); // Pastikan state ini ada
+  const { activePeriod } = useAppSelector((state) => state.schoolPeriod);
 
   const activeContext = profile?.activeContext;
   const schoolId = useSchoolId();
+  const userId = useUserId();
 
-  // 1. Inisialisasi Data Periode (Semester)
   useEffect(() => {
-    if (schoolId) dispatch(fetchActivePeriod(schoolId));
-  }, [dispatch, schoolId]);
+    if (schoolId) {
+      dispatch(fetchActivePeriod(schoolId));
+    }
+    if (schoolId && userId) {
+      dispatch(fetchTeacherProfile({ schoolId, userId }));
+    }
+  }, [dispatch, schoolId, userId]);
 
   // 2. Click Outside Handler
   useEffect(() => {
@@ -220,44 +230,3 @@ const Header = ({ onMenuClick }: { onMenuClick?: () => void }) => {
     </header>
   );
 };
-
-// --- Sub-components (Efficiency & Reusable) ---
-
-const QuickLink = ({ href, active, icon }: any) => (
-  <Link
-    href={href}
-    className={`p-2.5 rounded-xl transition-all ${active ? "text-blue-500 bg-blue-500/10" : "text-slate-400 hover:text-blue-500"}`}
-  >
-    <span className="text-xl">{icon}</span>
-  </Link>
-);
-
-const IconButton = ({ icon, count, active, onClick }: any) => (
-  <button
-    onClick={onClick}
-    className={`relative p-2 rounded-xl border transition-all ${active ? "bg-blue-600 border-blue-400 text-white" : "bg-slate-50 dark:bg-white/5 border-transparent text-slate-400"}`}
-  >
-    <span className="text-lg">{icon}</span>
-    {count && (
-      <span className="absolute -top-1 -right-1 bg-red-600 text-[8px] text-white w-4 h-4 flex items-center justify-center rounded-full border-2 border-white dark:border-gray-900">
-        {count}
-      </span>
-    )}
-  </button>
-);
-
-const DropdownAction = ({ icon, title, onClick }: any) => (
-  <button
-    onClick={onClick}
-    className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-blue-500/10 transition-all group"
-  >
-    <span className="text-slate-400 group-hover:text-blue-500 transition-colors">
-      {icon}
-    </span>
-    <span className="text-[10px] font-black uppercase italic text-slate-700 dark:text-slate-300">
-      {title}
-    </span>
-  </button>
-);
-
-export default memo(Header);

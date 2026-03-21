@@ -1,4 +1,3 @@
-import { useAppSelector } from "@/redux/hooks";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -15,17 +14,11 @@ import {
   FiBookOpen,
   FiGrid,
   FiBook,
-  FiAward,
   FiFileText,
   FiLayers,
   FiEdit,
   FiCalendar,
-  FiHeart,
   FiTrendingUp,
-  FiBell,
-  FiMail,
-  FiMessageSquare,
-  FiArchive,
   FiSliders,
   FiDatabase,
   FiCheckCircle,
@@ -33,7 +26,6 @@ import {
   FiDollarSign,
   FiCreditCard,
   FiPieChart,
-  FiTool,
   FiUserCheck,
 } from "react-icons/fi";
 import { GrCertificate } from "react-icons/gr";

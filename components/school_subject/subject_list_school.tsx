@@ -1,146 +1,103 @@
 "use client";
 
 import React from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { deleteSubject } from "@/redux/features/school_subject/thunks";
-import {
-  HiOutlineBookOpen,
-  HiOutlineTrash,
-  HiOutlinePencilAlt,
-  HiOutlineSparkles,
-  HiOutlineAcademicCap,
-} from "react-icons/hi";
-import { confirmActionToast } from "../toast/confirmActionToast";
-import toast from "react-hot-toast";
+import { useAppSelector } from "@/redux/hooks";
+import { HiOutlineSparkles, HiOutlineHome } from "react-icons/hi";
 import { TbListDetails } from "react-icons/tb";
+import { Subject } from "@/redux/features/school_subject/types";
 
 interface SubjectListProps {
   searchTerm: string;
-  onEdit: (subject: any) => void;
 }
 
-const SubjectList = ({ searchTerm, onEdit }: SubjectListProps) => {
-  const dispatch = useAppDispatch();
+const SubjectList = ({ searchTerm }: SubjectListProps) => {
   const { subjects, loading } = useAppSelector((state) => state.schoolSubject);
 
-  // Filter logic
-  const filteredSubjects = subjects.filter(
-    (s) =>
-      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.code.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredSubjects = subjects.filter((s) => {
+    const searchStr = searchTerm.toLowerCase();
+    return (
+      s.name.toLowerCase().includes(searchStr) ||
+      s.code.toLowerCase().includes(searchStr) ||
+      s.classroomConfig?.classroom?.name.toLowerCase().includes(searchStr)
+    );
+  });
+
+  const groupedByConfig = filteredSubjects.reduce(
+    (acc, subject) => {
+      const configId = subject.classroomConfig?.classroomConfigId || "global";
+      if (!acc[configId]) acc[configId] = [];
+      acc[configId].push(subject);
+      return acc;
+    },
+    {} as Record<string, Subject[]>,
   );
 
-  const handleDelete = (id: string, name: string) => {
-    confirmActionToast({
-      title: "Hapus Mata Pelajaran",
-      message: `Apakah Anda yakin ingin menghapus "${name}"? Data yang sudah dihapus tidak dapat dikembalikan.`,
-      confirmText: "Ya, Hapus Permanen",
-      variant: "danger",
-      onConfirm: async () => {
-        // Proses unwrap() agar masuk ke block catch di custom toast jika gagal
-        await dispatch(deleteSubject(id)).unwrap();
-        toast.success(`Mapel ${name} berhasil dihapus!`);
-      },
-    });
-  };
-
-  const handleDetail = (id: string) => {
-    sessionStorage.setItem("schoolSubjectId", id);
-    window.location.href = "/sf/academic/subject/detail";
-  };
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="h-60 bg-slate-200 dark:bg-slate-800 rounded-3xl"
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (filteredSubjects.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800">
-        <HiOutlineBookOpen
-          className="text-slate-300 dark:text-slate-700 mb-4"
-          size={64}
-        />
-        <p className="text-slate-500 dark:text-slate-400 font-medium">
-          Tidak ada mata pelajaran ditemukan.
-        </p>
-      </div>
-    );
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filteredSubjects.map((subject) => (
-        <div
-          key={subject.subjectId}
-          className="group relative p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm hover:shadow-xl transition-all duration-300"
-        >
-          {/* AI Badge */}
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-100 dark:border-purple-800">
-            <HiOutlineSparkles size={12} className="animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">
-              AI Summary
-            </span>
+    <div className="space-y-12">
+      {Object.entries(groupedByConfig).map(([configId, list]) => (
+        <div key={configId} className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-2xl shadow-sm">
+              <HiOutlineHome size={18} />
+              <span className="text-sm font-black uppercase tracking-wider">
+                {list[0].classroomConfig?.classroom?.name ||
+                  "Mata Pelajaran Umum"}
+              </span>
+            </div>
+            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
           </div>
 
-          <div className="flex flex-col h-full">
-            <div className="mb-4">
-              <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
-                {subject.code} / {subject.sks} SKS
-              </span>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 group-hover:text-blue-600 transition-colors">
-                {subject.name}
-              </h3>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {list.map((subject) => (
+              <div
+                key={subject.subjectId}
+                className="group p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500 transition-all"
+              >
+                <div className="flex flex-col h-full">
+                  <div className="mb-4">
+                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
+                      {subject.code}
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                      {subject.name}
+                    </h3>
+                  </div>
 
-            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 italic mb-6 leading-relaxed">
-              "
-              {subject.description ||
-                "Menunggu materi diunggah untuk dirangkum AI..."}
-              "
-            </p>
+                  <p className="text-sm text-slate-500 italic line-clamp-2 mb-6">
+                    "
+                    {subject.description ||
+                      "Digital footprint belum tersedia..."}
+                    "
+                  </p>
 
-            <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-500">
-                <HiOutlineAcademicCap size={18} className="text-indigo-500" />
-                <span className="text-xs font-semibold uppercase tracking-tight dark:text-slate-300">
-                  {subject.category}
-                </span>
+                  <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <div className="flex items-center gap-1 text-purple-600">
+                      <HiOutlineSparkles size={14} />
+                      <span className="text-[10px] font-bold uppercase">
+                        AI Analyzed
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        sessionStorage.setItem(
+                          "schoolSubjectId",
+                          subject.subjectId,
+                        );
+                        sessionStorage.setItem("classroomConfigId", configId);
+                        window.location.href = "/sf/academic/subject/detail";
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white rounded-xl text-slate-600 dark:text-slate-300 text-xs font-bold transition-all"
+                    >
+                      <TbListDetails size={16} />
+                      Detail Footprint
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => handleDetail(subject.subjectId)}
-                  className="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl text-red-500 transition-all cursor-pointer hover:scale-110 active:scale-90"
-                  title="Detail Mapel"
-                >
-                  <TbListDetails size={20} />
-                </button>
-                <button
-                  onClick={() => onEdit(subject)}
-                  className="p-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400 transition-all cursor-pointer hover:scale-110 active:scale-90"
-                  title="Edit Mapel"
-                >
-                  <HiOutlinePencilAlt size={20} />
-                </button>
-                <button
-                  onClick={() => handleDelete(subject.subjectId, subject.name)}
-                  className="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl text-red-500 transition-all cursor-pointer hover:scale-110 active:scale-90"
-                  title="Hapus Mapel"
-                >
-                  <HiOutlineTrash size={20} />
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       ))}

@@ -1,6 +1,10 @@
 "use client";
 
-import { HiOutlineAcademicCap, HiOutlineArrowRight } from "react-icons/hi2";
+import {
+  HiOutlineAcademicCap,
+  HiOutlineArrowRight,
+  HiOutlineDocumentText,
+} from "react-icons/hi2";
 import {
   HiOutlineCalendarDays,
   HiOutlineIdentification,
@@ -84,79 +88,80 @@ export const StudentCard = ({ data }: { data: ClassroomStudent }) => {
           </div>
         </div>
 
+        <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-3xl mt-4 border border-slate-100 dark:border-white/5">
+          {/* Profile Detail */}
+          <button
+            type="button"
+            title="Lihat Profil Lengkap"
+            onClick={() => handleDetailProfile(data.student.user.userId)}
+            className="flex-1 flex justify-center py-2 rounded-2xl text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-indigo-600 hover:shadow-sm transition-all duration-300"
+          >
+            <FaUserAlt size={18} />
+          </button>
+
+          {/* Akademik / Nilai (Tambahan Baru) */}
+          <button
+            type="button"
+            title="Nilai & Akademik"
+            className="flex-1 flex justify-center py-2 rounded-2xl text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-blue-600 hover:shadow-sm transition-all duration-300"
+          >
+            <HiOutlineDocumentText size={20} />
+          </button>
+
+          {/* Update Status (Active/Mutated/etc) */}
+          <button
+            type="button"
+            title="Update Status Siswa"
+            onClick={() => setModalConfig({ isOpen: true, type: "STATUS" })}
+            className="flex-1 flex justify-center py-2 rounded-2xl text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-amber-600 hover:shadow-sm transition-all duration-300"
+          >
+            <PiStudentBold size={22} />
+          </button>
+
+          {/* Pindah Kelas / Mutasi */}
+          <button
+            type="button"
+            title="Pindah Kelas (Mutasi Internal)"
+            onClick={() => setModalConfig({ isOpen: true, type: "TRANSFER" })}
+            className="flex-1 flex justify-center py-2 rounded-2xl text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-emerald-600 hover:shadow-sm transition-all duration-300"
+          >
+            <MdMeetingRoom size={22} />
+          </button>
+        </div>
+
         {/* Class Badge Section */}
         <div className="relative overflow-hidden p-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-transparent group-hover:border-indigo-500/10 transition-all duration-500">
           <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-slate-400">
+              <HiOutlineCalendarDays size={16} className="text-slate-300" />
+              <div className="flex flex-col">
+                <p className="text-[8px] font-black uppercase tracking-widest leading-none text-slate-300">
+                  Bergabung
+                </p>
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                  {new Date(data.joinedAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            </div>
             <div>
-              <p className="text-[9px] font-black uppercase text-indigo-500/60 tracking-widest mb-1 italic">
-                Active Placement
-              </p>
-              <p className="font-black text-md text-slate-700 dark:text-slate-200 uppercase italic leading-none">
+              <button
+                type="button"
+                onClick={() =>
+                  handleClassroomCOnfig(data.classroomConfig.classroomConfigId)
+                }
+                className="font-black text-md text-slate-700 dark:text-slate-200 uppercase italic leading-none"
+              >
                 {data.classroomConfig.classroom.name}
-              </p>
+              </button>
             </div>
-            <button
-              type="button"
-              title="View Profile"
-              onClick={() =>
-                handleClassroomCOnfig(data.classroomConfig.classroomConfigId)
-              }
-              className="flex items-center justify-center w-12 h-12 bg-white dark:bg-slate-700 text-indigo-600 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-all duration-300"
-            >
-              <HiOutlineArrowRight
-                size={20}
-                className="transform group-hover:translate-x-1 transition-transform"
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* Footer Info */}
-        <div className="flex items-center justify-between gap-4 px-2 ">
-          <div className="flex items-center gap-2 text-slate-400">
-            <HiOutlineCalendarDays size={16} className="text-slate-300" />
-            <div className="flex flex-col">
-              <p className="text-[8px] font-black uppercase tracking-widest leading-none text-slate-300">
-                Joined Period
-              </p>
-              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                {new Date(data.joinedAt).toLocaleDateString("id-ID", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2  px-2">
-            <button
-              type="button"
-              title="profile"
-              onClick={() => handleDetailProfile(data.student.user.userId)}
-              className="flex-1 py-1 rounded-2xl font-black text-xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
-            >
-              <FaUserAlt />
-            </button>
-            <button
-              type="button"
-              title="Update Status"
-              onClick={() => setModalConfig({ isOpen: true, type: "STATUS" })}
-              className="flex-1 py-1 rounded-2xl font-black text-2xl text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
-            >
-              <PiStudentBold />
-            </button>
-
-            <button
-              type="button"
-              title="pindah kelas"
-              onClick={() => setModalConfig({ isOpen: true, type: "TRANSFER" })}
-              className=" py-1 font-black text-2xl  text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all"
-            >
-              <MdMeetingRoom />{" "}
-            </button>
           </div>
         </div>
       </div>
+
       <StudentActionModal
         isOpen={modalConfig.isOpen}
         type={modalConfig.type}

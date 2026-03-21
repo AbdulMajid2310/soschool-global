@@ -6,8 +6,8 @@ import { useAppSelector } from "@/redux/hooks";
  * Mendapatkan ID User (General)
  */
 export const useUserId = () => {
-  const { profile } = useAppSelector((state) => state.auth);
-  return profile?.user.userId || sessionStorage.getItem("userId");
+  const userId = useAppSelector((state) => state.auth.profile?.user.userId);
+  return userId;
 };
 
 /**

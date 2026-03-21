@@ -7,7 +7,6 @@ import { Toaster } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getProfileMe } from "@/redux/features/auth/thunk";
 
-import Header from "@/components/header";
 import LoadingScreen from "@/components/loading/loadingScreen";
 
 // Import Sidebar
@@ -16,6 +15,7 @@ import SidebarParent from "@/app/wm/sidebarParent";
 import SidebarTeacher from "@/app/gr/sidebarTeacher";
 import SidebarStaff from "@/app/sf/sidebarStaff";
 import SidebarSuperAdmin from "@/app/sss/sidebarSuperAdmin";
+import { Header } from "@/components/header/header";
 
 const ROLE_CONFIG: Record<
   string,
