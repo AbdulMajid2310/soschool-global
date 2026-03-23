@@ -69,7 +69,10 @@ export default function StudyMaterialDetail() {
               <HiSparkles className="mr-1" size={12} /> AI Verified
             </span>
           </div>
-          <MaterialCompleteButton isComplete={selectedMaterial.isComplete} />
+          <MaterialCompleteButton
+            isComplete={selectedMaterial.isComplete}
+            studyMaterialId={selectedMaterial.studyMaterialId}
+          />
         </div>
 
         {/* Title */}

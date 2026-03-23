@@ -91,14 +91,30 @@ export const createBulkStudyMaterial = createAsyncThunk(
 
 export const updateStudyMaterial = createAsyncThunk(
   "studyMaterial/update",
-  async (dto: UpdateStudyMaterialDto, { rejectWithValue }) => {
+  async (
+    { id, formData }: { id: string; formData: FormData },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await studyMaterialService.update(dto);
-      return response.data;
+      console.log(`--- Updating Study Material ID: ${id} ---`);
+
+      // Log data untuk debug
+      formData.forEach((value, key) => {
+        console.log(
+          `Field [${key}]:`,
+          value instanceof File ? `File: ${value.name}` : value,
+        );
+      });
+
+      const response = await studyMaterialService.update(id, formData);
+
+      console.log("--- Update Success Response ---", response);
+      return response.data; // Mengembalikan data material yang sudah diupdate
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Gagal memperbarui materi",
-      );
+      console.error("--- Update Study Material Error ---");
+      const errorMessage =
+        error.response?.data?.message || "Gagal memperbarui materi";
+      return rejectWithValue(errorMessage);
     }
   },
 );

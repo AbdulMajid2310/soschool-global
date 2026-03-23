@@ -145,7 +145,7 @@ const CreateStudyMaterial = () => {
       </div>
 
       <form id="material-form" onSubmit={handleSubmit} className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">

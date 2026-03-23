@@ -26,7 +26,6 @@ export interface CreateStudyMaterialDto {
 }
 
 export interface UpdateStudyMaterialDto extends Partial<CreateStudyMaterialDto> {
-  studyMaterialId: string;
   isComplete?: boolean;
 }
 

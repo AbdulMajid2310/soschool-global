@@ -27,11 +27,15 @@ export const studyMaterialService = {
     return response.data;
   },
 
-  async update(payload: UpdateStudyMaterialDto) {
-    const { studyMaterialId, ...data } = payload;
+  async update(studyMaterialId: string, formData: FormData) {
     const response = await api.patch(
       `/study-materials/${studyMaterialId}`,
-      data,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
     );
     return response.data;
   },

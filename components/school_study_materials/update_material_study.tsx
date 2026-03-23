@@ -1,220 +1,262 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { updateStudyMaterial } from '@/redux/features/school_study_material/thunks';
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { updateStudyMaterial } from "@/redux/features/school_study_material/thunks";
+import { fetchAiMaterialDescription } from "@/redux/features/artificial-intelligence/thunk";
 import {
-    HiOutlinePencilAlt, HiOutlineX, HiOutlineUserCircle,
-    HiChevronDown, HiOutlineCloudUpload
-} from 'react-icons/hi';
-import toast from 'react-hot-toast';
+  HiOutlinePencilAlt,
+  HiOutlineX,
+  HiOutlineUserCircle,
+  HiOutlineCloudUpload,
+  HiOutlineDocumentText,
+  HiSparkles,
+  HiOutlineTrash,
+  HiChevronDown,
+  HiOutlineBookOpen,
+} from "react-icons/hi";
+import toast from "react-hot-toast";
 
-interface UpdateStudyMaterialProps {
-    material: any; // Ganti dengan interface StudyMaterial kamu
-}
+const UpdateStudyMaterial = () => {
+  const dispatch = useAppDispatch();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-const UpdateStudyMaterial = ({ material }: UpdateStudyMaterialProps) => {
-    const dispatch = useAppDispatch();
-    const dropdownRef = useRef<HTMLDivElement>(null);
+  // Global State
+  const { selectedMaterial, isSubmitting } = useAppSelector(
+    (state) => state.schoolStudyMaterial,
+  );
+  const { loading: aiLoading } = useAppSelector(
+    (state) => state.artificialIntelligence,
+  );
 
-    // Global State
-    const { isSubmitting } = useAppSelector((state) => state.schoolStudyMaterial);
-    const { teachers } = useAppSelector((state) => state.teacher);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    // Local State
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchTeacher, setSearchTeacher] = useState(material.author?.user?.username || '');
-    const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    authorId: "",
+    fileUrl: "",
+  });
 
-    const [formData, setFormData] = useState({
-        title: material.title,
-        description: material.description || '',
-        authorId: material.author?.teacherId || '',
-        fileUrl: material.fileUrl || ''
-    });
+  // Auto-resize textarea logic
+  const adjustHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
 
-    // Sinkronisasi ulang jika data material berubah dari luar
-    useEffect(() => {
-        if (isModalOpen) {
-            setFormData({
-                title: material.title,
-                description: material.description || '',
-                authorId: material.author?.teacherId || '',
-                fileUrl: material.fileUrl || ''
-            });
-            setSearchTeacher(material.author?.user?.username || '');
-        }
-    }, [material, isModalOpen]);
+  // Sync data saat modal dibuka
+  useEffect(() => {
+    if (selectedMaterial) {
+      setFormData({
+        title: selectedMaterial.title,
+        description: selectedMaterial.description || "",
+        authorId: selectedMaterial.author?.teacherId || "",
+        fileUrl: selectedMaterial.fileUrl || "",
+      });
+    }
+  }, [selectedMaterial]);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsTeacherDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+  useEffect(() => {
+    adjustHeight();
+  }, [formData.description]);
 
-    const filteredTeachers = useMemo(() => {
-        if (!searchTeacher) return teachers;
-        return teachers.filter(t =>
-            t.user?.username?.toLowerCase().includes(searchTeacher.toLowerCase())
-        );
-    }, [teachers, searchTeacher]);
+  const handleAiGenerate = async () => {
+    if (!formData.title) return toast.error("Judul wajib diisi untuk AI");
+    try {
+      const result = await dispatch(
+        fetchAiMaterialDescription({ title: formData.title }),
+      ).unwrap();
+      setFormData((prev) => ({ ...prev, description: result }));
+      toast.success("Deskripsi diperbarui oleh AI");
+    } catch (err) {
+      toast.error("AI gagal merespon");
+    }
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedMaterial) return;
 
-        const data = new FormData();
-        data.append('title', formData.title);
-        data.append('description', formData.description);
-        data.append('authorId', formData.authorId);
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("description", formData.description);
+    data.append("authorId", formData.authorId);
 
-        // Jika ada file baru yang diupload, gunakan key 'fileUrl'
-        if (selectedFile) {
-            data.append('fileUrl', selectedFile);
-        } else {
-            // Jika tidak ada upload baru, kirim string URL lama
-            data.append('fileUrl', formData.fileUrl);
-        }
+    if (selectedFile) {
+      data.append("file", selectedFile);
+    }
 
-        try {
-            await dispatch(updateStudyMaterial({
-                studyMaterialId: material.studyMaterialId,
-                formData: data
-            } as any)).unwrap();
+    try {
+      await dispatch(
+        updateStudyMaterial({
+          id: selectedMaterial.studyMaterialId,
+          formData: data,
+        }),
+      ).unwrap();
 
-            toast.success("Materi berhasil diperbarui");
-            setIsModalOpen(false);
-        } catch (err: any) {
-            toast.error(err || "Gagal memperbarui materi");
-        }
-    };
+      toast.success("Materi berhasil diperbarui");
 
-    return (
-        <>
-            {/* Trigger Button - Biasanya muncul di list item */}
-            <button
-                onClick={() => setIsModalOpen(true)}
-                className="p-3 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all cursor-pointer"
-            >
-                <HiOutlinePencilAlt size={20} />
-            </button>
+      setSelectedFile(null);
+    } catch (err: any) {
+      toast.error(err || "Gagal memperbarui materi");
+    }
+  };
 
-            {/* Modal Sidebar */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-end md:p-4 bg-slate-950/40 backdrop-blur-md">
-                    <div className="w-full max-w-lg h-full md:h-auto bg-white dark:bg-[#0a0f1d] md:rounded-[3rem] shadow-2xl border-l-4 border-amber-500 animate-in slide-in-from-right duration-500 flex flex-col overflow-hidden">
+  if (!selectedMaterial) return null;
 
-                        <div className="p-8 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-white/2">
-                            <div>
-                                <h3 className="text-2xl font-black italic uppercase tracking-tighter dark:text-white leading-none">
-                                    Update<span className="text-amber-500">.</span>Material
-                                </h3>
-                                <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.3em] mt-2">ID: {material.studyMaterialId.slice(0, 8)}</p>
-                            </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-3 hover:bg-white dark:hover:bg-slate-800 rounded-2xl transition-all shadow-sm">
-                                <HiOutlineX size={20} className="text-slate-400" />
-                            </button>
-                        </div>
+  return (
+    <div className=" w-full md:p-4 transition-all">
+      <div className="w-full h-full md:h-auto bg-white dark:bg-slate-900 md:rounded-4xl shadow-2xl border-l-4 border-amber-500 animate-in slide-in-from-right duration-500 flex flex-col overflow-hidden">
+        {/* Header - Mengikuti Metode Add */}
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+              <HiOutlineBookOpen size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+                Update Materi
+              </h3>
+              <div className="flex items-center mt-1">
+                <span className="flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 uppercase tracking-wider">
+                  <HiSparkles className="mr-1" size={12} /> AI Enabled
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto max-h-[80vh]">
-                            {/* Input Guru */}
-                            <div className="space-y-2 relative" ref={dropdownRef}>
-                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Guru Pengampu</label>
-                                <div className="relative">
-                                    <HiOutlineUserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                                    <input
-                                        type="text"
-                                        placeholder="Cari guru..."
-                                        value={searchTeacher}
-                                        onChange={(e) => { setSearchTeacher(e.target.value); setIsTeacherDropdownOpen(true); }}
-                                        onFocus={() => setIsTeacherDropdownOpen(true)}
-                                        className="w-full pl-12 pr-10 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 outline-none focus:border-amber-500 dark:text-white transition-all font-black uppercase text-xs"
-                                    />
-                                </div>
-                                {isTeacherDropdownOpen && (
-                                    <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-3xl shadow-2xl z-50 p-2 animate-in fade-in zoom-in-95">
-                                        <div className="max-h-40 overflow-y-auto">
-                                            {filteredTeachers.map((t) => (
-                                                <div
-                                                    key={t.teacherId}
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, authorId: t.teacherId });
-                                                        setSearchTeacher(t.user?.username || '');
-                                                        setIsTeacherDropdownOpen(false);
-                                                    }}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${formData.authorId === t.teacherId ? 'bg-amber-500 text-white' : 'hover:bg-amber-50 dark:hover:bg-amber-900/30'}`}
-                                                >
-                                                    <p className="text-[10px] font-black uppercase">{t.user?.username}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+        <form onSubmit={handleSubmit} className="p-8 space-y-6 ">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Kolom Kiri - Input Teks */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Judul Materi */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">
+                  Judul Materi
+                </label>
+                <input
+                  required
+                  placeholder="Masukkan Judul..."
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-sm transition-all font-bold"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                />
+              </div>
 
-                            {/* Judul & Deskripsi */}
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Judul Materi</label>
-                                <input
-                                    required
-                                    className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 outline-none focus:border-amber-500 dark:text-white font-bold text-sm"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                />
-                            </div>
-
-                            {/* File Upload Section */}
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Update File/Link</label>
-                                <div className="p-6 rounded-4xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-white/2 space-y-4">
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <input
-                                            type="file"
-                                            id="file-update"
-                                            className="hidden"
-                                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                                        />
-                                        <label htmlFor="file-update" className="px-4 py-2 bg-white dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase shadow-sm cursor-pointer hover:bg-amber-50 border border-slate-100 dark:border-slate-700">
-                                            {selectedFile ? `Baru: ${selectedFile.name}` : 'Ganti File Fisik'}
-                                        </label>
-                                        {!selectedFile && formData.fileUrl && (
-                                            <p className="text-[8px] text-slate-400 truncate max-w-full italic">Existing: {formData.fileUrl.split('/').pop()}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="relative flex items-center justify-center">
-                                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100 dark:border-slate-800"></div></div>
-                                        <span className="relative bg-white dark:bg-[#0a0f1d] px-2 text-[9px] font-black text-slate-400 uppercase">Atau Edit Link</span>
-                                    </div>
-
-                                    <input
-                                        type="url"
-                                        placeholder="Edit link..."
-                                        disabled={!!selectedFile}
-                                        className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 outline-none focus:border-amber-500 dark:text-white text-xs"
-                                        value={formData.fileUrl}
-                                        onChange={(e) => setFormData({ ...formData, fileUrl: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                disabled={isSubmitting}
-                                type="submit"
-                                className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-amber-500/20 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50"
-                            >
-                                {isSubmitting ? 'Updating...' : 'Simpan Perubahan'}
-                            </button>
-                        </form>
-                    </div>
+              {/* Deskripsi & AI */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    Deskripsi
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAiGenerate}
+                    disabled={aiLoading || !formData.title}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 transition-all disabled:opacity-40"
+                  >
+                    <HiSparkles className={aiLoading ? "animate-spin" : ""} />
+                    {aiLoading ? "AI Menulis..." : "Generate AI"}
+                  </button>
                 </div>
-            )}
-        </>
-    );
+                <textarea
+                  ref={textareaRef}
+                  placeholder="Tulis deskripsi..."
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none text-sm min-h-24 resize-none transition-all overflow-hidden"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Kolom Kanan - File Section */}
+            <div className="lg:col-span-5 flex flex-col">
+              <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 ml-1">
+                Ganti File (PDF)
+              </label>
+              <div
+                className={`flex-1 relative min-h-62.5] rounded-4xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 ${
+                  selectedFile
+                    ? "border-amber-500 bg-amber-50/30 dark:bg-amber-900/10"
+                    : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:border-amber-400"
+                }`}
+              >
+                <input
+                  type="file"
+                  id="edit-file-upload"
+                  className="hidden"
+                  accept=".pdf"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                />
+
+                <div
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300 ${
+                    selectedFile
+                      ? "bg-amber-600 text-white shadow-lg shadow-amber-500/30"
+                      : "bg-white dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"
+                  }`}
+                >
+                  {selectedFile ? (
+                    <HiOutlineDocumentText size={32} />
+                  ) : (
+                    <HiOutlineCloudUpload size={32} />
+                  )}
+                </div>
+
+                <div className="text-center">
+                  <label
+                    htmlFor="edit-file-upload"
+                    className="cursor-pointer text-sm font-bold text-amber-600 hover:text-amber-700"
+                  >
+                    {selectedFile ? "Ganti Dokumen" : "Pilih File Baru"}
+                  </label>
+                  <p className="mt-1 text-[10px] text-slate-400 font-medium max-w-37.5 truncate mx-auto">
+                    {selectedFile
+                      ? selectedFile.name
+                      : "Biarkan kosong untuk tetap memakai file lama"}
+                  </p>
+                </div>
+
+                {selectedFile && (
+                  <button
+                    title="Batal"
+                    type="button"
+                    onClick={() => setSelectedFile(null)}
+                    className="absolute top-4 right-4 p-2 bg-white dark:bg-slate-800 text-rose-500 rounded-full hover:bg-rose-500 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700"
+                  >
+                    <HiOutlineTrash size={16} />
+                  </button>
+                )}
+              </div>
+
+              <button
+                disabled={isSubmitting}
+                type="submit"
+                className="mt-6 w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-amber-500/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+              >
+                {isSubmitting ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  "Update Materi Sekarang"
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default UpdateStudyMaterial;
