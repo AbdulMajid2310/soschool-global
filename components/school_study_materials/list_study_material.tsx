@@ -120,7 +120,7 @@ const StudyMaterialManager = () => {
               {/* Action Buttons */}
               <div className="flex items-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all">
                 {/* Komponen Update Mandiri dengan passing data material */}
-                <UpdateStudyMaterial material={m} />
+                <UpdateStudyMaterial />
 
                 <button
                   onClick={() => handleDelete(m.studyMaterialId, m.title)}
