@@ -16,6 +16,7 @@ import {
   HiOutlineEye,
   HiOutlineEyeSlash,
 } from "react-icons/hi2";
+import { AiOutlineMan, AiOutlineWoman } from "react-icons/ai";
 
 export default function AddSingleStaff() {
   const dispatch = useAppDispatch();
@@ -77,10 +78,10 @@ export default function AddSingleStaff() {
     "absolute left-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors duration-300";
 
   return (
-    <div className="max-w-5xl mx-auto pb-10">
+    <div className="w-full pb-10">
       <form
         onSubmit={handleSubmit}
-        className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700"
+        className="space-y-12  flex gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700"
       >
         {/* Section: Personal Identity */}
         <section className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none">
@@ -98,7 +99,7 @@ export default function AddSingleStaff() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+          <div className="space-y-4">
             <div className="space-y-1">
               <label className={labelClass}>Nama Lengkap</label>
               <div className={inputContainer}>
@@ -129,101 +130,40 @@ export default function AddSingleStaff() {
               </div>
             </div>
 
-            <div className="space-y-1 md:col-span-2">
-              <label className={labelClass}>Jenis Kelamin</label>
-              <div className="inline-flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full md:w-fit">
+            <div className="space-y-2 md:col-span-2">
+              <label className={`${labelClass} block text-sm font-medium`}>
+                Jenis Kelamin
+              </label>
+
+              <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full md:w-fit shadow-inner">
                 {["L", "P"].map((g) => (
                   <button
                     key={g}
                     type="button"
                     onClick={() => setForm((p) => ({ ...p, gender: g }))}
-                    className={`px-10 py-3 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
-                      form.gender === g
-                        ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-md scale-100"
-                        : "text-slate-400 hover:text-slate-500 scale-95"
-                    }`}
+                    className={`
+          flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl 
+          text-[11px] font-bold uppercase tracking-wider transition-all duration-200
+          ${
+            form.gender === g
+              ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm ring-1 ring-black/5"
+              : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+          }
+        `}
                   >
-                    {g === "L" ? "Laki-Laki" : "Perempuan"}
+                    {g === "L" ? (
+                      <>
+                        <AiOutlineMan className="text-lg" />
+                        <span>Laki-Laki</span>
+                      </>
+                    ) : (
+                      <>
+                        <AiOutlineWoman className="text-lg" />
+                        <span>Perempuan</span>
+                      </>
+                    )}
                   </button>
                 ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section: Professional & Account */}
-        <section className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none">
-              <HiOutlineBriefcase size={22} />
-            </div>
-            <div>
-              <h2 className="text-lg font-black uppercase italic tracking-tighter text-slate-800 dark:text-white">
-                Kredensial & Tugas
-              </h2>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                Detail akses dan jabatan di sekolah
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-            <div className="space-y-1">
-              <label className={labelClass}>Email Aktif</label>
-              <div className={inputContainer}>
-                <HiOutlineEnvelope className={iconClass} size={20} />
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  className={inputClass}
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="nama@sekolah.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className={labelClass}>Nomor Telepon</label>
-              <div className={inputContainer}>
-                <HiOutlinePhone className={iconClass} size={20} />
-                <input
-                  name="phone"
-                  className={inputClass}
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder="08xxxx"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className={labelClass}>Jabatan</label>
-              <div className={inputContainer}>
-                <HiOutlineBriefcase className={iconClass} size={20} />
-                <input
-                  required
-                  name="position"
-                  className={inputClass}
-                  value={form.position}
-                  onChange={handleChange}
-                  placeholder="Contoh: Guru Matematika"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className={labelClass}>NIP / ID Pegawai</label>
-              <div className={inputContainer}>
-                <HiOutlineIdentification className={iconClass} size={20} />
-                <input
-                  name="nip"
-                  className={inputClass}
-                  value={form.nip}
-                  onChange={handleChange}
-                  placeholder="Opsional"
-                />
               </div>
             </div>
 
@@ -256,27 +196,107 @@ export default function AddSingleStaff() {
           </div>
         </section>
 
-        {/* Final Submission */}
-        <div className="flex flex-col items-center">
-          <button
-            disabled={loading}
-            type="submit"
-            className="group relative w-full md:w-100 py-5 bg-indigo-600 text-white rounded-4xl overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-95 disabled:opacity-70 shadow-2xl shadow-indigo-300 dark:shadow-none"
-          >
-            <div className="relative z-10 flex items-center justify-center gap-3 font-black uppercase italic tracking-[0.25em] text-xs">
-              {loading ? (
-                "Mendaftarkan..."
-              ) : (
-                <>
-                  <HiOutlineSparkles size={18} /> Daftarkan Staff
-                </>
-              )}
+        <div>
+          {/* Section: Professional & Account */}
+          <section className="bg-white dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none">
+                <HiOutlineBriefcase size={22} />
+              </div>
+              <div>
+                <h2 className="text-lg font-black uppercase italic tracking-tighter text-slate-800 dark:text-white">
+                  Kredensial & Tugas
+                </h2>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  Detail akses dan jabatan di sekolah
+                </p>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-linear-to-r from-indigo-700 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          </button>
-          <p className="mt-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 text-center">
-            Sistem Pemetaan Bakat Terintegrasi SoSchool
-          </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+              <div className="space-y-1">
+                <label className={labelClass}>Email Aktif</label>
+                <div className={inputContainer}>
+                  <HiOutlineEnvelope className={iconClass} size={20} />
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    className={inputClass}
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="nama@sekolah.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className={labelClass}>Nomor Telepon</label>
+                <div className={inputContainer}>
+                  <HiOutlinePhone className={iconClass} size={20} />
+                  <input
+                    name="phone"
+                    className={inputClass}
+                    value={form.phone}
+                    onChange={handleChange}
+                    placeholder="08xxxx"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className={labelClass}>Jabatan</label>
+                <div className={inputContainer}>
+                  <HiOutlineBriefcase className={iconClass} size={20} />
+                  <input
+                    required
+                    name="position"
+                    className={inputClass}
+                    value={form.position}
+                    onChange={handleChange}
+                    placeholder="Contoh: Guru Matematika"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className={labelClass}>NIP / ID Pegawai</label>
+                <div className={inputContainer}>
+                  <HiOutlineIdentification className={iconClass} size={20} />
+                  <input
+                    name="nip"
+                    className={inputClass}
+                    value={form.nip}
+                    onChange={handleChange}
+                    placeholder="Opsional"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Final Submission */}
+          <div className="flex flex-col mt-8 items-center">
+            <button
+              disabled={loading}
+              type="submit"
+              className="group relative w-full md:w-100 py-5 bg-indigo-600 text-white rounded-4xl overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-95 disabled:opacity-70 shadow-2xl shadow-indigo-300 dark:shadow-none"
+            >
+              <div className="relative z-10 flex items-center justify-center gap-3 font-black uppercase italic tracking-[0.25em] text-xs">
+                {loading ? (
+                  "Mendaftarkan..."
+                ) : (
+                  <>
+                    <HiOutlineSparkles size={18} /> Daftarkan Staff
+                  </>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-linear-to-r from-indigo-700 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </button>
+            <p className="mt-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 text-center">
+              Sistem Pemetaan Bakat Terintegrasi SoSchool
+            </p>
+          </div>
         </div>
       </form>
     </div>
