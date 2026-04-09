@@ -1,24 +1,27 @@
 // src/lib/axios.ts
-import axios from 'axios';
+import axios from "axios";
 
 // bagian ini di ubah menjadi 7010
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7010/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "//scchl.site/api",
   withCredentials: true,
 });
 
 // 1. Request Interceptor
-api.interceptors.request.use((config) => {
-  // Ambil sid dari localStorage
-  const token = localStorage.getItem('sid');
+api.interceptors.request.use(
+  (config) => {
+    // Ambil sid dari localStorage
+    const token = localStorage.getItem("sid");
 
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 // 2. Response Interceptor
 api.interceptors.response.use(
@@ -30,8 +33,8 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/refresh') &&
-      !originalRequest.url?.includes('/auth/login')
+      !originalRequest.url?.includes("/auth/refresh") &&
+      !originalRequest.url?.includes("/auth/login")
     ) {
       originalRequest._retry = true;
 
@@ -40,32 +43,32 @@ api.interceptors.response.use(
         const res = await axios.post(
           `${api.defaults.baseURL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const { sid } = res.data.data;
 
         // Update sid di storage
-        localStorage.setItem('sid', sid);
+        localStorage.setItem("sid", sid);
 
         // Bersihkan sisa-sisa token lama jika masih ada
-        localStorage.removeItem('accessToken');
+        localStorage.removeItem("accessToken");
 
         // Ulangi request asli dengan token baru
         originalRequest.headers.Authorization = `Bearer ${sid}`;
         return api(originalRequest);
       } catch (refreshError) {
         // Jika refresh token juga gagal/expired, paksa logout
-        localStorage.removeItem('sid');
+        localStorage.removeItem("sid");
 
         // Cek jika sedang di browser (menghindari error saat SSR)
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
         }
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
