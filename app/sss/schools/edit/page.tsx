@@ -4,8 +4,16 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
-  FiArrowLeft, FiCamera, FiCheck, FiChevronDown,
-  FiGlobe, FiMail, FiPhone, FiInfo, FiShield, FiCalendar
+  FiArrowLeft,
+  FiCamera,
+  FiCheck,
+  FiChevronDown,
+  FiGlobe,
+  FiMail,
+  FiPhone,
+  FiInfo,
+  FiShield,
+  FiCalendar,
 } from "react-icons/fi";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchSchoolById, updateSchool } from "@/redux/features/school/thunk";
@@ -31,7 +39,7 @@ export default function EditSchoolPage() {
   // 1. Sinkronisasi Data (Prefill)
   useEffect(() => {
     // Gunakan key yang konsisten sesuai implementasi sebelumnya
-    const schoolId = sessionStorage.getItem("schoolIdid");
+    const schoolId = sessionStorage.getItem("schoolId");
 
     if (!selectedSchool && schoolId) {
       dispatch(fetchSchoolById(schoolId));
@@ -39,17 +47,27 @@ export default function EditSchoolPage() {
       setLevel(selectedSchool.level);
       setPlan(selectedSchool.plan);
       setPreviews({
-        avatar: typeof selectedSchool.avatar === "string" ? selectedSchool.avatar : "",
-        background: typeof selectedSchool.background === "string" ? selectedSchool.background : "",
+        avatar:
+          typeof selectedSchool.avatar === "string"
+            ? selectedSchool.avatar
+            : "",
+        background:
+          typeof selectedSchool.background === "string"
+            ? selectedSchool.background
+            : "",
       });
     }
   }, [selectedSchool, dispatch]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'background') => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "avatar" | "background",
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setPreviews(prev => ({ ...prev, [type]: reader.result as string }));
+      reader.onloadend = () =>
+        setPreviews((prev) => ({ ...prev, [type]: reader.result as string }));
       reader.readAsDataURL(file);
     }
   };
@@ -72,30 +90,36 @@ export default function EditSchoolPage() {
       level,
       plan,
       avatar: avatarRef.current?.files?.[0] || selectedSchool.avatar,
-      background: backgroundRef.current?.files?.[0] || selectedSchool.background,
+      background:
+        backgroundRef.current?.files?.[0] || selectedSchool.background,
     };
 
-    const result = await dispatch(updateSchool({
-      id: selectedSchool.schoolId,
-      data: payload
-    }));
+    const result = await dispatch(
+      updateSchool({
+        id: selectedSchool.schoolId,
+        data: payload,
+      }),
+    );
 
     if (updateSchool.fulfilled.match(result)) {
       toast.success("Data Sekolah Berhasil Diperbarui!");
       router.push("/sss/schools/detail");
     } else {
-      toast.error(result.payload as string || "Gagal memperbarui data");
+      toast.error((result.payload as string) || "Gagal memperbarui data");
     }
   };
 
   if (loading && !selectedSchool) {
-    return <div className="min-h-screen flex items-center justify-center font-black italic text-slate-400 animate-pulse">SYNCING DATA...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center font-black italic text-slate-400 animate-pulse">
+        SYNCING DATA...
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-12 font-sans text-slate-900 dark:text-white">
+    <div className="min-h-screen p-4 font-sans text-slate-900 dark:text-white">
       <div className="max-w-5xl mx-auto">
-
         {/* Header Section */}
         <div className="flex items-center justify-between mb-10">
           <button
@@ -115,44 +139,79 @@ export default function EditSchoolPage() {
             disabled={loading}
             className="py-3 px-8 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-[0.2em] rounded-3xl shadow-xl shadow-blue-500/30 transition-all active:scale-[0.97] disabled:bg-slate-400 flex items-center gap-3"
           >
-            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Simpan Perubahan"}
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              "Simpan Perubahan"
+            )}
           </button>
         </div>
 
-        <form id="edit-school-form" onSubmit={handleSubmit} className="space-y-8">
-
+        <form
+          id="edit-school-form"
+          onSubmit={handleSubmit}
+          className="space-y-8"
+        >
           {/* Assets Section (Avatar & Background) */}
           <div className="relative group">
             <div className="h-64 md:h-80 w-full rounded-[40px] bg-slate-200 dark:bg-slate-800 overflow-hidden relative border-4 border-white dark:border-slate-900 shadow-2xl">
               {previews.background ? (
-                <img src={previews.background} className="w-full h-full object-cover" alt="bg" />
+                <img
+                  src={previews.background}
+                  className="w-full h-full object-cover"
+                  alt="bg"
+                />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400"><FiCamera className="text-4xl mb-2" /></div>
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                  <FiCamera className="text-4xl mb-2" />
+                </div>
               )}
               <button
+                title="camera"
                 type="button"
                 onClick={() => backgroundRef.current?.click()}
                 className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md rounded-2xl hover:bg-white/40 transition-all text-white border border-white/30"
               >
                 <FiCamera className="w-6 h-6" />
               </button>
-              <input type="file" ref={backgroundRef} className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'background')} />
+              <input
+                title="upload"
+                type="file"
+                ref={backgroundRef}
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "background")}
+              />
             </div>
 
             <div className="absolute -bottom-12 left-12 h-32 w-32 md:h-40 md:w-40 rounded-full bg-white dark:bg-slate-900 border-[6px] border-[#f8fafc] dark:border-[#020617] overflow-hidden shadow-xl flex items-center justify-center group/avatar">
               {previews.avatar ? (
-                <img src={previews.avatar} className="w-full h-full object-cover" alt="logo" />
+                <img
+                  src={previews.avatar}
+                  className="w-full h-full object-cover"
+                  alt="logo"
+                />
               ) : (
-                <div className="text-slate-300 dark:text-slate-700"><FiCamera className="text-3xl" /></div>
+                <div className="text-slate-300 dark:text-slate-700">
+                  <FiCamera className="text-3xl" />
+                </div>
               )}
               <button
+                title="upload"
                 type="button"
                 onClick={() => avatarRef.current?.click()}
                 className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white"
               >
                 <FiCamera className="w-6 h-6" />
               </button>
-              <input type="file" ref={avatarRef} className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'avatar')} />
+              <input
+                title="avatar"
+                type="file"
+                ref={avatarRef}
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "avatar")}
+              />
             </div>
           </div>
 
@@ -162,21 +221,49 @@ export default function EditSchoolPage() {
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[35px] border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <FiInfo className="text-blue-600 w-5 h-5" />
-                  <h2 className="font-bold uppercase tracking-widest text-sm text-slate-800 dark:text-slate-200">Informasi Institusi</h2>
+                  <h2 className="font-bold uppercase tracking-widest text-sm text-slate-800 dark:text-slate-200">
+                    Informasi Institusi
+                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <InputField label="Nama Sekolah" name="name" defaultValue={selectedSchool?.name} required />
-                  <InputField label="NISP / NPSN" name="nisp" defaultValue={selectedSchool?.nisp} required />
-                  <InputField label="Email Resmi" name="email" type="email" defaultValue={selectedSchool?.email} required />
-                  <InputField label="Nomor Telepon" name="phone" defaultValue={selectedSchool?.phone} />
+                  <InputField
+                    label="Nama Sekolah"
+                    name="name"
+                    defaultValue={selectedSchool?.name}
+                    required
+                  />
+                  <InputField
+                    label="NISP / NPSN"
+                    name="nisp"
+                    defaultValue={selectedSchool?.nisp}
+                    required
+                  />
+                  <InputField
+                    label="Email Resmi"
+                    name="email"
+                    type="email"
+                    defaultValue={selectedSchool?.email}
+                    required
+                  />
+                  <InputField
+                    label="Nomor Telepon"
+                    name="phone"
+                    defaultValue={selectedSchool?.phone}
+                  />
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-2">Alamat Subdomain</label>
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-2">
+                    Alamat Subdomain
+                  </label>
                   <div className="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-700 focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden font-bold">
-                    <input name="domain" defaultValue={selectedSchool?.domain} className="flex-1 p-4 bg-transparent outline-none" />
-
+                    <input
+                      title="url"
+                      name="domain"
+                      defaultValue={selectedSchool?.domain}
+                      className="flex-1 p-4 bg-transparent outline-none"
+                    />
                   </div>
                 </div>
               </div>
@@ -187,14 +274,41 @@ export default function EditSchoolPage() {
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[35px] border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <FiShield className="text-purple-600 w-5 h-5" />
-                  <h2 className="font-bold uppercase tracking-widest text-sm text-slate-800 dark:text-slate-200">Sistem & Paket</h2>
+                  <h2 className="font-bold uppercase tracking-widest text-sm text-slate-800 dark:text-slate-200">
+                    Sistem & Paket
+                  </h2>
                 </div>
 
-                <CustomSelect label="Jenjang" value={level} options={LEVELS} isOpen={openDropdown === 'level'} setOpen={(val) => setOpenDropdown(val ? 'level' : null)} onSelect={setLevel} />
-                <CustomSelect label="Paket" value={plan} options={PLANS} isOpen={openDropdown === 'plan'} setOpen={(val) => setOpenDropdown(val ? 'plan' : null)} onSelect={setPlan} />
+                <CustomSelect
+                  label="Jenjang"
+                  value={level}
+                  options={LEVELS}
+                  isOpen={openDropdown === "level"}
+                  setOpen={(val) => setOpenDropdown(val ? "level" : null)}
+                  onSelect={setLevel}
+                />
+                <CustomSelect
+                  label="Paket"
+                  value={plan}
+                  options={PLANS}
+                  isOpen={openDropdown === "plan"}
+                  setOpen={(val) => setOpenDropdown(val ? "plan" : null)}
+                  onSelect={setPlan}
+                />
 
-                <InputField label="Tanggal Berdiri" name="establishedDate" type="date" defaultValue={selectedSchool?.establishedDate?.split('T')[0]} required />
-                <InputField label="Akreditasi" name="accreditation" defaultValue={selectedSchool?.accreditation} required />
+                <InputField
+                  label="Tanggal Berdiri"
+                  name="establishedDate"
+                  type="date"
+                  defaultValue={selectedSchool?.establishedDate?.split("T")[0]}
+                  required
+                />
+                <InputField
+                  label="Akreditasi"
+                  name="accreditation"
+                  defaultValue={selectedSchool?.accreditation}
+                  required
+                />
               </div>
             </div>
           </div>
@@ -234,17 +348,28 @@ function InputField({ label, ...props }: InputFieldProps) {
 }
 
 // 3. Terapkan pada Sub-komponen Custom Select
-function CustomSelect({ label, value, options, isOpen, setOpen, onSelect }: CustomSelectProps) {
+function CustomSelect({
+  label,
+  value,
+  options,
+  isOpen,
+  setOpen,
+  onSelect,
+}: CustomSelectProps) {
   return (
     <div className="space-y-2 relative">
-      <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-2">{label}</label>
+      <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-2">
+        {label}
+      </label>
       <button
         type="button"
         onClick={() => setOpen(!isOpen)} // val di sini otomatis boolean
         className="w-full flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-700 hover:ring-blue-400 transition-all font-bold text-slate-700 dark:text-slate-300"
       >
         {value}
-        <FiChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <FiChevronDown
+          className={`w-5 h-5 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        />
       </button>
 
       {isOpen && (
@@ -257,10 +382,11 @@ function CustomSelect({ label, value, options, isOpen, setOpen, onSelect }: Cust
                 onSelect(opt);
                 setOpen(false);
               }}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-between ${value === opt
-                  ? 'bg-blue-600 text-white'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-between ${
+                value === opt
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400"
+              }`}
             >
               {opt}
               {value === opt && <FiCheck />}
